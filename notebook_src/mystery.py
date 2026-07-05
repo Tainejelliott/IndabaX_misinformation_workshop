@@ -10,6 +10,44 @@ graph alone. The same facts drive three things:
 """
 from __future__ import annotations
 
+# ── Prose narrative (the raw IE input for Hands-on B) ────────────────── #
+NARRATIVE = """THE ASHWORTH MANOR INCIDENT
+Preliminary Report — Inspector H. Pemberton, County Constabulary
+
+At approximately nine o'clock on the evening of the fourteenth of November, the household staff of Ashworth Manor raised the alarm upon discovering the body of Lord Edmund Ashworth in his private study on the first floor. Lord Ashworth, sixty-two years of age and the principal proprietor of Ashworth & Scarlett Trading Co., was found slumped over his writing desk with a single penetrating wound to the chest. The attending physician confirmed death to have been near-instantaneous. Discovered beside the body was a silver letter opener engraved with the Ashworth family crest, which staff identified as the murder weapon.
+
+Five individuals were present at the manor that evening — each of whom, it emerges, had cause of some kind to wish Lord Ashworth ill.
+
+Ms. Vivian Scarlett, Lord Ashworth's business partner of eleven years, had attended a private supper at the manor that evening. It has since come to light that Lord Ashworth had, on the very morning of his death, communicated to his solicitor an intention to dissolve the trading partnership with Ms. Scarlett. Under the terms of the existing agreement, such dissolution would render Ms. Scarlett liable for the firm's outstanding debts — a sum sufficient to leave her bankrupt. It is further noted that Ms. Scarlett keeps a personal letter opener of identical design to the murder weapon, presented to her by Lord Ashworth upon the formation of their partnership. When questioned as to her whereabouts at nine o'clock, Ms. Scarlett offered no satisfactory account. A maid employed on the east wing of the manor observed Ms. Scarlett exiting the Study at approximately ten minutes past nine, appearing flustered and in evident haste.
+
+Colonel Reginald Grey served alongside Lord Ashworth during the Transvaal campaign. Evidence has emerged that Lord Ashworth had been leveraging knowledge of an unspecified wartime incident to compel the Colonel's co-operation — in plain terms, blackmail. However, Colonel Grey did not lack for witness on the night in question: he spent the hour from eight-thirty until nine-thirty engaged in a game of cards in the Library. He was accompanied throughout by Dr. Edmund Plum, and both men's presence was confirmed by two footmen who attended the room.
+
+Dr. Edmund Plum serves as the Ashworth family physician. He is himself the subject of an outstanding complaint of medical malpractice — a matter Lord Ashworth had reportedly threatened to bring before the medical council. His alibi for the time of the murder is corroborated by Colonel Grey and the two Library footmen.
+
+Mrs. Beatrice Ashworth, the victim's wife of thirty years, stands as sole beneficiary under Lord Ashworth's current will. She is set to inherit the manor itself, the trading interests, and the entirety of the estate. Mrs. Ashworth states that at nine o'clock she was in the Conservatory at the rear of the manor, tending to her orchid collection. The head gardener, who was securing the glasshouse shutters at that hour, confirms her presence there throughout.
+
+Mr. Gerald Hargrove has served as butler at Ashworth Manor for over two decades. He was given notice of dismissal by Lord Ashworth earlier that same morning, to take effect at the month's end. At the time of the murder, Mr. Hargrove was observed serving drinks in the Dining Room by three dinner guests, who confirm he did not leave the room between eight-forty-five and nine-fifteen.
+
+The investigation remains open. All residents have been requested to remain at the manor pending further inquiry.
+"""
+
+# Reference ontology — shown to attendees as a starting point they can modify
+ENTITY_TYPES = ["Person", "Place", "Object", "Motive", "Time"]
+
+RELATION_TYPES = [
+    "has_motive",      # Person → Motive
+    "has_alibi",       # Person → Place  (confirmed elsewhere at murder time)
+    "was_seen_in",     # Person → Place  (witnessed at a location)
+    "owns",            # Person → Object
+    "found_in",        # Object → Place
+    "victim_of",       # Person → Event/cause
+    "partner_of",      # Person → Person
+    "blackmailed_by",  # Person → Person
+    "dismissed_by",    # Person → Person
+    "witnessed_by",    # Person → Person (who saw whom)
+    "stands_to_inherit",  # Person → Object/estate
+]
+
 CASE = {
     "title":  "The Ashworth Manor Murder",
     "victim": "Lord Edmund Ashworth",

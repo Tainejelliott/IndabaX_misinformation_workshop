@@ -424,3 +424,168 @@ def filter_by_types(triples: list[dict], allowed_types: list[str]) -> list[dict]
         t for t in triples
         if t.get("subject_type") in allowed and t.get("object_type") in allowed
     ]
+
+
+# ── Mystery / user-defined ontology extraction ───────────────────── #
+
+def _mystery_pass(client, narrative: str, focus_instruction: str,
+                  entity_str: str, relation_list: str, model: str,
+                  _MT, _MTList) -> list:
+    """Single focused extraction pass — called by extract_mystery_triples."""
+    system = (
+        f"You are an information extraction system. Extract relationships from the "
+        f"case report using ONLY the provided ontology.\n\n"
+        f"Entity types: {entity_str}\n"
+        f"Relation types (use EXACT strings):\n{relation_list}\n\n"
+        f"FOCUS FOR THIS PASS:\n{focus_instruction}\n\n"
+        f"Rules:\n"
+        f"- subject/object: short names only (≤5 words). Never pronouns, never full sentences.\n"
+        f"- predicate: copy EXACTLY from the list — never invent one.\n"
+        f"- sentence: verbatim source sentence.\n"
+        f"- Lord Edmund Ashworth is the MURDER VICTIM — he cannot have a motive."
+    )
+    r = client.beta.chat.completions.parse(
+        model=model,
+        messages=[{"role": "system", "content": system},
+                  {"role": "user",   "content": narrative}],
+        response_format=_MTList,
+    )
+    parsed = r.choices[0].message.parsed
+    return parsed.triples if parsed else []
+
+
+def extract_mystery_triples(
+    narrative: str,
+    entity_types: list[str],
+    relation_types: list[str],
+    api_key: str,
+    model: str = "gpt-4.1-nano",
+) -> list[dict]:
+    """
+    Extract typed triples from a free-text narrative using a caller-supplied ontology.
+
+    The entity_types and relation_types lists are injected directly into the LLM
+    prompt so attendees can design their own schema and immediately see the effect
+    on the extracted graph.
+    """
+    from openai import OpenAI
+    from pydantic import BaseModel as _BM
+
+    class _MT(_BM):
+        subject:       str
+        subject_type:  str
+        predicate:     str
+        object:        str
+        object_type:   str
+        confidence:    float = 0.8
+        sentence:      str = ""
+
+    class _MTList(_BM):
+        triples: list[_MT] = []
+
+    client = OpenAI(api_key=api_key)
+    entity_str   = ", ".join(entity_types)
+    relation_list = "\n".join(f"  - \"{r}\"" for r in relation_types)
+
+    # Example triple to show the exact format expected
+    example_subject = entity_types[0] if entity_types else "Person"
+    example_rel = relation_types[0] if relation_types else "related_to"
+    example_obj_type = entity_types[1] if len(entity_types) > 1 else entity_types[0]
+
+    # Build illustrative examples using the first few relation types
+    _ex_rels = relation_types[:3]
+    _ex_et0  = entity_types[0]
+    _ex_et1  = entity_types[1] if len(entity_types) > 1 else entity_types[0]
+    _ex_et2  = entity_types[2] if len(entity_types) > 2 else entity_types[0]
+    _ex_et3  = entity_types[3] if len(entity_types) > 3 else entity_types[0]
+    example_block = (
+        f"EXAMPLES (illustrative — extract ALL similar facts from the text):\n"
+        f"  {{subject: \"Ms. Vivian Scarlett\", subject_type: \"{_ex_et0}\", "
+        f"predicate: \"{_ex_rels[0]}\", object: \"financial ruin\", "
+        f"object_type: \"{_ex_et3 if len(entity_types) > 3 else _ex_et2}\", confidence: 0.95}}\n"
+    )
+    if len(_ex_rels) > 1:
+        example_block += (
+            f"  {{subject: \"Colonel Grey\", subject_type: \"{_ex_et0}\", "
+            f"predicate: \"{_ex_rels[1]}\", object: \"the Library\", "
+            f"object_type: \"{_ex_et1}\", confidence: 0.9}}\n"
+        )
+    if len(_ex_rels) > 2:
+        example_block += (
+            f"  {{subject: \"the letter opener\", subject_type: \"{_ex_et2}\", "
+            f"predicate: \"{_ex_rels[2]}\", object: \"the Study\", "
+            f"object_type: \"{_ex_et1}\", confidence: 1.0}}\n"
+        )
+
+    system = (
+        f"You are an expert information extraction system. Extract every factual "
+        f"relationship from the provided text using ONLY the allowed ontology.\n\n"
+        f"=== ALLOWED ENTITY TYPES ===\n"
+        f"subject_type and object_type must be exactly one of: {entity_str}\n\n"
+        f"=== ALLOWED RELATION TYPES ===\n"
+        f"predicate must be EXACTLY one of (copy character-for-character):\n"
+        f"{relation_list}\n\n"
+        f"=== STRICT RULES ===\n"
+        f"1. predicate: copy EXACTLY from the list — never paraphrase, invent, or abbreviate.\n"
+        f"2. subject/object: short entity names only (2–5 words max). NEVER full sentences.\n"
+        f"3. Never use pronouns — always use the entity's proper name.\n"
+        f"4. Be EXHAUSTIVE: extract every motive, alibi, ownership, sighting and relationship.\n"
+        f"5. sentence: copy the source sentence verbatim.\n"
+        f"6. Skip a fact if no allowed predicate fits — do NOT invent a predicate.\n"
+        f"7. The murder VICTIM is the person found dead — do NOT assign them motives.\n\n"
+        f"{example_block}"
+    )
+
+    # Three focused passes cover the main semantic categories — each is a
+    # simpler task for the model than one exhaustive pass over everything.
+    passes = [
+        # Pass 1: who has a motive, who owns what, who was dismissed/blackmailed
+        ("Extract MOTIVES (has_motive), OWNERSHIP (owns), DISMISSAL (dismissed_by), "
+         "BLACKMAIL (blackmailed_by), and PARTNERSHIP (partner_of) facts. "
+         "Remember: suspects had motives, NOT the victim."),
+        # Pass 2: who has an alibi, who was seen where
+        ("Extract ALIBI facts (has_alibi): each suspect who was confirmed elsewhere "
+         "at the time of the murder. Also extract SIGHTINGS (was_seen_in) of any "
+         "person at a location, and INHERITANCE facts (stands_to_inherit)."),
+        # Pass 3: physical evidence — weapons, body, objects
+        ("Extract PHYSICAL EVIDENCE: where objects were found (found_in), "
+         "who was the victim (victim_of), and any other ownership or location facts "
+         "not yet covered."),
+    ]
+
+    all_raw = []
+    for focus in passes:
+        all_raw += _mystery_pass(client, narrative, focus,
+                                 entity_str, relation_list, model, _MT, _MTList)
+
+    valid_predicates = {p.lower(): p for p in relation_types}
+    seen: set[tuple] = set()
+    result = []
+    for t in all_raw:
+        d = t.model_dump()
+
+        # keep only valid predicates
+        pred_norm = d["predicate"].lower().strip()
+        if pred_norm not in valid_predicates:
+            continue
+        d["predicate"] = valid_predicates[pred_norm]
+
+        # normalise entity types
+        if d["subject_type"] not in entity_types:
+            d["subject_type"] = entity_types[0]
+        if d["object_type"] not in entity_types:
+            d["object_type"] = entity_types[0]
+
+        # drop sentence-length entities (extraction noise)
+        if len(d["subject"].split()) > 7 or len(d["object"].split()) > 7:
+            continue
+
+        # deduplicate on (subject, predicate, object) regardless of case
+        key = (d["subject"].lower(), d["predicate"], d["object"].lower())
+        if key in seen:
+            continue
+        seen.add(key)
+
+        d.setdefault("section", "CASE")
+        result.append(d)
+    return result

@@ -1359,6 +1359,156 @@ def render_triples(triples: list[dict], strategy: str = "OBIE") -> str:
     )
 
 
+# ══════════════════════════════════════════════════════════════════════ #
+#  Hands-on B — narrative + ontology design + agent                          #
+# ══════════════════════════════════════════════════════════════════════ #
+
+def render_narrative(text: str) -> str:
+    """Display the raw case narrative in a document-style card."""
+    paragraphs = [p.strip() for p in text.strip().split("\n\n") if p.strip()]
+    title_line = paragraphs[0] if paragraphs else "Case File"
+    body_paras = paragraphs[1:]
+
+    title_parts = title_line.split("\n")
+    title   = _h.escape(title_parts[0].strip())
+    byline  = _h.escape(title_parts[1].strip()) if len(title_parts) > 1 else ""
+
+    para_html = "".join(
+        f'<p style="margin:0 0 11px;font-size:13px;color:#1e293b;line-height:1.75;">'
+        f'{_h.escape(p)}</p>'
+        for p in body_paras
+    )
+
+    word_count = len(text.split())
+    return (
+        f'<div style="font-family:{_FF};border:1px solid #e2e8f0;border-radius:10px;'
+        f'overflow:hidden;margin:8px 0;">'
+        f'<div style="background:linear-gradient(135deg,#1e293b,#334155);padding:16px 20px;">'
+        f'<div style="color:rgba(255,255,255,.6);font-size:10px;font-weight:700;'
+        f'letter-spacing:2px;text-transform:uppercase;margin-bottom:5px;">Case Document · {word_count} words</div>'
+        f'<div style="color:#fff;font-size:17px;font-weight:800;letter-spacing:.3px;">{title}</div>'
+        f'<div style="color:rgba(255,255,255,.65);font-size:12px;margin-top:4px;">{byline}</div>'
+        f'</div>'
+        f'<div style="padding:18px 22px;background:#fff;max-height:420px;overflow:auto;">'
+        f'{para_html}</div>'
+        f'<div style="padding:10px 18px;background:#f8fafc;border-top:1px solid #e2e8f0;">'
+        f'<span style="font-size:11px;color:#64748b;">'
+        f'This is your raw IE input. Read it — then design the ontology you\'d use to '
+        f'extract a knowledge graph from it.</span>'
+        f'</div>'
+        f'</div>'
+    )
+
+
+def render_mystery_ontology(entity_types: list[str], relation_types: list[str]) -> str:
+    """Display the reference ontology — entity types + relation types — as a two-column card."""
+    ENTITY_COLOURS = [
+        "#ef4444", "#3b82f6", "#64748b", "#f59e0b", "#06b6d4",
+        "#8b5cf6", "#10b981", "#f97316",
+    ]
+    entity_chips = "".join(
+        f'<span style="display:inline-flex;align-items:center;gap:5px;'
+        f'background:#f1f5f9;border:1px solid #e2e8f0;border-radius:20px;'
+        f'padding:4px 12px;font-size:12px;color:#1e293b;margin:3px;font-weight:600;">'
+        f'<span style="width:10px;height:10px;border-radius:50%;flex-shrink:0;'
+        f'background:{ENTITY_COLOURS[i % len(ENTITY_COLOURS)]};"></span>{_h.escape(e)}</span>'
+        for i, e in enumerate(entity_types)
+    )
+    relation_rows = "".join(
+        f'<div style="display:flex;align-items:center;gap:8px;padding:5px 0;'
+        f'border-bottom:1px solid #f8fafc;">'
+        f'<span style="font-size:11px;color:#7c3aed;font-family:ui-monospace,Menlo,monospace;'
+        f'font-weight:700;white-space:nowrap;">{_h.escape(r)}</span>'
+        f'</div>'
+        for r in relation_types
+    )
+    left = (
+        f'<div style="flex:1 1 200px;min-width:180px;">'
+        f'<div style="font-size:10px;font-weight:700;color:#94a3b8;letter-spacing:1px;'
+        f'text-transform:uppercase;margin-bottom:8px;">Entity Types</div>'
+        f'<div>{entity_chips}</div>'
+        f'</div>'
+    )
+    right = (
+        f'<div style="flex:1 1 220px;min-width:200px;">'
+        f'<div style="font-size:10px;font-weight:700;color:#94a3b8;letter-spacing:1px;'
+        f'text-transform:uppercase;margin-bottom:8px;">Relation Types</div>'
+        f'{relation_rows}'
+        f'</div>'
+    )
+    body = (
+        f'<div style="font-size:12.5px;color:#475569;line-height:1.7;margin-bottom:14px;">'
+        f'This is a <b>reference ontology</b> — a starting point. In the next cell you '
+        f'can add, remove or rename any types. The extraction prompt is generated '
+        f'automatically from whatever lists you define.</div>'
+        f'<div style="display:flex;gap:20px;flex-wrap:wrap;">{left}{right}</div>'
+    )
+    return _card("135deg,#5b21b6,#7c3aed", "Ontology Design",
+                 "Entity types & relation types — you decide the schema",
+                 "The same narrative will produce a different graph for every different ontology", body,
+                 footer="✏️  Modify ENTITY_TYPES and RELATION_TYPES in the next cell, then re-run extraction.")
+
+
+def render_agent_response(question: str, result: dict) -> str:
+    """Render an agent's tool-call trace and final answer."""
+    TOOL_ICONS = {
+        "get_entities_by_type": "📋",
+        "get_neighbours":       "🔗",
+        "get_relationship":     "🔍",
+        "find_path":            "🗺️",
+    }
+    steps_html = ""
+    for i, step in enumerate(result.get("steps", [])):
+        icon  = TOOL_ICONS.get(step["tool"], "🔧")
+        args  = ", ".join(f'<b>{k}</b>={_h.escape(str(v))}'
+                          for k, v in step["args"].items())
+        raw   = step["result"]
+        if isinstance(raw, list) and raw:
+            res_preview = "; ".join(
+                _h.escape(str(r)[:80]) for r in raw[:4]
+            ) + (f" … +{len(raw)-4} more" if len(raw) > 4 else "")
+        elif isinstance(raw, dict):
+            res_preview = _h.escape(str(raw)[:160])
+        else:
+            res_preview = _h.escape(str(raw)[:160])
+
+        steps_html += (
+            f'<div style="display:flex;gap:10px;align-items:flex-start;'
+            f'padding:7px 0;border-bottom:1px solid #f1f5f9;">'
+            f'<span style="flex-shrink:0;width:22px;height:22px;border-radius:50%;'
+            f'background:#7c3aed;color:#fff;font-size:10px;font-weight:700;'
+            f'display:flex;align-items:center;justify-content:center;">{i+1}</span>'
+            f'<div style="flex:1;min-width:0;">'
+            f'<div style="font-size:12px;font-weight:700;color:#0f172a;">'
+            f'{icon} {step["tool"]}({args})</div>'
+            f'<div style="font-size:11px;color:#64748b;margin-top:2px;'
+            f'font-family:ui-monospace,Menlo,monospace;overflow-wrap:anywhere;">'
+            f'{res_preview}</div>'
+            f'</div></div>'
+        )
+    if not steps_html:
+        steps_html = '<div style="font-size:12px;color:#94a3b8;">No tool calls made.</div>'
+
+    answer = _h.escape(result.get("answer", ""))
+    body = (
+        f'<div style="background:#eff6ff;border-radius:8px;padding:10px 14px;margin-bottom:12px;">'
+        f'<span style="font-size:10px;color:#1e40af;font-weight:700;letter-spacing:1px;">QUESTION</span>'
+        f'<div style="font-size:13px;color:#1e3a8a;font-weight:600;margin-top:2px;">'
+        f'{_h.escape(question)}</div></div>'
+        f'<div style="font-size:10px;color:#94a3b8;letter-spacing:1px;margin-bottom:6px;">'
+        f'AGENT TOOL CALLS ({len(result.get("steps", []))} steps)</div>'
+        f'{steps_html}'
+        f'<div style="margin-top:12px;padding:12px 14px;background:#f0fdf4;'
+        f'border-radius:8px;border:1px solid #bbf7d0;">'
+        f'<div style="font-size:10px;color:#14532d;font-weight:700;letter-spacing:1px;">FINAL ANSWER</div>'
+        f'<div style="font-size:13px;color:#1e293b;line-height:1.65;margin-top:4px;">{answer}</div>'
+        f'</div>'
+    )
+    return _card("135deg,#4f46e5,#7c3aed", "Graph Agent",
+                 "Reasoning over the graph with tool calls",
+                 "The agent queries the graph iteratively — like a detective checking evidence", body)
+
+
 def render_segments(segments: list[dict]) -> str:
     """Render a list of {label, text} sentence dicts as a labelled table."""
     rows = ""
