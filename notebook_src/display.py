@@ -574,15 +574,18 @@ def render_kg(triples: list[dict], strategy: str = "OBIE",
 
 def render_kg_pair(left_triples: list[dict], right_triples: list[dict], *,
                    left_title: str = "OBIE", right_title: str = "OpenIE",
-                   color_by: str = "type", height: str = "400px") -> str:
+                   color_by: str = "type", height: str = "400px",
+                   group_colours: dict | None = None) -> str:
     """
     Render two knowledge graphs side by side for direct comparison.
-    Both use the same `color_by` scheme so identical groups share a colour
-    (essential when comparing OBIE vs a type-filtered OpenIE graph).
+    Both use the same `color_by` scheme (and optional `group_colours` palette)
+    so identical groups share a colour across the two graphs.
     """
     _ff  = "Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif"
-    left  = render_kg(left_triples,  strategy=left_title,  height=height, color_by=color_by)
-    right = render_kg(right_triples, strategy=right_title, height=height, color_by=color_by)
+    left  = render_kg(left_triples,  strategy=left_title,  height=height,
+                      color_by=color_by, group_colours=group_colours)
+    right = render_kg(right_triples, strategy=right_title, height=height,
+                      color_by=color_by, group_colours=group_colours)
     return (
         f'<div style="font-family:{_ff};display:flex;gap:12px;align-items:stretch;'
         f'flex-wrap:wrap;margin:8px 0;">'
@@ -1363,6 +1366,174 @@ def render_triples(triples: list[dict], strategy: str = "OBIE") -> str:
 #  Hands-on B — narrative + ontology design + agent                          #
 # ══════════════════════════════════════════════════════════════════════ #
 
+def render_mystery_roadmap() -> str:
+    """Opening card: the seven steps of Hands-on B."""
+    steps = [
+        ("🕵️", "Read the case", "A prose police report — your raw, unstructured input."),
+        ("🧩", "Design your ontology", "Choose entity & relation types, and define what each one means."),
+        ("📜", "Inspect your prompt", "Your ontology is compiled into the extraction prompt — read it."),
+        ("⚙️", "Extract the graph", "An LLM turns the prose into typed triples that fit your schema."),
+        ("📊", "Evaluate coverage", "Score your graph against the reference facts — then iterate."),
+        ("🤖", "Unleash the agent", "An LLM traverses the graph with tool calls to answer questions."),
+        ("🔪", "Solve the murder", "Motive + means + no alibi — let the agent name the culprit."),
+    ]
+    rows = "".join(
+        f'<div style="display:flex;gap:11px;align-items:flex-start;padding:7px 0;'
+        f'border-bottom:1px solid #f1f5f9;">'
+        f'<span style="flex-shrink:0;width:24px;height:24px;border-radius:50%;'
+        f'background:#fef2f2;border:1.5px solid #fecaca;font-size:12px;'
+        f'display:flex;align-items:center;justify-content:center;">{i+1}</span>'
+        f'<div><span style="font-size:13px;">{ic}</span> '
+        f'<span style="font-size:13px;font-weight:700;color:#0f172a;">{t}</span>'
+        f'<div style="font-size:12px;color:#475569;line-height:1.55;margin-top:1px;">{d}</div></div>'
+        f'</div>'
+        for i, (ic, t, d) in enumerate(steps)
+    )
+    body = (
+        '<div style="font-size:12.5px;color:#475569;line-height:1.7;margin-bottom:8px;">'
+        'In parts A.1 and A.2 you were <em>given</em> an ontology. This time '
+        '<b>you</b> are the knowledge engineer: you decide what the graph should '
+        'capture, build it, measure it, and then put it to work solving a crime.</div>'
+        + rows
+    )
+    return _card("135deg,#7f1d1d,#b91c1c", "Hands-on B · Knowledge Base Utilisation",
+                 "The Ashworth Manor Murder", "Design → extract → evaluate → reason", body)
+
+
+def render_coverage(cov: dict) -> str:
+    """Score card: which reference facts the attendee's extraction captured."""
+    captured, missed, extra = cov["captured"], cov["missed"], cov["extra"]
+    total   = len(captured) + len(missed)
+    recall  = cov["recall"]
+    th      = cov["threshold"]
+    col     = "#059669" if recall >= 0.8 else ("#d97706" if recall >= 0.5 else "#dc2626")
+
+    def _row(r, ok: bool):
+        mark  = "✓" if ok else "✗"
+        mcol  = "#059669" if ok else "#dc2626"
+        note  = (f'matched: “{_h.escape(r["closest"])}” ({r["sim"]:.2f})' if ok else
+                 (f'closest attempt: “{_h.escape(r["closest"])}” ({r["sim"]:.2f})'
+                  if r["closest"] else "nothing similar extracted"))
+        return (
+            f'<div style="display:flex;gap:9px;align-items:flex-start;padding:6px 0;'
+            f'border-bottom:1px solid #f8fafc;">'
+            f'<span style="color:{mcol};font-weight:800;font-size:13px;line-height:1.4;">{mark}</span>'
+            f'<div style="min-width:0;">'
+            f'<div style="font-size:12.5px;color:#0f172a;line-height:1.5;">{_h.escape(r["fact"])}</div>'
+            f'<div style="font-size:11px;color:#94a3b8;line-height:1.5;">{note}</div>'
+            f'</div></div>'
+        )
+
+    score = (
+        f'<div style="display:flex;align-items:center;gap:16px;background:#f8fafc;'
+        f'border-radius:10px;padding:14px 18px;margin-bottom:14px;">'
+        f'<div style="font-size:34px;font-weight:800;color:{col};'
+        f'font-variant-numeric:tabular-nums;">{recall:.0%}</div>'
+        f'<div style="flex:1;">'
+        f'<div style="font-size:12.5px;color:#0f172a;font-weight:700;">'
+        f'{len(captured)} of {total} reference facts captured</div>'
+        f'<div style="height:8px;background:#e2e8f0;border-radius:4px;overflow:hidden;margin-top:6px;">'
+        f'<div style="width:{int(recall*100)}%;height:100%;background:{col};"></div></div>'
+        f'<div style="font-size:11px;color:#94a3b8;margin-top:4px;">'
+        f'embedding match · cosine ≥ {th:g} counts as captured</div>'
+        f'</div></div>'
+    )
+    sections = score
+    if captured:
+        sections += (
+            '<div style="font-size:10px;color:#94a3b8;letter-spacing:1px;margin:6px 0 2px;">CAPTURED</div>'
+            + "".join(_row(r, True) for r in captured)
+        )
+    if missed:
+        sections += (
+            '<div style="font-size:10px;color:#94a3b8;letter-spacing:1px;margin:12px 0 2px;">MISSED</div>'
+            + "".join(_row(r, False) for r in missed)
+        )
+    if extra:
+        chips = "".join(
+            f'<span style="display:inline-block;background:#fffbeb;border:1px solid #fde68a;'
+            f'border-radius:20px;padding:2px 10px;font-size:11px;color:#92400e;margin:2px;">'
+            f'{_h.escape(e)}</span>'
+            for e in extra
+        )
+        sections += (
+            f'<div style="font-size:10px;color:#94a3b8;letter-spacing:1px;margin:12px 0 4px;">'
+            f'EXTRA (in yours, not in the reference)</div>{chips}'
+            f'<div style="font-size:11px;color:#94a3b8;margin-top:4px;">'
+            f'Extras are not necessarily wrong — the reference is the <em>minimal</em> solvable '
+            f'set. But check them: extraction noise usually shows up here.</div>'
+        )
+    return _card("135deg,#0f766e,#0d9488", "Evaluation",
+                 "How much of the case did your graph capture?",
+                 "Each reference fact is matched to your closest extracted triple by embedding similarity",
+                 sections,
+                 footer="📉 Low coverage? Sharpen a relation definition, add a missing type, then re-run extraction — that iteration loop IS knowledge engineering.")
+
+
+def render_agent_intro() -> str:
+    """Explainer card: how the graph agent works and the tools it can call."""
+    tools = [
+        ("📋", "get_entities_by_type", "list every node of a type",
+         "“give me all the Suspects”"),
+        ("🔗", "get_neighbours", "all edges touching an entity",
+         "“what do we know about Ms. Scarlett?”"),
+        ("🔍", "get_relationship", "every triple using one relation",
+         "“show me every has_alibi fact”"),
+        ("🗺️", "find_path", "shortest connection between two entities",
+         "“how is the letter opener linked to Scarlett?”"),
+    ]
+    rows = "".join(
+        f'<div style="display:flex;gap:10px;align-items:flex-start;padding:7px 0;'
+        f'border-bottom:1px solid #f1f5f9;">'
+        f'<span style="font-size:16px;line-height:1.3;">{ic}</span>'
+        f'<div><code style="font-size:12px;color:#4f46e5;font-weight:700;">{name}</code>'
+        f'<span style="font-size:12px;color:#475569;"> — {desc}</span>'
+        f'<div style="font-size:11px;color:#94a3b8;font-style:italic;margin-top:1px;">{ex}</div></div>'
+        f'</div>'
+        for ic, name, desc, ex in tools
+    )
+    body = (
+        '<div style="font-size:12.5px;color:#475569;line-height:1.7;margin-bottom:8px;">'
+        'The agent is an LLM in a loop: it reads your question, <b>decides which tool '
+        'to call</b>, reads the result, and repeats — until it has enough evidence to '
+        'answer. The tools are ordinary Python functions over the NetworkX graph; the '
+        'agent chooses them via <b>OpenAI function calling</b>, guided by your ontology '
+        '(the tool schemas list your entity and relation types).</div>'
+        + rows
+        + '<div style="margin-top:10px;padding:9px 12px;background:#eef2ff;border-radius:6px;'
+          'font-size:11.5px;color:#3730a3;line-height:1.6;"><b>Why this beats stuffing text '
+          'into a prompt:</b> the agent retrieves only the facts it needs, every answer '
+          'traces back to explicit graph edges, and multi-hop questions become a sequence '
+          'of small, checkable lookups.</div>'
+    )
+    return _card("135deg,#3730a3,#4f46e5", "The Graph Agent",
+                 "An LLM that investigates by calling tools",
+                 "Watch the numbered tool calls in every answer below — that is the agent thinking", body)
+
+
+def render_verdict(correct: bool, solution: dict) -> str:
+    """Case-closed card revealing the ground-truth solution."""
+    col  = "#059669" if correct else "#dc2626"
+    bg   = "#f0fdf4" if correct else "#fef2f2"
+    bd   = "#bbf7d0" if correct else "#fecaca"
+    tag  = "✓ THE AGENT GOT IT RIGHT" if correct else "✗ THE AGENT ACCUSED THE WRONG PERSON"
+    body = (
+        f'<div style="padding:16px 18px;background:{bg};border:1px solid {bd};border-radius:10px;'
+        f'text-align:center;">'
+        f'<div style="font-size:10px;font-weight:800;letter-spacing:2px;color:{col};">{tag}</div>'
+        f'<div style="font-size:22px;font-weight:800;color:#0f172a;margin-top:8px;">'
+        f'🔪 {_h.escape(solution["culprit"])}</div>'
+        f'<div style="font-size:13px;color:#475569;margin-top:6px;">'
+        f'with <b>{_h.escape(solution["weapon"])}</b> · driven by <b>{_h.escape(solution["motive"])}</b></div>'
+        f'<div style="font-size:11.5px;color:#64748b;margin-top:10px;line-height:1.6;">'
+        f'Four suspects had witnesses vouching for them. Only one had motive, an identical '
+        f'weapon, and was seen fleeing the scene — with no one to account for her.</div>'
+        f'</div>'
+    )
+    return _card("135deg,#7f1d1d,#b91c1c", "Case Closed", "The Ashworth Manor Murder — solved",
+                 "The ground truth, revealed", body)
+
+
 def render_narrative(text: str) -> str:
     """Display the raw case narrative in a document-style card."""
     paragraphs = [p.strip() for p in text.strip().split("\n\n") if p.strip()]
@@ -1400,53 +1571,66 @@ def render_narrative(text: str) -> str:
     )
 
 
-def render_mystery_ontology(entity_types: list[str], relation_types: list[str]) -> str:
-    """Display the reference ontology — entity types + relation types — as a two-column card."""
+def render_mystery_ontology(entity_types, relation_types,
+                            title: str = "Entity types & relation types — you decide the schema") -> str:
+    """
+    Display an ontology as a two-column card. Both arguments accept a list of
+    names or a {name: definition} dict — definitions are shown beside each type
+    (and injected into the extraction prompt, where they do the real work).
+    """
     ENTITY_COLOURS = [
         "#ef4444", "#3b82f6", "#64748b", "#f59e0b", "#06b6d4",
         "#8b5cf6", "#10b981", "#f97316",
     ]
-    entity_chips = "".join(
-        f'<span style="display:inline-flex;align-items:center;gap:5px;'
-        f'background:#f1f5f9;border:1px solid #e2e8f0;border-radius:20px;'
-        f'padding:4px 12px;font-size:12px;color:#1e293b;margin:3px;font-weight:600;">'
+    e_defs = dict(entity_types) if isinstance(entity_types, dict) else {}
+    r_defs = dict(relation_types) if isinstance(relation_types, dict) else {}
+
+    entity_rows = "".join(
+        f'<div style="display:flex;gap:8px;align-items:flex-start;padding:5px 0;'
+        f'border-bottom:1px solid #f8fafc;">'
         f'<span style="width:10px;height:10px;border-radius:50%;flex-shrink:0;'
-        f'background:{ENTITY_COLOURS[i % len(ENTITY_COLOURS)]};"></span>{_h.escape(e)}</span>'
+        f'margin-top:3px;background:{ENTITY_COLOURS[i % len(ENTITY_COLOURS)]};"></span>'
+        f'<div><span style="font-size:12px;color:#0f172a;font-weight:700;">{_h.escape(e)}</span>'
+        + (f'<div style="font-size:11px;color:#64748b;line-height:1.5;margin-top:1px;">'
+           f'{_h.escape(e_defs[e])}</div>' if e in e_defs else "")
+        + f'</div></div>'
         for i, e in enumerate(entity_types)
     )
     relation_rows = "".join(
-        f'<div style="display:flex;align-items:center;gap:8px;padding:5px 0;'
+        f'<div style="display:flex;gap:8px;align-items:flex-start;padding:5px 0;'
         f'border-bottom:1px solid #f8fafc;">'
         f'<span style="font-size:11px;color:#7c3aed;font-family:ui-monospace,Menlo,monospace;'
         f'font-weight:700;white-space:nowrap;">{_h.escape(r)}</span>'
-        f'</div>'
+        + (f'<span style="font-size:11px;color:#64748b;line-height:1.5;">'
+           f'{_h.escape(r_defs[r])}</span>' if r in r_defs else "")
+        + f'</div>'
         for r in relation_types
     )
     left = (
-        f'<div style="flex:1 1 200px;min-width:180px;">'
+        f'<div style="flex:1 1 220px;min-width:200px;">'
         f'<div style="font-size:10px;font-weight:700;color:#94a3b8;letter-spacing:1px;'
-        f'text-transform:uppercase;margin-bottom:8px;">Entity Types</div>'
-        f'<div>{entity_chips}</div>'
+        f'text-transform:uppercase;margin-bottom:8px;">Entity Types ({len(list(entity_types))})</div>'
+        f'{entity_rows}'
         f'</div>'
     )
     right = (
-        f'<div style="flex:1 1 220px;min-width:200px;">'
+        f'<div style="flex:1.4 1 280px;min-width:260px;">'
         f'<div style="font-size:10px;font-weight:700;color:#94a3b8;letter-spacing:1px;'
-        f'text-transform:uppercase;margin-bottom:8px;">Relation Types</div>'
+        f'text-transform:uppercase;margin-bottom:8px;">Relation Types ({len(list(relation_types))})</div>'
         f'{relation_rows}'
         f'</div>'
     )
     body = (
         f'<div style="font-size:12.5px;color:#475569;line-height:1.7;margin-bottom:14px;">'
-        f'This is a <b>reference ontology</b> — a starting point. In the next cell you '
-        f'can add, remove or rename any types. The extraction prompt is generated '
-        f'automatically from whatever lists you define.</div>'
+        f'Names give the graph its <b>structure</b>; definitions give the extractor its '
+        f'<b>semantics</b>. A vague definition produces a confused graph — e.g. without the '
+        f'“confirmed by witnesses” clause, a model will happily file a suspect fleeing the '
+        f'crime scene under <code>has_alibi</code>.</div>'
         f'<div style="display:flex;gap:20px;flex-wrap:wrap;">{left}{right}</div>'
     )
-    return _card("135deg,#5b21b6,#7c3aed", "Ontology Design",
-                 "Entity types & relation types — you decide the schema",
-                 "The same narrative will produce a different graph for every different ontology", body,
-                 footer="✏️  Modify ENTITY_TYPES and RELATION_TYPES in the next cell, then re-run extraction.")
+    return _card("135deg,#5b21b6,#7c3aed", "Ontology Design", title,
+                 "The same narrative produces a different graph for every different ontology", body,
+                 footer="✏️  Every name and definition here is injected into the extraction prompt — edit them and the prompt changes.")
 
 
 def render_agent_response(question: str, result: dict) -> str:
