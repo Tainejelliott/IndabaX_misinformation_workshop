@@ -149,14 +149,17 @@ def _execute(G, tool_name: str, args: dict) -> object:
 def query_graph(
     question: str,
     G,
-    entity_types: list[str],
-    relation_types: list[str],
+    entity_types,
+    relation_types,
     api_key: str,
     model: str = "gpt-4.1-nano",
     max_steps: int = 8,
 ) -> dict:
     """
     Answer a natural-language question by letting an agent traverse the graph.
+
+    entity_types / relation_types accept a list of names or a
+    {name: definition} dict (the same ontology object used for extraction).
 
     Returns:
         {
@@ -168,6 +171,8 @@ def query_graph(
     """
     from openai import OpenAI
     client = OpenAI(api_key=api_key)
+    entity_types   = list(entity_types)     # dict → its keys
+    relation_types = list(relation_types)
 
     tools = _make_tools(entity_types, relation_types)
     sample_nodes = list(G.nodes())[:20]

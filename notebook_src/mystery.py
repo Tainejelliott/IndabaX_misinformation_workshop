@@ -31,22 +31,47 @@ Mr. Gerald Hargrove has served as butler at Ashworth Manor for over two decades.
 The investigation remains open. All residents have been requested to remain at the manor pending further inquiry.
 """
 
-# Reference ontology — shown to attendees as a starting point they can modify
-ENTITY_TYPES = ["Person", "Place", "Object", "Motive", "Time"]
+# Reference ontology — shown to attendees as a starting point they can modify.
+# Each type carries a DEFINITION: the definitions are injected into the IE
+# prompt, and they matter as much as the names (a schema without semantics
+# produces confused extractions — e.g. treating a sighting as an alibi).
+ENTITY_TYPES = {
+    "Person": "a named individual — suspect, victim, or witness",
+    "Place":  "a room or location in or around the manor",
+    "Object": "a physical item — weapons, documents, possessions",
+    "Motive": "a reason someone might have wanted the victim dead",
+    "Time":   "a clock time or time window",
+}
 
-RELATION_TYPES = [
-    "has_motive",      # Person → Motive
-    "has_alibi",       # Person → Place  (confirmed elsewhere at murder time)
-    "was_seen_in",     # Person → Place  (witnessed at a location)
-    "owns",            # Person → Object
-    "found_in",        # Object → Place
-    "victim_of",       # Person → Event/cause
-    "partner_of",      # Person → Person
-    "blackmailed_by",  # Person → Person
-    "dismissed_by",    # Person → Person
-    "witnessed_by",    # Person → Person (who saw whom)
-    "stands_to_inherit",  # Person → Object/estate
-]
+RELATION_TYPES = {
+    "has_motive":
+        "Person → Motive — the person had this reason to want the victim dead. "
+        "Only suspects have motives, never the victim.",
+    "has_alibi":
+        "Person → Place — the person was CONFIRMED by independent witnesses to be "
+        "at this place at the time of the murder. Being seen leaving the crime "
+        "scene is NOT an alibi.",
+    "was_seen_in":
+        "Person → Place — a witness observed the person at this location "
+        "(suspicious sightings included).",
+    "owns":
+        "Person → Object — the person possesses this item.",
+    "found_in":
+        "Object → Place — the item was discovered at this location.",
+    "victim_of":
+        "Person → Object/Event — the person was killed (link victim to the crime).",
+    "partner_of":
+        "Person → Person — a business partnership between the two people.",
+    "blackmailed_by":
+        "Person → Person — the subject was being blackmailed by the object person.",
+    "dismissed_by":
+        "Person → Person — the subject was fired/dismissed by the object person.",
+    "witnessed_by":
+        "Person → Person — the subject's whereabouts were vouched for by the "
+        "object person.",
+    "stands_to_inherit":
+        "Person → Object — the person is set to inherit this property or estate.",
+}
 
 CASE = {
     "title":  "The Ashworth Manor Murder",
@@ -130,6 +155,54 @@ def mystery_triples() -> list[dict]:
 
 def clues() -> list[str]:
     return list(CLUES)
+
+
+# ── coverage scoring (your extraction vs the reference facts) ─────────── #
+
+def coverage(extracted: list[dict], reference: list[dict],
+             threshold: float = 0.55) -> dict:
+    """
+    Fuzzy-match extracted triples against the hand-authored reference facts.
+
+    Each triple is rendered as a short sentence ("subject predicate object")
+    and embedded with the same MiniLM model used elsewhere; a reference fact
+    counts as captured when its best cosine match among the extracted triples
+    clears `threshold`.
+
+    Returns {"captured": [...], "missed": [...], "extra": [...],
+             "recall": float, "threshold": float}
+    where captured/missed rows are {"fact", "closest", "sim"}.
+    """
+    from sentence_transformers import util
+    from notebook_src.validation import _model
+
+    def _txt(t):
+        return f"{t['subject']} {t['predicate'].replace('_', ' ')} {t['object']}"
+
+    ref_txts = [_txt(t) for t in reference]
+    ext_txts = [_txt(t) for t in extracted]
+
+    if not ext_txts:
+        return {"captured": [],
+                "missed": [{"fact": r, "closest": "", "sim": 0.0} for r in ref_txts],
+                "extra": [], "recall": 0.0, "threshold": threshold}
+
+    m   = _model()
+    re_ = m.encode(ref_txts, normalize_embeddings=True)
+    ee  = m.encode(ext_txts, normalize_embeddings=True)
+    sim = util.cos_sim(re_, ee).numpy()
+
+    captured, missed = [], []
+    for i, rt in enumerate(ref_txts):
+        j = int(sim[i].argmax())
+        row = {"fact": rt, "closest": ext_txts[j], "sim": float(sim[i][j])}
+        (captured if row["sim"] >= threshold else missed).append(row)
+
+    extra  = [ext_txts[j] for j in range(len(ext_txts))
+              if float(sim[:, j].max()) < threshold]
+    recall = len(captured) / len(ref_txts) if ref_txts else 1.0
+    return {"captured": captured, "missed": missed, "extra": extra,
+            "recall": recall, "threshold": threshold}
 
 
 # ── retrieval (semantic search over the clues) ────────────────────────── #
