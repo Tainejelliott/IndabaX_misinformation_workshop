@@ -1,0 +1,22 @@
+# secrets & local env
+.env
+.venv/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# macOS
+.DS_Store
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Build artefacts & scratch
+NdabaX_KG_Workshop.zip
+scratch/
+/tmp/
+
+# Claude Code internal
+memory/

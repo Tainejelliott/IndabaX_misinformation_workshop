@@ -1,0 +1,64 @@
+<div style="font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;color:#0f172a;padding:8px 0">
+<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:16px;
+            padding:16px 20px;margin-bottom:12px">
+
+  <!-- header -->
+  <div style="font-size:11px;font-weight:700;letter-spacing:2px;
+              text-transform:uppercase;color:#6366f1;margin-bottom:6px">
+    What is an LLM?
+  </div>
+  <div style="font-size:20px;font-weight:700;color:#0f172a;margin-bottom:4px">
+    A next-token prediction machine
+  </div>
+  <div style="font-size:13px;color:#475569;margin-bottom:24px">
+    Given a sequence of text, an LLM assigns a probability to every possible next token
+    and samples from that distribution.
+  </div>
+
+  <!-- prediction strip -->
+  <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+              background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:12px 16px">
+
+    <!-- prompt -->
+    <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;
+                padding:8px 12px;font-size:13px;color:#0f172a">
+      "The capital of France is
+      <span style="display:inline-block;width:32px;border-bottom:2px solid #6366f1;
+                   vertical-align:middle;margin:0 4px"></span>"
+    </div>
+
+    <!-- arrow -->
+    <div style="font-size:20px;color:#94a3b8">→</div>
+
+    <!-- model box -->
+    <div style="background:linear-gradient(135deg,#6366f1,#8b5cf6);
+                border-radius:10px;padding:12px 20px;text-align:center;
+                color:#fff;font-weight:700;font-size:13px;white-space:nowrap">
+      🤖 LLM
+    </div>
+
+    <!-- arrow -->
+    <div style="font-size:20px;color:#94a3b8">→</div>
+
+    <!-- token probabilities -->
+    <div style="flex:1;min-width:160px">
+      <div style="font-size:11px;font-weight:600;color:#94a3b8;
+                  text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">
+        Next-token probabilities
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">  <span style="width:52px;font-size:13px;color:#475569;text-align:right">Paris</span>  <div style="flex:1;background:#e2e8f0;border-radius:4px;height:18px">    <div style="width:92%;background:#16a34a;border-radius:4px;height:18px;         transition:width .6s ease"></div></div>  <span style="font-size:12px;color:#94a3b8;width:32px">92%</span></div><div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">  <span style="width:52px;font-size:13px;color:#475569;text-align:right">London</span>  <div style="flex:1;background:#e2e8f0;border-radius:4px;height:18px">    <div style="width:4%;background:#94a3b8;border-radius:4px;height:18px;         transition:width .6s ease"></div></div>  <span style="font-size:12px;color:#94a3b8;width:32px">4%</span></div><div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">  <span style="width:52px;font-size:13px;color:#475569;text-align:right">Rome</span>  <div style="flex:1;background:#e2e8f0;border-radius:4px;height:18px">    <div style="width:2%;background:#94a3b8;border-radius:4px;height:18px;         transition:width .6s ease"></div></div>  <span style="font-size:12px;color:#94a3b8;width:32px">2%</span></div><div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">  <span style="width:52px;font-size:13px;color:#475569;text-align:right">the</span>  <div style="flex:1;background:#e2e8f0;border-radius:4px;height:18px">    <div style="width:1%;background:#94a3b8;border-radius:4px;height:18px;         transition:width .6s ease"></div></div>  <span style="font-size:12px;color:#94a3b8;width:32px">1%</span></div>
+    </div>
+  </div>
+
+  <!-- key insight -->
+  <div style="margin-top:20px;background:#eff6ff;border-left:4px solid #2563eb;
+              border-radius:0 8px 8px 0;padding:14px 18px">
+    <span style="font-weight:700;color:#2563eb">Key insight —</span>
+    <span style="color:#475569;font-size:14px">
+      LLMs don't look facts up in a database. They generate statistically likely
+      continuations. A model can confidently produce "The Great Wall is visible
+      from space" — because it <em>sounds</em> plausible — even though it's false.
+      This is why <strong>grounding in a knowledge base</strong> matters.
+    </span>
+  </div>
+</div></div>

@@ -1,0 +1,86 @@
+<div style="font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;color:#0f172a;padding:8px 0">
+<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:16px;
+            padding:16px 20px;margin-bottom:12px">
+
+  <!-- header -->
+  <div style="font-size:11px;font-weight:700;letter-spacing:2px;
+              text-transform:uppercase;color:#0d9488;margin-bottom:6px">
+    What are Embeddings?
+  </div>
+  <div style="font-size:20px;font-weight:700;color:#0f172a;margin-bottom:4px">
+    Numbers that capture meaning
+  </div>
+  <div style="font-size:13px;color:#475569;margin-bottom:24px">
+    An embedding model encodes any piece of text as a dense vector of numbers.
+    The key property: <strong>semantically similar texts produce geometrically nearby vectors</strong>.
+  </div>
+
+  <!-- transformation strip -->
+  <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+              background:#fff;border:1px solid #e2e8f0;border-radius:12px;
+              padding:16px 20px;margin-bottom:20px">
+    <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;
+                padding:8px 12px;font-size:13px;color:#0f172a">
+      "Goldfish have a three-second memory."
+    </div>
+    <div style="font-size:18px;color:#94a3b8">→</div>
+    <div style="background:linear-gradient(135deg,#0d9488,#6366f1);
+                border-radius:8px;padding:10px 16px;font-size:12px;color:#fff;
+                font-weight:600;white-space:nowrap">
+      Encoder model
+    </div>
+    <div style="font-size:18px;color:#94a3b8">→</div>
+    <div style="font-family:'Courier New',monospace;font-size:12px;color:#6366f1;
+                background:#eef2ff;border-radius:8px;padding:8px 12px">
+      [0.12, −0.34, 0.87, …]
+      <span style="color:#94a3b8">× 384 values</span>
+    </div>
+  </div>
+
+  <!-- semantic space -->
+  <div style="margin-bottom:20px">
+    <div style="font-size:12px;font-weight:600;color:#475569;
+                margin-bottom:10px;text-transform:uppercase;letter-spacing:1px">
+      2D semantic space — similar meanings cluster together
+    </div>
+    
+<svg viewBox="0 0 720 400" xmlns="http://www.w3.org/2000/svg"
+     style="width:100%;max-width:640px;height:auto;border-radius:10px;
+            background:#f8fafc;border:1px solid #e2e8f0">
+  <!-- cluster labels -->
+  <text x="120" y="62" font-size="12" font-weight="700" fill="#16a34a"
+        font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" text-anchor="middle">TRUE / FACTS</text>
+  <text x="330" y="62" font-size="12" font-weight="700" fill="#dc2626"
+        font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" text-anchor="middle">MYTHS / LIES</text>
+  <text x="575" y="72" font-size="12" font-weight="700" fill="#2563eb"
+        font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" text-anchor="middle">SPACE</text>
+  <text x="192" y="268" font-size="12" font-weight="700" fill="#0d9488"
+        font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" text-anchor="middle">ANIMALS</text>
+  <!-- cluster halos -->
+  <ellipse cx="123" cy="115" rx="52" ry="42" fill="#16a34a" opacity="0.08"/>
+  <ellipse cx="325" cy="110" rx="52" ry="42" fill="#dc2626" opacity="0.08"/>
+  <ellipse cx="575" cy="130" rx="48" ry="42" fill="#2563eb" opacity="0.08"/>
+  <ellipse cx="188" cy="308" rx="48" ry="36" fill="#0d9488" opacity="0.08"/>
+  <line x1="140" y1="115" x2="325" y2="110" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="5,4"/><text x="228" y="100" font-size="10" fill="#94a3b8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" text-anchor="middle">distance = dissimilarity</text>
+  <circle cx="110" cy="90" r="7" fill="#16a34a" opacity="0.85" stroke="#fff" stroke-width="1.5"/><circle cx="140" cy="115" r="7" fill="#16a34a" opacity="0.85" stroke="#fff" stroke-width="1.5"/><circle cx="120" cy="140" r="7" fill="#16a34a" opacity="0.85" stroke="#fff" stroke-width="1.5"/><circle cx="310" cy="85" r="7" fill="#dc2626" opacity="0.85" stroke="#fff" stroke-width="1.5"/><circle cx="340" cy="110" r="7" fill="#dc2626" opacity="0.85" stroke="#fff" stroke-width="1.5"/><circle cx="325" cy="135" r="7" fill="#dc2626" opacity="0.85" stroke="#fff" stroke-width="1.5"/><circle cx="560" cy="100" r="7" fill="#2563eb" opacity="0.85" stroke="#fff" stroke-width="1.5"/><circle cx="590" cy="130" r="7" fill="#2563eb" opacity="0.85" stroke="#fff" stroke-width="1.5"/><circle cx="575" cy="158" r="7" fill="#2563eb" opacity="0.85" stroke="#fff" stroke-width="1.5"/><circle cx="180" cy="290" r="7" fill="#0d9488" opacity="0.85" stroke="#fff" stroke-width="1.5"/><circle cx="215" cy="315" r="7" fill="#0d9488" opacity="0.85" stroke="#fff" stroke-width="1.5"/><circle cx="160" cy="320" r="7" fill="#0d9488" opacity="0.85" stroke="#fff" stroke-width="1.5"/>
+  <text x="120" y="94" font-size="11" fill="#475569" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">truth</text><text x="150" y="119" font-size="11" fill="#475569" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">fact</text><text x="130" y="144" font-size="11" fill="#475569" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">correct</text><text x="320" y="89" font-size="11" fill="#475569" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">lie</text><text x="350" y="114" font-size="11" fill="#475569" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">hoax</text><text x="335" y="139" font-size="11" fill="#475569" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">myth</text><text x="570" y="104" font-size="11" fill="#475569" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">planet</text><text x="600" y="134" font-size="11" fill="#475569" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">orbit</text><text x="585" y="162" font-size="11" fill="#475569" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">space</text><text x="190" y="294" font-size="11" fill="#475569" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">goldfish</text><text x="225" y="319" font-size="11" fill="#475569" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">fish</text><text x="170" y="324" font-size="11" fill="#475569" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">memory</text>
+  <!-- axis labels -->
+  <text x="360" y="392" font-size="11" fill="#94a3b8"
+        font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" text-anchor="middle">Dimension 1 (semantic direction)</text>
+  <text x="14" y="200" font-size="11" fill="#94a3b8"
+        font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" text-anchor="middle"
+        transform="rotate(-90,14,200)">Dimension 2</text>
+</svg>
+  </div>
+
+  <!-- key insight -->
+  <div style="background:#f0fdf4;border-left:4px solid #16a34a;
+              border-radius:0 8px 8px 0;padding:14px 18px">
+    <span style="font-weight:700;color:#16a34a">Key insight —</span>
+    <span style="color:#475569;font-size:14px">
+      Cosine similarity between two vectors measures how semantically close they are
+      (1.0 = identical meaning, 0 = unrelated, −1 = opposite).
+      This is what powers semantic search: encode the query, find the nearest vectors.
+    </span>
+  </div>
+</div></div>

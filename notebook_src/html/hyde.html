@@ -1,0 +1,375 @@
+
+<div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+            line-height:1.5;">
+
+  <!-- ── Header ─────────────────────────────────────────────────── -->
+  <div style="background:linear-gradient(135deg,#065f46 0%,#059669 100%);
+              border-radius:12px;padding:16px 20px;margin-bottom:16px;">
+    <div style="color:rgba(255,255,255,.7);font-size:11px;font-weight:600;
+                letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;">
+      Retrieval Enhancement
+    </div>
+    <div style="color:#fff;font-size:21px;font-weight:700;margin-bottom:4px;">
+      HyDE &amp; Reverse-HyDE
+    </div>
+    <div style="color:rgba(255,255,255,.85);font-size:13px;">
+      Closing the semantic gap between questions and answers in embedding space
+    </div>
+  </div>
+
+  <!-- ── 1. The Problem ─────────────────────────────────────────── -->
+  <div style="border:1px solid #e2e8f0;border-radius:10px;padding:16px 18px;
+              margin-bottom:16px;background:#fff;">
+    <div style="font-size:15px;font-weight:700;color:#0f172a;margin-bottom:6px;">
+      🚧 The Problem — Questions and Answers Live in Different Neighbourhoods
+    </div>
+    <div style="font-size:13px;color:#475569;margin-bottom:16px;">
+      When you embed a question and embed its correct answer, they often land
+      <strong>far apart</strong> in vector space. Questions use interrogative language;
+      answers use declarative language. A nearest-neighbour search on the raw question
+      may miss the best KB chunk entirely.
+    </div>
+
+    <div style="display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap;">
+      <svg viewBox="0 0 270 180" width="240" height="160"
+           style="flex-shrink:0;border:1px solid #e2e8f0;border-radius:8px;background:#f8fafc;">
+        <defs>
+          <marker id="a0" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="#94a3b8"/>
+          </marker>
+        </defs>
+        <text x="10" y="14" font-size="9" fill="#94a3b8">embedding space</text>
+        <!-- answer cluster (top-right) -->
+        <circle cx="205" cy="55"  r="8" fill="#10b981" opacity=".85"/>
+        <circle cx="190" cy="72"  r="7" fill="#10b981" opacity=".75"/>
+        <circle cx="220" cy="68"  r="6" fill="#10b981" opacity=".65"/>
+        <circle cx="198" cy="88"  r="6" fill="#10b981" opacity=".70"/>
+        <circle cx="215" cy="48"  r="5" fill="#10b981" opacity=".55"/>
+        <text x="198" y="105" font-size="10" fill="#059669" font-weight="600">KB Answers</text>
+        <!-- query dot (bottom-left) -->
+        <circle cx="55" cy="138" r="9" fill="#ef4444"/>
+        <text x="65" y="142" font-size="10" fill="#dc2626" font-weight="600">Query Q</text>
+        <!-- distance arrow -->
+        <line x1="64" y1="130" x2="188" y2="84"
+              stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5,3"
+              marker-end="url(#a0)"/>
+        <text x="100" y="112" font-size="9" fill="#94a3b8" transform="rotate(-25,100,112)">
+          far apart
+        </text>
+      </svg>
+
+      <div style="flex:1;min-width:180px;">
+        <div style="background:#fef2f2;border-left:3px solid #ef4444;
+                    border-radius:0 8px 8px 0;padding:12px 14px;margin-bottom:10px;">
+          <div style="font-size:12px;font-weight:700;color:#dc2626;margin-bottom:6px;">
+            ❌ Standard RAG fails here
+          </div>
+          <div style="font-size:12px;color:#475569;">
+            <strong>Query:</strong> "Is the Great Wall of China visible from space?"<br><br>
+            Embed question → search nearest chunks<br>
+            → retrieves docs about <em>space / visibility / tourism</em><br>
+            → misses the myth-busting fact paragraph entirely
+          </div>
+        </div>
+        <div style="font-size:12px;color:#64748b;font-style:italic;">
+          The query vector lands near interrogative text — not near the declarative
+          answer that says "No, it is not visible — this is a common misconception."
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 2. HyDE ────────────────────────────────────────────────── -->
+  <div style="border:1px solid #a7f3d0;border-radius:10px;padding:16px 18px;
+              margin-bottom:16px;background:#f0fdf4;">
+    <div style="font-size:15px;font-weight:700;color:#065f46;margin-bottom:6px;">
+      💡 HyDE — Hypothetical Document Embeddings
+    </div>
+    <div style="font-size:13px;color:#475569;margin-bottom:16px;">
+      Instead of embedding the question directly, ask the LLM to
+      <strong>generate a plausible answer</strong> first — even if some facts may be
+      wrong. Embed <em>that hypothetical answer</em>. Because it uses the same
+      declarative register as real KB chunks, its vector lands much closer to the
+      correct chunk.
+    </div>
+
+    <!-- pipeline -->
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+                margin-bottom:16px;font-size:12px;">
+      <div style="background:#fff;border:1px solid #a7f3d0;border-radius:8px;
+                  padding:8px 12px;text-align:center;min-width:82px;">
+        <div style="font-size:15px;">❓</div>
+        <div style="font-weight:600;color:#065f46;">Question</div>
+      </div>
+      <div style="color:#059669;font-size:18px;font-weight:700;">→</div>
+      <div style="background:#fff;border:1px solid #a7f3d0;border-radius:8px;
+                  padding:8px 12px;text-align:center;min-width:98px;">
+        <div style="font-size:15px;">🤖</div>
+        <div style="font-weight:600;color:#065f46;">LLM generates</div>
+        <div style="color:#64748b;font-size:11px;">hypothetical answer</div>
+      </div>
+      <div style="color:#059669;font-size:18px;font-weight:700;">→</div>
+      <div style="background:#fff;border:1px solid #a7f3d0;border-radius:8px;
+                  padding:8px 12px;text-align:center;min-width:92px;">
+        <div style="font-size:15px;">🔢</div>
+        <div style="font-weight:600;color:#065f46;">Embed answer</div>
+        <div style="color:#64748b;font-size:11px;">not the question</div>
+      </div>
+      <div style="color:#059669;font-size:18px;font-weight:700;">→</div>
+      <div style="background:#fff;border:1px solid #a7f3d0;border-radius:8px;
+                  padding:8px 12px;text-align:center;min-width:82px;">
+        <div style="font-size:15px;">🎯</div>
+        <div style="font-weight:600;color:#065f46;">Retrieve</div>
+        <div style="color:#64748b;font-size:11px;">nearest chunks</div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap;">
+      <svg viewBox="0 0 270 180" width="240" height="160"
+           style="flex-shrink:0;border:1px solid #a7f3d0;border-radius:8px;background:#f8fafc;">
+        <defs>
+          <marker id="a1" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="#d97706"/>
+          </marker>
+        </defs>
+        <text x="10" y="14" font-size="9" fill="#94a3b8">embedding space</text>
+        <!-- answer cluster -->
+        <circle cx="200" cy="60"  r="8" fill="#10b981" opacity=".85"/>
+        <circle cx="185" cy="76"  r="7" fill="#10b981" opacity=".75"/>
+        <circle cx="215" cy="72"  r="6" fill="#10b981" opacity=".65"/>
+        <circle cx="194" cy="90"  r="6" fill="#10b981" opacity=".70"/>
+        <text x="196" y="106" font-size="10" fill="#059669" font-weight="600">KB Chunks</text>
+        <!-- faded original query -->
+        <circle cx="52" cy="140" r="8" fill="#ef4444" opacity=".25"/>
+        <text x="62" y="144" font-size="9" fill="#ef4444" opacity=".4">Query Q</text>
+        <!-- HyDE vector (right next to answer cluster) -->
+        <circle cx="174" cy="56" r="10" fill="#f59e0b" stroke="#d97706" stroke-width="1.5"/>
+        <text x="112" y="44" font-size="10" fill="#d97706" font-weight="700">HyDE(Q)</text>
+        <line x1="146" y1="48" x2="165" y2="54"
+              stroke="#d97706" stroke-width="1" marker-end="url(#a1)"/>
+        <line x1="183" y1="60" x2="192" y2="63"
+              stroke="#10b981" stroke-width="2" stroke-dasharray="3,2"/>
+        <text x="24" y="163" font-size="9" fill="#059669" font-weight="600">
+          ✓ HyDE vector lands inside the answer cluster
+        </text>
+      </svg>
+
+      <div style="flex:1;min-width:180px;">
+        <div style="background:#fff;border:1px solid #a7f3d0;border-radius:8px;
+                    padding:12px 14px;">
+          <div style="font-size:11px;font-weight:700;color:#059669;
+                      text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">
+            Example 1 — "10% of your brain" myth
+          </div>
+          <div style="font-size:12px;color:#0f172a;margin-bottom:6px;">
+            <strong>❓ Real query:</strong>
+            "Do humans only use 10% of their brain?"
+          </div>
+          <div style="font-size:12px;color:#0f172a;margin-bottom:6px;">
+            <strong>🤖 HyDE (LLM-generated, may be imperfect):</strong><br>
+            <span style="color:#475569;font-style:italic;">
+              "This is a widespread myth. Research shows that virtually all brain
+               regions are active and essential. No dormant 90% exists waiting
+               to be unlocked — brain scans show continuous activity across
+               the whole organ."
+            </span>
+          </div>
+          <div style="font-size:12px;color:#0f172a;">
+            <strong>🎯 Real KB chunk (retrieved):</strong><br>
+            <span style="color:#475569;font-style:italic;">
+              "Neuroimaging studies demonstrate that all brain regions are
+               metabolically active. The 10% myth likely arose from misquoted
+               research on neural efficiency, not unused capacity."
+            </span>
+          </div>
+          <div style="margin-top:8px;font-size:11px;color:#059669;">
+            ✓ Both use declarative, factual register → embeddings align
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 3. Reverse-HyDE ────────────────────────────────────────── -->
+  <div style="border:1px solid #ddd6fe;border-radius:10px;padding:16px 18px;
+              margin-bottom:16px;background:#faf5ff;">
+    <div style="font-size:15px;font-weight:700;color:#4c1d95;margin-bottom:6px;">
+      🔄 Reverse-HyDE — Pre-generate a Question for Every Answer
+    </div>
+    <div style="font-size:13px;color:#475569;margin-bottom:16px;">
+      HyDE calls the LLM at query time — adding latency on every search.
+      Reverse-HyDE flips this: at <strong>indexing time</strong>, for each KB chunk
+      generate synthetic questions it would answer. Store those
+      <em>question embeddings</em> linked to the chunk. At retrieval the real user
+      query is embedded and matched question-to-question — same linguistic register,
+      no LLM call needed during search.
+    </div>
+
+    <!-- two-phase pipeline -->
+    <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px;font-size:12px;">
+      <div style="flex:1;min-width:200px;">
+        <div style="font-size:11px;font-weight:700;color:#7c3aed;
+                    text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">
+          ⏱ Indexing time — done once
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+          <div style="background:#fff;border:1px solid #ddd6fe;border-radius:8px;
+                      padding:8px 10px;text-align:center;min-width:68px;">
+            <div style="font-size:14px;">📄</div>
+            <div style="font-weight:600;color:#4c1d95;font-size:11px;">KB Chunk</div>
+          </div>
+          <div style="color:#7c3aed;font-weight:700;">→</div>
+          <div style="background:#fff;border:1px solid #ddd6fe;border-radius:8px;
+                      padding:8px 10px;text-align:center;min-width:84px;">
+            <div style="font-size:14px;">🤖</div>
+            <div style="font-weight:600;color:#4c1d95;font-size:11px;">LLM generates</div>
+            <div style="color:#64748b;font-size:10px;">synthetic Qs</div>
+          </div>
+          <div style="color:#7c3aed;font-weight:700;">→</div>
+          <div style="background:#fff;border:1px solid #ddd6fe;border-radius:8px;
+                      padding:8px 10px;text-align:center;min-width:84px;">
+            <div style="font-size:14px;">🗄️</div>
+            <div style="font-weight:600;color:#4c1d95;font-size:11px;">Index Q-embeddings</div>
+            <div style="color:#64748b;font-size:10px;">linked to chunk</div>
+          </div>
+        </div>
+      </div>
+      <div style="flex:1;min-width:200px;">
+        <div style="font-size:11px;font-weight:700;color:#059669;
+                    text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">
+          ⚡ Retrieval time — every query, no LLM
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+          <div style="background:#fff;border:1px solid #a7f3d0;border-radius:8px;
+                      padding:8px 10px;text-align:center;min-width:68px;">
+            <div style="font-size:14px;">❓</div>
+            <div style="font-weight:600;color:#065f46;font-size:11px;">Real Query</div>
+          </div>
+          <div style="color:#059669;font-weight:700;">→</div>
+          <div style="background:#fff;border:1px solid #a7f3d0;border-radius:8px;
+                      padding:8px 10px;text-align:center;min-width:68px;">
+            <div style="font-size:14px;">🔢</div>
+            <div style="font-weight:600;color:#065f46;font-size:11px;">Embed</div>
+            <div style="color:#64748b;font-size:10px;">no LLM call</div>
+          </div>
+          <div style="color:#059669;font-weight:700;">→</div>
+          <div style="background:#fff;border:1px solid #a7f3d0;border-radius:8px;
+                      padding:8px 10px;text-align:center;min-width:84px;">
+            <div style="font-size:14px;">🎯</div>
+            <div style="font-weight:600;color:#065f46;font-size:11px;">Match synth-Qs</div>
+            <div style="color:#64748b;font-size:10px;">→ retrieve chunk</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap;">
+      <svg viewBox="0 0 270 180" width="240" height="160"
+           style="flex-shrink:0;border:1px solid #ddd6fe;border-radius:8px;background:#f8fafc;">
+        <defs>
+          <marker id="a2" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="#059669"/>
+          </marker>
+        </defs>
+        <text x="10" y="14" font-size="9" fill="#94a3b8">embedding space</text>
+        <!-- KB answer dots (grey, far from Q) -->
+        <circle cx="52"  cy="50"  r="7" fill="#94a3b8" opacity=".45"/>
+        <circle cx="68"  cy="65"  r="6" fill="#94a3b8" opacity=".40"/>
+        <circle cx="56"  cy="78"  r="5" fill="#94a3b8" opacity=".40"/>
+        <text x="28" y="40" font-size="9" fill="#94a3b8">KB Answers</text>
+        <!-- synthetic Q cluster (near real query) -->
+        <circle cx="188" cy="65"  r="8" fill="#7c3aed" opacity=".80"/>
+        <circle cx="172" cy="78"  r="7" fill="#7c3aed" opacity=".70"/>
+        <circle cx="202" cy="76"  r="6" fill="#7c3aed" opacity=".60"/>
+        <circle cx="194" cy="92"  r="6" fill="#7c3aed" opacity=".65"/>
+        <text x="178" y="56" font-size="9" fill="#7c3aed" font-weight="700">Synth Qs</text>
+        <!-- real query -->
+        <circle cx="162" cy="122" r="9" fill="#ef4444"/>
+        <text x="74" y="132" font-size="10" fill="#dc2626" font-weight="600">Real Query Q</text>
+        <!-- arrow from query to synth cluster -->
+        <line x1="168" y1="114" x2="183" y2="96"
+              stroke="#059669" stroke-width="1.5" stroke-dasharray="3,2"
+              marker-end="url(#a2)"/>
+        <text x="16" y="163" font-size="9" fill="#059669" font-weight="600">
+          ✓ Real Q matches synthetic Q cluster
+        </text>
+      </svg>
+
+      <div style="flex:1;min-width:180px;">
+        <div style="background:#fff;border:1px solid #ddd6fe;border-radius:8px;
+                    padding:12px 14px;">
+          <div style="font-size:11px;font-weight:700;color:#7c3aed;
+                      text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">
+            Example 2 — Blood colour myth
+          </div>
+          <div style="font-size:12px;color:#0f172a;margin-bottom:6px;">
+            <strong>📄 KB Chunk:</strong><br>
+            <span style="color:#475569;font-style:italic;">
+              "Human blood is never blue. Deoxygenated blood is dark red.
+               The blue appearance of veins through skin is caused by
+               how tissue absorbs and reflects different wavelengths of light."
+            </span>
+          </div>
+          <div style="font-size:12px;color:#0f172a;margin-bottom:6px;">
+            <strong>🤖 Synthetic Qs (generated at index time):</strong><br>
+            <span style="color:#7c3aed;font-style:italic;">
+              "Is blood blue inside the body before it gets oxygenated?"<br>
+              "Why do veins look blue if blood is always red?"<br>
+              "What colour is deoxygenated blood?"
+            </span>
+          </div>
+          <div style="font-size:12px;color:#0f172a;">
+            <strong>❓ Real user query at retrieval time:</strong><br>
+            <span style="color:#475569;font-style:italic;">
+              "Does blood turn blue when it runs out of oxygen?"
+            </span>
+          </div>
+          <div style="margin-top:8px;font-size:11px;color:#059669;">
+            ✓ Matches synthetic Q → chunk retrieved, no LLM call needed
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Comparison callout ─────────────────────────────────────── -->
+  <div style="display:flex;gap:12px;flex-wrap:wrap;">
+    <div style="flex:1;min-width:160px;background:#fef3c7;border:1px solid #fcd34d;
+                border-radius:8px;padding:14px;">
+      <div style="font-size:13px;font-weight:700;color:#92400e;margin-bottom:8px;">
+        💡 HyDE
+      </div>
+      <div style="font-size:12px;color:#78350f;line-height:1.7;">
+        ✅ No indexing overhead<br>
+        ✅ Works on any existing index<br>
+        ⚠️ Extra LLM call per query<br>
+        ⚠️ Higher retrieval latency
+      </div>
+    </div>
+    <div style="flex:1;min-width:160px;background:#ede9fe;border:1px solid #c4b5fd;
+                border-radius:8px;padding:14px;">
+      <div style="font-size:13px;font-weight:700;color:#4c1d95;margin-bottom:8px;">
+        🔄 Reverse-HyDE
+      </div>
+      <div style="font-size:12px;color:#4c1d95;line-height:1.7;">
+        ✅ Fast retrieval — no LLM call<br>
+        ✅ Consistent query latency<br>
+        ⚠️ Upfront indexing cost<br>
+        ⚠️ Must re-index when KB changes
+      </div>
+    </div>
+    <div style="flex:1;min-width:160px;background:#dcfce7;border:1px solid #86efac;
+                border-radius:8px;padding:14px;">
+      <div style="font-size:13px;font-weight:700;color:#14532d;margin-bottom:8px;">
+        🏆 When to use what
+      </div>
+      <div style="font-size:12px;color:#15803d;line-height:1.7;">
+        Dynamic KB → HyDE<br>
+        Static KB → Reverse-HyDE<br>
+        Both beat naive Q-embedding<br>
+        Can combine both strategies
+      </div>
+    </div>
+  </div>
+
+</div>
