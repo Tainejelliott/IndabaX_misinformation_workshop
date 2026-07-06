@@ -247,7 +247,8 @@ def render_openie_intro() -> str:
 
 def render_kg(triples: list[dict], strategy: str = "OBIE",
               height: str = "540px", color_by: str | None = None,
-              group_colours: dict | None = None) -> str:
+              group_colours: dict | None = None,
+              highlight: list | None = None) -> str:
     """
     Render extracted KG triples as an interactive knowledge graph, styled after
     professional graph explorers (Neo4j Bloom / Linkurious):
@@ -422,20 +423,37 @@ def render_kg(triples: list[dict], strategy: str = "OBIE",
             borderWidthSelected=4,
         )
 
+    # Edges the caller wants flagged (e.g. planted misinformation) → dashed red.
+    hl_set = set()
+    for h in (highlight or []):
+        if isinstance(h, dict):
+            hl_set.add((h["subject"], h["predicate"], h["object"]))
+        else:
+            hl_set.add(tuple(h))
+
     for t in triples:
-        conf = t.get("confidence", 0.8)
-        etip = [f"<b>{t['predicate']}</b>"]
+        conf  = t.get("confidence", 0.8)
+        is_hl = (t["subject"], t["predicate"], t["object"]) in hl_set
+        etip  = [f"<b>{t['predicate']}</b>"]
+        if is_hl:
+            etip.insert(0, "⚠️ PLANTED — unverified claim")
         if t.get("predicate_type"):
             etip.append(f"Relationship type: {t['predicate_type']}")
         etip.append(f"Confidence: {conf:.0%}")
         etip.append(f"<i>“{t.get('sentence', '')[:90]}…”</i>")
-        net.add_edge(
-            t["subject"],
-            t["object"],
-            label=t["predicate"],
-            width=1.2 + conf * 2.8,               # thicker = higher confidence
-            title="<br>".join(etip),
-        )
+        if is_hl:
+            net.add_edge(
+                t["subject"], t["object"], label=t["predicate"],
+                width=3.6, dashes=True,
+                color={"color": "#dc2626", "highlight": "#dc2626", "hover": "#dc2626"},
+                title="<br>".join(etip),
+            )
+        else:
+            net.add_edge(
+                t["subject"], t["object"], label=t["predicate"],
+                width=1.2 + conf * 2.8,           # thicker = higher confidence
+                title="<br>".join(etip),
+            )
 
     # ── global vis.js options (ForceAtlas2 + polished node/edge styling) ─ #
     options = """
@@ -1532,6 +1550,45 @@ def render_verdict(correct: bool, solution: dict) -> str:
     )
     return _card("135deg,#7f1d1d,#b91c1c", "Case Closed", "The Ashworth Manor Murder — solved",
                  "The ground truth, revealed", body)
+
+
+def render_injection(planted: dict, contradicts: str = "") -> str:
+    """Announce a single fabricated triple being injected into the graph."""
+    s   = _h.escape(planted["subject"])
+    p   = _h.escape(planted["predicate"])
+    o   = _h.escape(planted["object"])
+    src = _h.escape(planted.get("sentence", ""))
+
+    pill = (
+        f'<div style="text-align:center;margin:2px 0 14px;">'
+        f'<span style="display:inline-block;background:#fee2e2;color:#991b1b;'
+        f'font-weight:700;font-size:13px;padding:6px 12px;border-radius:6px;">{s}</span>'
+        f'<span style="color:#dc2626;font-weight:700;font-size:12px;margin:0 8px;">'
+        f'—[ {p} ]→</span>'
+        f'<span style="display:inline-block;background:#fee2e2;color:#991b1b;'
+        f'font-weight:700;font-size:13px;padding:6px 12px;border-radius:6px;">{o}</span>'
+        f'</div>'
+    )
+    claim = (
+        f'<div style="font-size:12px;color:#475569;line-height:1.6;">'
+        f'<b>Claimed source:</b> “{src}”</div>' if src else ""
+    )
+    contra = (
+        f'<div style="margin-top:10px;padding:10px 12px;background:#fffbeb;'
+        f'border:1px solid #fde68a;border-radius:8px;font-size:12px;color:#92400e;'
+        f'line-height:1.6;"><b>⚖️ But the record says:</b> {_h.escape(contradicts)}</div>'
+        if contradicts else ""
+    )
+    note = (
+        '<div style="font-size:11.5px;color:#64748b;line-height:1.6;margin-top:12px;">'
+        'No independent witness corroborates this claim — it rests on the word of a '
+        'single, self-interested person. The agent, however, treats every edge in the '
+        'graph as established fact.</div>'
+    )
+    body = pill + claim + contra + note
+    return _card("135deg,#7f1d1d,#dc2626", "Misinformation Injected",
+                 "A fabricated clue enters the case file",
+                 "One false edge — planted by the guilty party to frame another", body)
 
 
 def render_narrative(text: str) -> str:

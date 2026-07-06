@@ -90,9 +90,16 @@ elif not os.environ.get("OPENAI_API_KEY"):
     except ImportError:
         pass
 
+# ── Model ────────────────────────────────────────────────────────────────
+# The OpenAI model every cell in this notebook uses. "gpt-4o-mini" works on
+# virtually any key. If your project has access to "gpt-4.1-nano" it's cheaper —
+# just change it here. Any chat model your key supports will work.
+MODEL = "gpt-4o-mini"
+
 print("✅ notebook_src ready —", _root)
 print("🔑 OpenAI key:", "found" if os.environ.get("OPENAI_API_KEY")
-      else "MISSING — paste it above or create a .env file")'''))
+      else "MISSING — paste it above or create a .env file")
+print("🤖 Model:", MODEL)'''))
 
 cells.append(code(
 '''# The roadmap for this session — you are the knowledge engineer this time.
@@ -224,7 +231,7 @@ from notebook_src.extraction import extract_mystery_triples
 API_KEY = os.environ.get("OPENAI_API_KEY", "")
 
 my_triples = extract_mystery_triples(
-    NARRATIVE, MY_ENTITY_TYPES, MY_RELATION_TYPES, API_KEY,
+    NARRATIVE, MY_ENTITY_TYPES, MY_RELATION_TYPES, API_KEY, model=MODEL,
 )
 print(f"Extracted {len(my_triples)} validated triples")'''))
 
@@ -324,8 +331,8 @@ q0 = "Who murdered Lord Edmund Ashworth at Ashworth Manor?"
 
 # No graph: the model has never heard of our (fictional!) case — it can only
 # refuse or invent. With the graph agent: evidence in, deduction out.
-ungrounded = M.answer(q0, [], API_KEY, grounded=False)
-grounded   = query_graph(q0, ref_graph, REF_TYPES, REF_RELATIONS, API_KEY)
+ungrounded = M.answer(q0, [], API_KEY, model=MODEL, grounded=False)
+grounded   = query_graph(q0, ref_graph, REF_TYPES, REF_RELATIONS, API_KEY, model=MODEL)
 
 show(render_prompt_compare(q0, ungrounded, grounded["answer"]))'''))
 
@@ -333,13 +340,13 @@ cells.append(sub("###", IND, INDBG, "🔎", "Watch the Agent Investigate",
                  "Each numbered step is a tool call the agent chose to make"))
 cells.append(code(
 '''q1 = "Which suspects had a confirmed alibi at the time of the murder?"
-result1 = query_graph(q1, ref_graph, REF_TYPES, REF_RELATIONS, API_KEY)
+result1 = query_graph(q1, ref_graph, REF_TYPES, REF_RELATIONS, API_KEY, model=MODEL)
 show(render_agent_response(q1, result1))'''))
 
 cells.append(code(
 '''# A harder question — it needs TWO relations combined (motive ∧ ¬alibi).
 q2 = "Who had both a motive and no alibi?"
-result2 = query_graph(q2, ref_graph, REF_TYPES, REF_RELATIONS, API_KEY)
+result2 = query_graph(q2, ref_graph, REF_TYPES, REF_RELATIONS, API_KEY, model=MODEL)
 show(render_agent_response(q2, result2))'''))
 
 cells.append(sub("###", IND, INDBG, "🧪", "Your Turn",
@@ -349,7 +356,7 @@ cells.append(code(
 #              "Where was every suspect at 9 PM?"
 #              "How is the letter opener connected to Ms. Scarlett?"
 my_question = "Did anyone own a weapon like the one found at the scene?"
-res = query_graph(my_question, ref_graph, REF_TYPES, REF_RELATIONS, API_KEY)
+res = query_graph(my_question, ref_graph, REF_TYPES, REF_RELATIONS, API_KEY, model=MODEL)
 show(render_agent_response(my_question, res))'''))
 
 # ─── Part 7 · Solve the Case ───────────────────────────────────────── #
@@ -364,7 +371,7 @@ cells.append(code(
     "The person left with motive and no alibi is the culprit."
 )
 result_solve = query_graph(q_solve, ref_graph, REF_TYPES, REF_RELATIONS,
-                           API_KEY, max_steps=10)
+                           API_KEY, model=MODEL, max_steps=10)
 show(render_agent_response(q_solve, result_solve))'''))
 
 cells.append(code(
@@ -379,10 +386,87 @@ cells.append(code(
 '''# Same question, but the agent only sees the graph YOU extracted in Part 3.
 # If it fails, look at your coverage card — which fact was it missing?
 res_mine = query_graph(q_solve, my_graph, MY_ENTITY_TYPES, MY_RELATION_TYPES,
-                       API_KEY, max_steps=10)
+                       API_KEY, model=MODEL, max_steps=10)
 show(render_agent_response(q_solve, res_mine))
 print("Correct?" , "✅ yes" if is_correct(res_mine["answer"]) else
       "❌ no — check your coverage: which facts were missing?")'''))
+
+# ─── Part 8 · When Misinformation Enters the Graph ─────────────────── #
+cells.append(sub("##", RED, REDBG, "🎭", "Part 8 · When Misinformation Enters the Graph",
+                 "The agent is only as honest as its graph. The real murderer knows this — "
+                 "so she plants a lie to frame an innocent man."))
+
+cells.append(code(
+'''# In Part 7 the graph-grounded agent correctly convicted Ms. Scarlett.
+# But Scarlett is the murderer — and she has every reason to lie. To the
+# inspector she claims she saw Colonel Grey leaving the study. It never
+# happened... but into the case file it goes, and into the graph.
+from notebook_src.mystery import mystery_triples, MYSTERY_COLOURS
+from notebook_src.graph import build_graph
+from notebook_src.display import render_injection
+
+planted = {
+    "subject": "Colonel Grey", "predicate": "was seen in", "object": "the Study",
+    "subject_type": "Suspect", "object_type": "Room", "predicate_type": "mystery",
+    "confidence": 1.0,
+    "sentence": "Ms. Scarlett told the inspector she saw the Colonel leave the study.",
+}
+
+# Poison the reference graph: every true fact, plus one fabricated sighting.
+poisoned_triples = mystery_triples() + [planted]
+poisoned_graph   = build_graph(poisoned_triples)
+
+show(render_injection(planted,
+     contradicts="Colonel Grey — had alibi in → the Library, confirmed by two "
+                 "footmen. He cannot be in two rooms at the murder hour."))'''))
+
+cells.append(code(
+'''# The lie now sits in the graph beside the truth — the dashed red edge.
+from notebook_src.display import render_kg
+show(render_kg(poisoned_triples, strategy="Poisoned Case File", color_by="type",
+               group_colours=MYSTERY_COLOURS, height="520px", highlight=[planted]))'''))
+
+cells.append(sub("###", RED, REDBG, "🩸", "Did the Lie Work? Ask Who Was at the Scene",
+                 "A direct, factual question — the kind the planted edge corrupts outright."))
+cells.append(code(
+'''# On the CLEAN graph, only Ms. Scarlett was placed in the Study.
+# On the POISONED graph, the agent faithfully repeats Scarlett's lie as fact.
+q_scene = ("Which suspects does the graph place at the scene of the murder, "
+           "the Study? List everyone recorded as being in the Study.")
+scene_res = query_graph(q_scene, poisoned_graph, REF_TYPES, REF_RELATIONS, API_KEY, model=MODEL)
+show(render_agent_response(q_scene, scene_res))
+
+# ⚠️ Colonel Grey — an innocent man — is now reported at the murder scene.
+# The agent isn't wrong about the GRAPH; the GRAPH is wrong about the WORLD.'''))
+
+cells.append(sub("###", RED, REDBG, "🕵️", "But Can It Still Solve the Case?",
+                 "Re-run the full Part 7 investigation — same agent, same question, poisoned graph."))
+cells.append(code(
+'''# The planted sighting makes Grey look guilty. Does the frame hold up?
+poisoned_solve = query_graph(q_solve, poisoned_graph, REF_TYPES, REF_RELATIONS,
+                             API_KEY, model=MODEL, max_steps=10)
+show(render_agent_response(q_solve, poisoned_solve))
+
+# The seam: Grey is now BOTH "was seen in the Study" AND "had alibi in the
+# Library" — a contradiction. A careful agent that cross-checks the corroborated
+# alibi (Part 2's "confirmed by independent witnesses") rejects the frame.
+# A weaker or less careful agent might not. Run it a few times and watch.'''))
+
+cells.append(code(
+'''from notebook_src.display import render_points_card
+show(render_points_card("The Lesson", "Grounding is not the same as truth",
+    "A knowledge graph fights misinformation — until misinformation gets into the graph", [
+    "<b>The agent repeats whatever the graph says.</b> One planted edge put an innocent "
+    "man at the murder scene, and the agent reported it as fact — confidently, with a citation.",
+    "<b>Grounding inherits the trust of its source.</b> A retrieval-augmented answer is only "
+    "as reliable as the knowledge it retrieves. A poisoned source yields a well-cited falsehood.",
+    "<b>Corroboration is the defence.</b> The lie contradicted a fact backed by independent "
+    "witnesses — Grey's confirmed alibi. Facts that agree with the corroborated record survive; "
+    "planted claims that contradict it are the seam where the lie can be caught.",
+    "<b>This is why ontology design mattered.</b> The <code>has_alibi</code> definition you "
+    "sharpened in Part 2 — 'confirmed by independent witnesses' — is exactly what makes the "
+    "graph resistant to this attack.",
+], grad="135deg,#7f1d1d,#b91c1c"))'''))
 
 cells.append(code(
 '''# Wrap-up
@@ -394,7 +478,9 @@ show(render_points_card("Wrap-up", "What you just built",
     "<b>You compiled it into a prompt</b> — and saw exactly what the LLM was asked to do.",
     "<b>You measured the result</b> — coverage against a gold standard, not vibes.",
     "<b>You reasoned over the graph with an agent</b> — grounded tool calls instead of a "
-    "model guessing from memory: that is how knowledge graphs fight misinformation.",
+    "model guessing from memory.",
+    "<b>...and you saw the limit</b> — a graph fights misinformation only while the graph "
+    "itself is clean. One planted edge misled the agent, and corroboration is what catches it.",
 ], grad="135deg,#7f1d1d,#b91c1c"))'''))
 
 # ─── write ─────────────────────────────────────────────────────────── #
