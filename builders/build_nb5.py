@@ -393,32 +393,34 @@ print("Correct?" , "✅ yes" if is_correct(res_mine["answer"]) else
 
 # ─── Part 8 · When Misinformation Enters the Graph ─────────────────── #
 cells.append(sub("##", RED, REDBG, "🎭", "Part 8 · When Misinformation Enters the Graph",
-                 "The agent is only as honest as its graph. The real murderer knows this — "
-                 "so she plants a lie to frame an innocent man."))
+                 "The agent is only as honest as its graph. The murderer can't erase the "
+                 "evidence against her — but she can fabricate the one thing she lacks. "
+                 "Watch a single false statement set a killer free."))
 
 cells.append(code(
-'''# In Part 7 the graph-grounded agent correctly convicted Ms. Scarlett.
-# But Scarlett is the murderer — and she has every reason to lie. To the
-# inspector she claims she saw Colonel Grey leaving the study. It never
-# happened... but into the case file it goes, and into the graph.
+'''# In Part 7 the graph-grounded agent correctly convicted Ms. Scarlett — she
+# alone had a motive and NO alibi. She is guilty, and she knows the evidence
+# against her cannot be erased. So she does not attack it. Instead she fabricates
+# the single thing she lacks: an alibi. Into the case file it goes, and into the graph.
 from notebook_src.mystery import mystery_triples, MYSTERY_COLOURS
 from notebook_src.graph import build_graph
 from notebook_src.display import render_injection
 
 planted = {
-    "subject": "Colonel Grey", "predicate": "was seen in", "object": "the Study",
+    "subject": "Ms. Vivian Scarlett", "predicate": "had alibi in", "object": "the Drawing Room",
     "subject_type": "Suspect", "object_type": "Room", "predicate_type": "mystery",
     "confidence": 1.0,
-    "sentence": "Ms. Scarlett told the inspector she saw the Colonel leave the study.",
+    "sentence": "Ms. Scarlett claims she was alone in the drawing room at nine o'clock.",
 }
 
-# Poison the reference graph: every true fact, plus one fabricated sighting.
+# Poison the reference graph: every true fact, plus one fabricated alibi.
 poisoned_triples = mystery_triples() + [planted]
 poisoned_graph   = build_graph(poisoned_triples)
 
 show(render_injection(planted,
-     contradicts="Colonel Grey — had alibi in → the Library, confirmed by two "
-                 "footmen. He cannot be in two rooms at the murder hour."))'''))
+     void="Ms. Scarlett was the ONE suspect with no alibi — that gap is exactly what "
+          "convicted her. The fabrication fills it, so there is no corroborated fact "
+          "anywhere in the graph to check it against."))'''))
 
 cells.append(code(
 '''# The lie now sits in the graph beside the truth — the dashed red edge.
@@ -426,46 +428,35 @@ from notebook_src.display import render_kg
 show(render_kg(poisoned_triples, strategy="Poisoned Case File", color_by="type",
                group_colours=MYSTERY_COLOURS, height="520px", highlight=[planted]))'''))
 
-cells.append(sub("###", RED, REDBG, "🩸", "Did the Lie Work? Ask Who Was at the Scene",
-                 "A direct, factual question — the kind the planted edge corrupts outright."))
+cells.append(sub("###", RED, REDBG, "🕵️", "Re-run the Investigation — Same Agent, Same Question",
+                 "Nothing about the agent changed. Only the evidence did."))
 cells.append(code(
-'''# On the CLEAN graph, only Ms. Scarlett was placed in the Study.
-# On the POISONED graph, the agent faithfully repeats Scarlett's lie as fact.
-q_scene = ("Which suspects does the graph place at the scene of the murder, "
-           "the Study? List everyone recorded as being in the Study.")
-scene_res = query_graph(q_scene, poisoned_graph, REF_TYPES, REF_RELATIONS, API_KEY, model=MODEL)
-show(render_agent_response(q_scene, scene_res))
-
-# ⚠️ Colonel Grey — an innocent man — is now reported at the murder scene.
-# The agent isn't wrong about the GRAPH; the GRAPH is wrong about the WORLD.'''))
-
-cells.append(sub("###", RED, REDBG, "🕵️", "But Can It Still Solve the Case?",
-                 "Re-run the full Part 7 investigation — same agent, same question, poisoned graph."))
-cells.append(code(
-'''# The planted sighting makes Grey look guilty. Does the frame hold up?
+'''# The exact question from Part 7 — but now every suspect has an alibi.
 poisoned_solve = query_graph(q_solve, poisoned_graph, REF_TYPES, REF_RELATIONS,
                              API_KEY, model=MODEL, max_steps=10)
 show(render_agent_response(q_solve, poisoned_solve))
 
-# The seam: Grey is now BOTH "was seen in the Study" AND "had alibi in the
-# Library" — a contradiction. A careful agent that cross-checks the corroborated
-# alibi (Part 2's "confirmed by independent witnesses") rejects the frame.
-# A weaker or less careful agent might not. Run it a few times and watch.'''))
+# In Part 7 this convicted Ms. Scarlett. Now the agent can eliminate EVERY
+# suspect on an alibi — including the real killer — and convict no one.
+# One fabricated edge has set the murderer free.'''))
 
 cells.append(code(
 '''from notebook_src.display import render_points_card
 show(render_points_card("The Lesson", "Grounding is not the same as truth",
     "A knowledge graph fights misinformation — until misinformation gets into the graph", [
-    "<b>The agent repeats whatever the graph says.</b> One planted edge put an innocent "
-    "man at the murder scene, and the agent reported it as fact — confidently, with a citation.",
-    "<b>Grounding inherits the trust of its source.</b> A retrieval-augmented answer is only "
-    "as reliable as the knowledge it retrieves. A poisoned source yields a well-cited falsehood.",
-    "<b>Corroboration is the defence.</b> The lie contradicted a fact backed by independent "
-    "witnesses — Grey's confirmed alibi. Facts that agree with the corroborated record survive; "
-    "planted claims that contradict it are the seam where the lie can be caught.",
-    "<b>This is why ontology design mattered.</b> The <code>has_alibi</code> definition you "
-    "sharpened in Part 2 — 'confirmed by independent witnesses' — is exactly what makes the "
-    "graph resistant to this attack.",
+    "<b>The agent faithfully applied its own rule</b> — eliminate anyone with a confirmed "
+    "alibi — and a single fabricated alibi walked the murderer out the door. The reasoning was "
+    "sound; the data was poisoned.",
+    "<b>Grounding inherits the trust of its source.</b> A retrieval-augmented answer is only as "
+    "reliable as the knowledge it retrieves. A poisoned source yields a confident falsehood.",
+    "<b>The dangerous asymmetry.</b> An <i>incriminating</i> lie (framing an innocent) "
+    "contradicts corroborated facts, so a consistency check can catch it. This <i>exonerating</i> "
+    "lie fills a VOID — Scarlett had no alibi to begin with — so there is nothing in the graph to "
+    "contradict it. Lies planted where no counter-evidence exists are the hardest to detect.",
+    "<b>The only defence is provenance.</b> Every real alibi here names independent witnesses "
+    "(two footmen, the gardener, three guests); the fabricated one names no one. Part 2's "
+    "<code>has_alibi</code> definition — 'confirmed by independent witnesses' — is precisely the "
+    "check that would reject it. Good ontology design is a misinformation defence.",
 ], grad="135deg,#7f1d1d,#b91c1c"))'''))
 
 cells.append(code(

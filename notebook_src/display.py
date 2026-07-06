@@ -1552,8 +1552,14 @@ def render_verdict(correct: bool, solution: dict) -> str:
                  "The ground truth, revealed", body)
 
 
-def render_injection(planted: dict, contradicts: str = "") -> str:
-    """Announce a single fabricated triple being injected into the graph."""
+def render_injection(planted: dict, contradicts: str = "", void: str = "") -> str:
+    """Announce a single fabricated triple being injected into the graph.
+
+    contradicts: if the lie clashes with a corroborated fact, describe it here
+                 (amber "but the record says" box → the lie is catchable).
+    void:        if the lie fills a gap with nothing to contradict it, describe
+                 it here (red "nothing contradicts it" box → far harder to catch).
+    """
     s   = _h.escape(planted["subject"])
     p   = _h.escape(planted["predicate"])
     o   = _h.escape(planted["object"])
@@ -1579,16 +1585,22 @@ def render_injection(planted: dict, contradicts: str = "") -> str:
         f'line-height:1.6;"><b>⚖️ But the record says:</b> {_h.escape(contradicts)}</div>'
         if contradicts else ""
     )
+    voidbox = (
+        f'<div style="margin-top:10px;padding:10px 12px;background:#fef2f2;'
+        f'border:1px solid #fecaca;border-radius:8px;font-size:12px;color:#991b1b;'
+        f'line-height:1.6;"><b>🕳️ Nothing contradicts it:</b> {_h.escape(void)}</div>'
+        if void else ""
+    )
     note = (
         '<div style="font-size:11.5px;color:#64748b;line-height:1.6;margin-top:12px;">'
         'No independent witness corroborates this claim — it rests on the word of a '
         'single, self-interested person. The agent, however, treats every edge in the '
         'graph as established fact.</div>'
     )
-    body = pill + claim + contra + note
+    body = pill + claim + contra + voidbox + note
     return _card("135deg,#7f1d1d,#dc2626", "Misinformation Injected",
                  "A fabricated clue enters the case file",
-                 "One false edge — planted by the guilty party to frame another", body)
+                 "One false edge — planted by the guilty party", body)
 
 
 def render_narrative(text: str) -> str:
