@@ -69,7 +69,7 @@ documentation or reference site, `article` = journalism / popular-science piece.
 | paper | Language-agnostic BERT Sentence Embedding (LaBSE) | Feng, Yang, Cer, Arivazhagan, Wang (2020) | [arxiv.org/abs/2007.01852](https://arxiv.org/abs/2007.01852) | Same tab: LaBSE as an example of cross-lingual embedding alignment |
 | paper | BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding | Devlin et al. (2018) | [arxiv.org/abs/1810.04805](https://arxiv.org/abs/1810.04805) | mBERT mention alongside LaBSE for cross-lingual alignment |
 
-## `knowledge_graph_deep_dive.html` — "Knowledge Graphs & Data Stores"
+## `knowledge_graph_deep_dive.html` — "Four Ways to Store What You Know" (generalized from a KG-only deep dive to graph/vector/relational/document stores side by side)
 
 | Type | Title | Author(s) | Link | Used for |
 |---|---|---|---|---|
