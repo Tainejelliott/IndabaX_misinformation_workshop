@@ -41,3 +41,7 @@ def information_extraction_methods(): return load_html("information_extraction_m
 def knowledge_representation_spectrum(): return load_html("knowledge_representation_spectrum.html")
 
 def information_retrieval_methods(): return load_html("information_retrieval_methods.html")
+
+def augmented_generation_methods(): return load_html("augmented_generation_methods.html")
+
+def generation_reasoning_strategies(): return load_html("generation_reasoning_strategies.html")

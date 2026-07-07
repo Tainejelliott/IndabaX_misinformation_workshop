@@ -119,6 +119,28 @@ documentation or reference site, `article` = journalism / popular-science piece.
 | paper | Precise Zero-Shot Dense Retrieval without Relevance Labels (HyDE) | Gao, Ma, Lin, Callan (2022) | [arxiv.org/abs/2212.10496](https://arxiv.org/abs/2212.10496) | "Query Transformation" tab: HyDE and the Reverse-HyDE variant |
 | paper | From Local to Global: A Graph RAG Approach to Query-Focused Summarization | Edge et al. (2024), Microsoft Research | [arxiv.org/abs/2404.16130](https://arxiv.org/abs/2404.16130) | "Graph Traversal" tab: multi-hop KG-grounded retrieval framing |
 
+## `augmented_generation_methods.html` — "From Retrieved Chunks to a Trustworthy Answer"
+
+| Type | Title | Author(s) | Link | Used for |
+|---|---|---|---|---|
+| paper | Lost in the Middle: How Language Models Use Long Contexts | Liu, Lin, Hewitt, Paranjape, Bevilacqua, Petroni, Liang (2023) | [arxiv.org/abs/2307.03172](https://arxiv.org/abs/2307.03172) | "U-Curve" tab: the naive-vs-U-curve chunk ordering demo and the finding that models miss info buried mid-context |
+| webpage | LongContextReorder (document transformer) | LangChain | [python.langchain.com/docs/how_to/long_context_reorder](https://python.langchain.com/v0.2/docs/how_to/long_context_reorder/) | "U-Curve" tab: real-world implementation of positional (U-curve) re-ranking, built on the Liu et al. finding |
+| paper | Attributed Question Answering: Evaluation and Modeling for Attributed Large Language Models | Bohnet, Tran, Verga, Aharoni, Andor, Soares, et al. (2022), Google Research | [arxiv.org/abs/2212.08037](https://arxiv.org/abs/2212.08037) | "Grounding & Citation" tab: the general framing of requiring per-claim attribution |
+| paper | RARR: Researching and Revising What Language Models Say, Using Language Models | Gao, Dai, Pasupat, Chen, Chaganty, Fan, Zhao, Lao, Lee, Juan, Guu (2022) | [arxiv.org/abs/2210.08726](https://arxiv.org/abs/2210.08726) | "Faithfulness Check" tab: post-hoc verification of generated claims against retrieved evidence |
+| paper | RAGAS: Automated Evaluation of Retrieval Augmented Generation | Es, James, Espinosa-Anke, Schockaert (2023), EACL | [arxiv.org/abs/2309.15217](https://arxiv.org/abs/2309.15217) | "Closed-book vs Open-book" tab: general framing for evaluating a RAG pipeline's faithfulness and answer relevance |
+
+## `generation_reasoning_strategies.html` — "Beyond a Single Pass: Reasoning & Re-Ranking Strategies"
+
+| Type | Title | Author(s) | Link | Used for |
+|---|---|---|---|---|
+| paper | Is ChatGPT Good at Search? Investigating Large Language Models as Re-Ranking Agents (RankGPT) | Sun, Yan, Ma, Wang, Ren, Chen, Yin, Ren (2023), EMNLP (Outstanding Paper) | [arxiv.org/abs/2304.09542](https://arxiv.org/abs/2304.09542) | "Re-Ranking, Revisited" tab: LLM-based listwise re-ranking, the third "re-ranking" meaning alongside cross-encoders and U-curve positioning |
+| paper | Chain-of-Thought Prompting Elicits Reasoning in Large Language Models | Wei, Wang, Schuurmans, Bosma, Ichter, Xia, Chi, Le, Zhou (2022) | [arxiv.org/abs/2201.11903](https://arxiv.org/abs/2201.11903) | "Chain of Thought" tab |
+| paper | Tree of Thoughts: Deliberate Problem Solving with Large Language Models | Yao, Yu, Zhao, Shafran, Griffiths, Cao, Narasimhan (2023), NeurIPS | [arxiv.org/abs/2305.10601](https://arxiv.org/abs/2305.10601) | "Tree of Thought" tab: branching/backtracking fact-check example |
+| paper | Self-Consistency Improves Chain of Thought Reasoning in Language Models | Wang, Wei, Schuurmans, Le, Chi, Narang, Chowdhery, Zhou (2022) | [arxiv.org/abs/2203.11171](https://arxiv.org/abs/2203.11171) | "Self-Consistency" tab: sampling multiple reasoning paths and majority-voting |
+| paper | Chain-of-Verification Reduces Hallucination in Large Language Models | Dhuliawala, Komeili, Xu, Raileanu, Li, Celikyilmaz, Weston (2023), ACL Findings 2024 | [arxiv.org/abs/2309.11495](https://arxiv.org/abs/2309.11495) | "Chain-of-Verification" tab: the draft → plan → verify → revise pipeline |
+| article | No, You Can't See the Great Wall of China from Space | Scientific American | [scientificamerican.com/article/no-you-cant-see-the-great-wall-of-space](https://www.scientificamerican.com/article/no-you-cant-see-the-great-wall-of-china-from-space/) | "Chain-of-Verification" tab: the worked myth-correction example |
+| paper | ReAct: Synergizing Reasoning and Acting in Language Models | Yao, Zhao, Yu, Du, Shafran, Narasimhan, Cao (2023), ICLR | [arxiv.org/abs/2210.03629](https://arxiv.org/abs/2210.03629) | "Agentic (ReAct)" tab: the Thought/Action/Observation trace |
+
 ## `hyde.html` (unused asset — kept as source material; not currently linked from the notebook)
 
 | Type | Title | Author(s) | Link | Used for |

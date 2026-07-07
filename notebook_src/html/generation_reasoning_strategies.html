@@ -1,0 +1,391 @@
+<div style="font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;color:#0f172a;padding:6px 0">
+<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;
+            padding:12px 16px;margin-bottom:10px">
+
+<style>
+*{box-sizing:border-box}
+.rs-tab-row{display:flex;gap:2px;flex-wrap:wrap;padding-top:0.4rem;margin-bottom:10px}
+.rs-tab{padding:4px 12px;border-radius:6px;font-size:12px;cursor:pointer;background:transparent;border:0.5px solid #e2e8f0;color:#475569;transition:background .15s,color .15s}
+.rs-tab.active{background:#f8fafc;color:#0f172a;border-color:#94a3b8}
+.rs-panel{display:none}
+.rs-panel.active{display:block}
+
+.rs-strat-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.rs-strat-btn{padding:4px 11px;border-radius:20px;border:0.5px solid #cbd5e1;background:#fff;color:#475569;font-size:11px;cursor:pointer;transition:all .15s}
+.rs-strat-btn.active{background:#fdf4ff;border-color:#c026d3;color:#a21caf}
+.rs-strat-desc{font-size:11px;color:#475569;margin-bottom:6px;line-height:1.5}
+
+.rs-recap-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.rs-recap-card{flex:1;min-width:170px;background:#f8fafc;border-radius:8px;padding:8px 10px;border-left:3px solid #cbd5e1}
+.rs-recap-title{font-size:10.5px;font-weight:700;color:#0f172a;margin-bottom:2px}
+.rs-recap-body{font-size:10px;color:#475569;line-height:1.4}
+
+.rs-answer-box{background:#fff;border:0.5px solid #cbd5e1;border-radius:8px;padding:9px 11px;font-size:11.5px;color:#0f172a;line-height:1.6}
+.rs-note{background:#f8fafc;border-radius:8px;padding:8px 10px;font-size:10.5px;color:#475569;margin-top:6px;line-height:1.4}
+.rs-warn-banner{margin-top:6px;padding:6px 10px;border-radius:7px;font-size:11px}
+.rs-warn-bad{background:#fef2f2;color:#991b1b}
+.rs-warn-good{background:#f0fdf4;color:#166534}
+.rs-warn-neutral{background:#fef3c7;color:#92400e}
+
+.rs-hop-row{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap}
+.rs-hop-btn{flex:1;min-width:90px;padding:5px 8px;border-radius:7px;border:0.5px solid #cbd5e1;background:#fff;color:#475569;font-size:11px;cursor:pointer;text-align:center;transition:all .15s}
+.rs-hop-btn.active{background:#fdf4ff;border-color:#c026d3;color:#a21caf;font-weight:600}
+
+.rs-list{margin-bottom:6px}
+.rs-list-item{display:flex;gap:7px;align-items:flex-start;background:#f8fafc;border-radius:7px;padding:5px 8px;margin-bottom:4px;font-size:10.5px;color:#475569}
+.rs-list-num{font-weight:700;color:#0f172a;flex-shrink:0;width:16px}
+
+.rs-branch-row{display:flex;gap:6px;margin-top:6px}
+.rs-branch{flex:1;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:7px 9px;cursor:pointer;font-size:10.5px;color:#475569}
+.rs-branch.sel{border-color:#c026d3;background:#fdf4ff}
+.rs-branch-title{font-weight:700;color:#0f172a;font-size:10.5px;margin-bottom:3px;display:flex;justify-content:space-between;align-items:center}
+.rs-conf{font-size:9px;font-weight:700;padding:1px 6px;border-radius:4px}
+.rs-conf-high{background:#f0fdf4;color:#16a34a}
+.rs-conf-med{background:#fef3c7;color:#d97706}
+.rs-conf-low{background:#fef2f2;color:#dc2626}
+
+.rs-vote-row{display:flex;gap:6px;margin-bottom:8px}
+.rs-vote-chip{flex:1;text-align:center;padding:8px 4px;border-radius:8px;font-size:11px;font-weight:600}
+.rs-vote-chip.yes{background:#f0fdf4;color:#166534}
+.rs-vote-chip.other{background:#fef3c7;color:#92400e}
+
+.rs-trace-item{background:#f8fafc;border-radius:7px;padding:6px 9px;margin-bottom:4px;font-size:11px;color:#475569}
+.rs-trace-tag{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-right:6px}
+.rs-trace-thought .rs-trace-tag{color:#7c3aed}
+.rs-trace-action .rs-trace-tag{color:#2563eb}
+.rs-trace-obs .rs-trace-tag{color:#0d9488}
+.rs-trace-final .rs-trace-tag{color:#16a34a}
+
+.rs-prompt-box{background:#faf5ff;border:0.5px solid #e9d5ff;border-radius:8px;padding:8px 10px;font-size:10px;color:#6b21a8;margin-top:6px;line-height:1.5;font-family:'SFMono-Regular',Consolas,'Liberation Mono',Menlo,monospace;white-space:pre-wrap}
+.rs-prompt-tag{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:#a21caf;display:block;margin-bottom:3px;font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif}
+.rs-code-box{background:#0f172a;color:#e2e8f0;border-radius:8px;padding:8px 10px;font-size:10px;margin-top:6px;line-height:1.5;font-family:'SFMono-Regular',Consolas,'Liberation Mono',Menlo,monospace;white-space:pre-wrap}
+.rs-code-box .kw{color:#c084fc}
+.rs-code-box .cm{color:#64748b}
+
+.rs-tree-connector{position:relative;height:16px;margin-bottom:2px}
+.rs-tree-connector .h{position:absolute;top:0;left:16%;right:16%;height:1px;background:#cbd5e1}
+.rs-tree-connector .ticks{display:flex;justify-content:space-between;padding:0 16%}
+.rs-tree-connector .tick{width:1px;height:16px;background:#cbd5e1}
+</style>
+
+  <!-- header -->
+  <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;
+              text-transform:uppercase;color:#c026d3;margin-bottom:4px">
+    Generation Methodologies
+  </div>
+  <div style="font-size:16px;font-weight:700;color:#0f172a;margin-bottom:3px">
+    Beyond a Single Pass: Reasoning &amp; Re-Ranking Strategies
+  </div>
+  <div style="font-size:12px;color:#475569;margin-bottom:10px">
+    A grounded prompt still leaves a choice: generate one answer in one shot, or spend
+    extra reasoning, sampling, verification, or tool calls to get a more reliable one.
+    These are the most common patterns for making that trade-off deliberately.
+  </div>
+
+  <div class="rs-tab-row">
+    <button class="rs-tab active" onclick="rsSwitchTab('rerank',this)">Re-Ranking, Revisited</button>
+    <button class="rs-tab" onclick="rsSwitchTab('cot',this)">Chain of Thought</button>
+    <button class="rs-tab" onclick="rsSwitchTab('tot',this)">Tree of Thought</button>
+    <button class="rs-tab" onclick="rsSwitchTab('sc',this)">Self-Consistency</button>
+    <button class="rs-tab" onclick="rsSwitchTab('cove',this)">Chain-of-Verification</button>
+    <button class="rs-tab" onclick="rsSwitchTab('agentic',this)">Agentic (ReAct)</button>
+  </div>
+
+<!-- TAB 1: re-ranking revisited -->
+<div class="rs-panel active" id="rs-tab-rerank">
+  <div class="rs-strat-desc">This workshop uses "re-ranking" for three genuinely different things — worth telling apart:</div>
+  <div class="rs-recap-row">
+    <div class="rs-recap-card" style="border-left-color:#0d9488"><div class="rs-recap-title">Relevance re-ranking</div><div class="rs-recap-body">A cross-encoder scores query+passage jointly to refine the initial ranking. See Information Retrieval &rarr; Re-ranking.</div></div>
+    <div class="rs-recap-card" style="border-left-color:#2563eb"><div class="rs-recap-title">Positional re-ranking</div><div class="rs-recap-body">Reorders an already-ranked list for placement in the prompt (start/end vs. middle). See Augmented Generation &rarr; U-Curve.</div></div>
+    <div class="rs-recap-card" style="border-left-color:#c026d3"><div class="rs-recap-title">LLM-based re-ranking</div><div class="rs-recap-body">Prompts an LLM directly with the candidate list and asks it to judge and reorder them itself — no separate trained model.</div></div>
+  </div>
+  <div class="rs-strat-desc">Query: <i>"What caused the 2011 Fukushima nuclear disaster?"</i> — four passages come back from initial retrieval in this order:</div>
+  <div class="rs-strat-row" id="rs-rerank-btns"></div>
+  <div class="rs-list" id="rs-rerank-list"></div>
+  <div class="rs-note" id="rs-rerank-note"></div>
+  <div class="rs-prompt-box" id="rs-rerank-prompt" style="display:none"></div>
+</div>
+
+<!-- TAB 2: chain of thought -->
+<div class="rs-panel" id="rs-tab-cot">
+  <div class="rs-strat-desc">Claim to evaluate: <i>"Country X's inflation rate tripled in one year, proving its new economic policy failed."</i> Prompting the model to show its work changes what you can check.</div>
+  <div class="rs-strat-row" id="rs-cot-btns"></div>
+  <div class="rs-prompt-box" id="rs-cot-prompt"></div>
+  <div class="rs-answer-box" id="rs-cot-answer"></div>
+  <div class="rs-note" id="rs-cot-note"></div>
+</div>
+
+<!-- TAB 3: tree of thought -->
+<div class="rs-panel" id="rs-tab-tot">
+  <div class="rs-strat-desc">Claim to fact-check: <i>"This photo shows flooding in City A caused by climate change last week."</i> Instead of one reasoning chain, explore several hypotheses in parallel, then commit to the strongest.</div>
+  <div class="rs-answer-box" style="margin-bottom:2px"><b>Root:</b> Can this claim be verified as shown?</div>
+  <div class="rs-tree-connector"><div class="h"></div><div class="ticks"><div class="tick"></div><div class="tick"></div><div class="tick"></div></div></div>
+  <div class="rs-branch-row" id="rs-tot-branches"></div>
+  <div class="rs-warn-banner" id="rs-tot-detail"></div>
+  <div class="rs-prompt-box"><span class="rs-prompt-tag">Thought generator prompt (run once per branch)</span>Given the claim and the current evidence state, propose one specific, independent way to verify or refute it. Be concrete about what check you'd perform.</div>
+  <div class="rs-prompt-box"><span class="rs-prompt-tag">State evaluator prompt (run on each resulting branch)</span>Given this verification path and its outcome, rate its confidence as high/medium/low, and state in one sentence whether it alone is enough to settle the claim.</div>
+</div>
+
+<!-- TAB 4: self-consistency -->
+<div class="rs-panel" id="rs-tab-sc">
+  <div class="rs-strat-desc">Instead of trusting one greedy reasoning pass, sample several independent attempts and take the majority answer.</div>
+  <div class="rs-strat-row" id="rs-sc-btns"></div>
+  <div class="rs-vote-row" id="rs-sc-votes"></div>
+  <div class="rs-warn-banner" id="rs-sc-verdict"></div>
+  <div class="rs-code-box"><span class="cm"># Not a special prompt — the SAME Chain-of-Thought prompt, run N times</span>
+answers = []
+<span class="kw">for</span> i <span class="kw">in</span> range(5):
+    answers.append(generate(cot_prompt, temperature=<span class="kw">0.7</span>))  <span class="cm"># sampling, not greedy</span>
+final = majority_vote([extract_answer(a) <span class="kw">for</span> a <span class="kw">in</span> answers])</div>
+  <div class="rs-note">The aggregation step is plain code, not another LLM call — the model never sees the other samples.</div>
+</div>
+
+<!-- TAB 5: chain-of-verification -->
+<div class="rs-panel" id="rs-tab-cove">
+  <div class="rs-strat-desc">Draft claim: <i>"The Great Wall of China is the only man-made structure visible from space, built entirely during the Qin Dynasty."</i> Step through the four-stage CoVe pipeline.</div>
+  <div class="rs-hop-row" id="rs-cove-btns"></div>
+  <div class="rs-prompt-box" id="rs-cove-prompt"></div>
+  <div class="rs-answer-box" id="rs-cove-content"></div>
+</div>
+
+<!-- TAB 6: agentic / ReAct -->
+<div class="rs-panel" id="rs-tab-agentic">
+  <div class="rs-strat-desc">Query: <i>"Has Nigeria's current president always held that position, and what's the population of the capital?"</i> The model interleaves reasoning with tool calls instead of answering in one shot.</div>
+  <div class="rs-prompt-box">Answer the question using this exact format, repeating Thought/Action/Observation as many times as needed:
+<span class="rs-prompt-tag" style="display:inline;color:#a21caf">Thought:</span> reason about what to do next
+<span class="rs-prompt-tag" style="display:inline;color:#a21caf">Action:</span> Search[query]  <span style="color:#94a3b8">or</span>  Finish[answer]
+<span class="rs-prompt-tag" style="display:inline;color:#a21caf">Observation:</span> (tool result is inserted here)
+... repeat ...
+Thought: I now know the final answer.
+Action: Finish[final answer]
+
+Question: {question}</div>
+  <div class="rs-hop-row" id="rs-agentic-btns"></div>
+  <div id="rs-agentic-trace"></div>
+</div>
+
+  <!-- key insight -->
+  <div style="margin-top:10px;background:#fdf4ff;border-left:3px solid #c026d3;
+              border-radius:0 8px 8px 0;padding:10px 14px">
+    <span style="font-weight:700;color:#c026d3;font-size:13px">Key insight —</span>
+    <span style="color:#475569;font-size:13px">
+      Every one of these trades latency and cost for reliability. None is free, and none
+      is universally "better" — the right amount of extra reasoning depends on how costly
+      a wrong answer would be.
+    </span>
+  </div>
+</div></div>
+
+<script>
+(function(){
+window.rsSwitchTab = function(name, btn){
+  document.querySelectorAll('#rs-tab-rerank, #rs-tab-cot, #rs-tab-tot, #rs-tab-sc, #rs-tab-cove, #rs-tab-agentic').forEach(function(p){ p.classList.remove('active'); });
+  document.querySelectorAll('.rs-tab').forEach(function(t){ t.classList.remove('active'); });
+  document.getElementById('rs-tab-' + name).classList.add('active');
+  btn.classList.add('active');
+};
+
+// ---- Tab 1: re-ranking revisited (LLM listwise re-ranking) ----
+var RERANK_PASSAGES = {
+  1: 'General overview of nuclear power plant safety standards.',
+  2: 'The magnitude-9 earthquake and resulting tsunami that disabled the reactor cooling systems.',
+  3: 'Long-term radiation health effects on the surrounding population.',
+  4: "Japan's energy policy changes in the years after the disaster."
+};
+var RERANK_MODES = {
+  before: { label: 'Before (initial retrieval order)', order: [1,2,3,4] },
+  after: { label: 'After (LLM listwise re-rank)', order: [2,3,1,4] }
+};
+var currentRerank = 'before';
+
+function renderRerank(){
+  var m = RERANK_MODES[currentRerank];
+  document.getElementById('rs-rerank-btns').innerHTML = Object.keys(RERANK_MODES).map(function(k){
+    return '<button class="rs-strat-btn' + (k === currentRerank ? ' active' : '') +
+      '" onclick="rsSelectRerank(\'' + k + '\')">' + RERANK_MODES[k].label + '</button>';
+  }).join('');
+  document.getElementById('rs-rerank-list').innerHTML = m.order.map(function(id, i){
+    return '<div class="rs-list-item"><span class="rs-list-num">' + (i + 1) + '.</span>' + RERANK_PASSAGES[id] + '</div>';
+  }).join('');
+  document.getElementById('rs-rerank-note').textContent = currentRerank === 'before'
+    ? 'Initial retrieval ranked by embedding similarity to the whole query — the direct-cause passage is only 2nd.'
+    : 'Prompted with all four passages at once and asked to judge relevance itself, the LLM puts the direct cause first — it can reason about "caused" in a way a similarity score alone can\'t.';
+  var promptEl = document.getElementById('rs-rerank-prompt');
+  if (currentRerank === 'after') {
+    promptEl.style.display = 'block';
+    promptEl.innerHTML = '<span class="rs-prompt-tag">Listwise re-ranking prompt (RankGPT-style)</span>' +
+      'I will provide 4 passages, each with a numeric identifier []. Rank them by relevance to the search query. ' +
+      'Respond only with identifiers, most relevant first, e.g. [2] &gt; [1] &gt; [4] &gt; [3].\n\n' +
+      'Query: What caused the 2011 Fukushima nuclear disaster?\n' +
+      '[1] ' + RERANK_PASSAGES[1] + '\n[2] ' + RERANK_PASSAGES[2] + '\n[3] ' + RERANK_PASSAGES[3] + '\n[4] ' + RERANK_PASSAGES[4] +
+      '\n\n&#8594; model output: [2] &gt; [3] &gt; [1] &gt; [4]';
+  } else {
+    promptEl.style.display = 'none';
+  }
+}
+
+window.rsSelectRerank = function(key){
+  currentRerank = key;
+  renderRerank();
+};
+
+// ---- Tab 2: chain of thought ----
+var COT_MODES = {
+  direct: {
+    label: 'Direct answer',
+    prompt: '"{claim}"\n\nIs this reasoning sound? Answer yes or no.',
+    answer: 'No, that claim isn\'t necessarily true.',
+    note: 'A bare verdict with no visible reasoning — a reader has no way to check whether the model actually reasoned about this, or just pattern-matched to a plausible-sounding hedge.'
+  },
+  cot: {
+    label: 'Chain of Thought',
+    prompt: '"{claim}"\n\nIs this reasoning sound? Let\'s think step by step.\n\n(zero-shot CoT trigger — Kojima et al., 2022)',
+    answer: '1. Check the number: did inflation really triple? 2. Check timing: had the policy been active long enough to plausibly cause this? 3. Consider confounders: global commodity prices or currency shocks can drive inflation independent of domestic policy. 4. Correlation vs. causation: a change coinciding with a policy doesn\'t prove the policy caused it. <b>Conclusion:</b> the claim conflates correlation with causation and ignores confounders — the data alone doesn\'t support "proving" policy failure.',
+    note: 'The reasoning is now auditable — a reader (or a downstream fact-checker) can spot exactly which step they disagree with, instead of just trusting the verdict.'
+  }
+};
+var currentCOT = 'direct';
+
+function renderCOT(){
+  var m = COT_MODES[currentCOT];
+  document.getElementById('rs-cot-btns').innerHTML = Object.keys(COT_MODES).map(function(k){
+    return '<button class="rs-strat-btn' + (k === currentCOT ? ' active' : '') +
+      '" onclick="rsSelectCOT(\'' + k + '\')">' + COT_MODES[k].label + '</button>';
+  }).join('');
+  document.getElementById('rs-cot-prompt').innerHTML = '<span class="rs-prompt-tag">Prompt sent to the model</span>' + m.prompt;
+  document.getElementById('rs-cot-answer').innerHTML = m.answer;
+  document.getElementById('rs-cot-note').textContent = m.note;
+}
+
+window.rsSelectCOT = function(key){
+  currentCOT = key;
+  renderCOT();
+};
+
+// ---- Tab 3: tree of thought ----
+var TOT_BRANCHES = [
+  { key: 'geo', title: 'Verify location', conf: 'high', detail: 'Reverse image search places the photo in City B, three years earlier — not City A, not last week. Fewest assumptions needed; sufficient alone to reject the claim.' },
+  { key: 'weather', title: 'Verify timing', conf: 'high', detail: 'Assuming the location were correct, no recorded flooding event matches "last week" in City A\'s weather records either — a second, independent way the claim fails.' },
+  { key: 'attribution', title: 'Verify climate attribution', conf: 'low', detail: 'Even if the photo and timing were both accurate, attributing one flooding event to climate change (vs. local drainage, tides, etc.) needs more data than a single photo can supply.' }
+];
+var selectedBranch = 0;
+
+function renderTOT(){
+  document.getElementById('rs-tot-branches').innerHTML = TOT_BRANCHES.map(function(b, i){
+    return '<div class="rs-branch' + (i === selectedBranch ? ' sel' : '') + '" onclick="rsSelectBranch(' + i + ')">' +
+      '<div class="rs-branch-title">' + b.title + '<span class="rs-conf rs-conf-' + b.conf + '">' + b.conf + '</span></div>' +
+      '</div>';
+  }).join('');
+  var b = TOT_BRANCHES[selectedBranch];
+  var el = document.getElementById('rs-tot-detail');
+  el.className = 'rs-warn-banner ' + (b.conf === 'high' ? 'rs-warn-good' : 'rs-warn-neutral');
+  el.textContent = b.detail;
+}
+
+window.rsSelectBranch = function(i){
+  selectedBranch = i;
+  renderTOT();
+};
+
+// ---- Tab 4: self-consistency ----
+var SC_CASES = {
+  unanimous: {
+    label: 'Unanimous case: "Do vaccines contain microchips?"',
+    votes: ['No', 'No', 'No', 'No', 'No'],
+    verdict: '✓ 5/5 agreement across independently sampled reasoning paths — high-confidence "No."'
+  },
+  split: {
+    label: 'Split case: an ambiguous claim',
+    votes: ['No', 'No', 'No', 'Insufficient evidence', 'Insufficient evidence'],
+    verdict: '⚠ 3/5 majority for "No", but 2/5 samples couldn\'t settle it — worth flagging lower confidence rather than reporting the majority as certain.'
+  }
+};
+var currentSC = 'unanimous';
+
+function renderSC(){
+  var c = SC_CASES[currentSC];
+  document.getElementById('rs-sc-btns').innerHTML = Object.keys(SC_CASES).map(function(k){
+    return '<button class="rs-strat-btn' + (k === currentSC ? ' active' : '') +
+      '" onclick="rsSelectSC(\'' + k + '\')">' + SC_CASES[k].label + '</button>';
+  }).join('');
+  document.getElementById('rs-sc-votes').innerHTML = c.votes.map(function(v, i){
+    return '<div class="rs-vote-chip ' + (v === 'No' ? 'yes' : 'other') + '">Sample ' + (i + 1) + '<br>' + v + '</div>';
+  }).join('');
+  var el = document.getElementById('rs-sc-verdict');
+  el.className = 'rs-warn-banner ' + (currentSC === 'unanimous' ? 'rs-warn-good' : 'rs-warn-neutral');
+  el.textContent = c.verdict;
+}
+
+window.rsSelectSC = function(key){
+  currentSC = key;
+  renderSC();
+};
+
+// ---- Tab 5: chain-of-verification ----
+var COVE_STEPS = [
+  { label: '1. Draft', prompt: 'Answer the question: "Is the Great Wall of China visible from space, and when was it built?"',
+    content: '<b>Initial draft:</b> "The Great Wall of China is the only man-made structure visible from space, built entirely during the Qin Dynasty."' },
+  { label: '2. Plan questions', prompt: 'Given the baseline response below, generate a list of independent verification questions that would help check it for mistakes.\n\nBaseline response: {draft}',
+    content: '<b>Verification questions (planned independently of the draft\'s wording):</b><br>Q1. Is the Great Wall visible from space?<br>Q2. Is it the only human-made structure visible from space?<br>Q3. Was it built entirely during the Qin Dynasty?' },
+  { label: '3. Verify', prompt: 'Answer this question using only your general knowledge. Do not assume any prior answer is correct.\n\nQuestion: {verification question}',
+    content: '<b>Answered independently, without re-reading the draft:</b><br>A1. Not clearly visible to the naked eye from orbit without aid.<br>A2. No — the "only" claim is false regardless of A1.<br>A3. No — construction spanned many dynasties over centuries, not just Qin.' },
+  { label: '4. Revise', prompt: 'Given the original question, the baseline response, and the verification Q&A pairs below, write a final response that corrects any inconsistencies found.\n\n{draft}\n{verification Q&A pairs}',
+    content: '<b>Final, revised response:</b> "The Great Wall of China is not clearly visible to the naked eye from space — a popular misconception. It was also built and expanded over many centuries across multiple dynasties, not solely the Qin Dynasty."' }
+];
+var currentCoveStep = 0;
+
+function renderCove(){
+  document.getElementById('rs-cove-btns').innerHTML = COVE_STEPS.map(function(s, i){
+    return '<button class="rs-hop-btn' + (i === currentCoveStep ? ' active' : '') + '" onclick="rsSelectCoveStep(' + i + ')">' + s.label + '</button>';
+  }).join('');
+  document.getElementById('rs-cove-prompt').innerHTML = '<span class="rs-prompt-tag">Prompt for this step</span>' + COVE_STEPS[currentCoveStep].prompt;
+  document.getElementById('rs-cove-content').innerHTML = COVE_STEPS[currentCoveStep].content;
+}
+
+window.rsSelectCoveStep = function(i){
+  currentCoveStep = i;
+  renderCove();
+};
+
+// ---- Tab 6: agentic / ReAct ----
+var AGENTIC_STEPS = [
+  { label: 'Step 1', trace: [
+    { type: 'thought', text: 'I need to find who Nigeria\'s current president is and since when.' },
+    { type: 'action', text: 'Search("current president of Nigeria")' },
+    { type: 'obs', text: 'Result: Bola Tinubu, in office since May 2023.' }
+  ]},
+  { label: 'Step 2', trace: [
+    { type: 'thought', text: 'Now I need the capital of Nigeria and its population.' },
+    { type: 'action', text: 'Search("capital of Nigeria population")' },
+    { type: 'obs', text: 'Result: Abuja, metro population approximately 3.6 million.' }
+  ]},
+  { label: 'Step 3 — answer', trace: [
+    { type: 'thought', text: 'I now have both facts needed to answer directly.' },
+    { type: 'final', text: 'Bola Tinubu has been president since May 2023 — not always. The capital, Abuja, has a metro population of about 3.6 million.' }
+  ]}
+];
+var currentAgenticStep = 0;
+var TRACE_TAG = { thought: 'Thought', action: 'Action', obs: 'Observation', final: 'Final answer' };
+
+function renderAgentic(){
+  document.getElementById('rs-agentic-btns').innerHTML = AGENTIC_STEPS.map(function(s, i){
+    return '<button class="rs-hop-btn' + (i === currentAgenticStep ? ' active' : '') + '" onclick="rsSelectAgenticStep(' + i + ')">' + s.label + '</button>';
+  }).join('');
+  document.getElementById('rs-agentic-trace').innerHTML = AGENTIC_STEPS[currentAgenticStep].trace.map(function(t){
+    return '<div class="rs-trace-item rs-trace-' + t.type + '"><span class="rs-trace-tag">' + TRACE_TAG[t.type] + '</span>' + t.text + '</div>';
+  }).join('');
+}
+
+window.rsSelectAgenticStep = function(i){
+  currentAgenticStep = i;
+  renderAgentic();
+};
+
+renderRerank();
+renderCOT();
+renderTOT();
+renderSC();
+renderCove();
+renderAgentic();
+})();
+</script>
