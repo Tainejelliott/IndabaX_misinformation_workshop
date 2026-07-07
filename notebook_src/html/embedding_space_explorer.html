@@ -1,0 +1,455 @@
+<div style="font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;color:#0f172a;padding:6px 0">
+<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;
+            padding:12px 16px;margin-bottom:10px">
+
+  <style>
+  .emb-canvas-box { position: relative; width: 100%; aspect-ratio: 680/300; background: #f8fafc; border: 0.5px solid #e2e8f0; border-radius: 10px; overflow: hidden; }
+  .emb-canvas-box canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .emb-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 8px 0 0; }
+  .emb-legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: #475569; }
+  .emb-legend-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+  .emb-tooltip { position: absolute; background: #fff; border: 0.5px solid #94a3b8; border-radius: 6px; padding: 5px 9px; font-size: 11px; color: #0f172a; pointer-events: none; white-space: nowrap; opacity: 0; transition: opacity .15s; }
+  .emb-tab-row { display: flex; gap: 2px; margin-bottom: 8px; }
+  .emb-tab { padding: 4px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; background: transparent; border: 0.5px solid #e2e8f0; color: #475569; transition: background .15s, color .15s; }
+  .emb-tab.active { background: #f8fafc; color: #0f172a; border-color: #94a3b8; }
+  .emb-analogy-box { background: #f8fafc; border-radius: 10px; padding: 10px 12px; margin-top: 8px; }
+  .emb-vec-row { display: flex; align-items: center; gap: 7px; font-size: 12px; color: #475569; margin: 3px 0; flex-wrap: wrap; }
+  .emb-vec-chip { display: inline-flex; align-items: center; gap: 5px; background: #fff; border: 0.5px solid #cbd5e1; border-radius: 6px; padding: 2px 9px; font-size: 12px; color: #0f172a; }
+  .emb-vec-chip .dot { width: 7px; height: 7px; border-radius: 50%; }
+  .emb-op { font-size: 13px; color: #94a3b8; }
+  .emb-result-chip { background: #fff; border: 1.5px solid #94a3b8; border-radius: 6px; padding: 2px 9px; font-size: 12px; font-weight: 500; color: #0f172a; }
+  .emb-dim-strip { display: flex; gap: 2px; margin-top: 6px; align-items: flex-end; height: 34px; }
+  .emb-dim-bar { flex: 1; border-radius: 2px 2px 0 0; transition: height .4s, background .4s; min-width: 0; }
+  .emb-dim-label { font-size: 9px; color: #94a3b8; text-align: center; margin-top: 2px; }
+  .emb-selector { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 6px; }
+  .emb-word-btn { padding: 3px 9px; border-radius: 6px; border: 0.5px solid #cbd5e1; background: #fff; color: #475569; font-size: 11px; cursor: pointer; transition: all .15s; }
+  .emb-word-btn.sel { border-color: #94a3b8; background: #f8fafc; color: #0f172a; font-weight: 500; }
+  .emb-cos-table { width: 100%; border-collapse: collapse; font-size: 11px; margin-top: 6px; }
+  .emb-cos-table td { padding: 3px 7px; border-bottom: 0.5px solid #e2e8f0; color: #475569; }
+  .emb-cos-table td:first-child { color: #0f172a; font-weight: 500; }
+  .emb-cos-table td:last-child { text-align: right; }
+  .emb-sim-bar { display: inline-block; height: 5px; border-radius: 3px; vertical-align: middle; margin-right: 5px; }
+  .emb-sentence-box { background: #fff; border: 0.5px solid #cbd5e1; border-radius: 8px; padding: 8px 12px; font-size: 12px; color: #0f172a; margin-top: 6px; }
+  .emb-dyn-highlight { background: #eef2ff; color: #4f46e5; font-weight: 600; padding: 1px 4px; border-radius: 4px; }
+  </style>
+
+  <!-- header -->
+  <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;
+              text-transform:uppercase;color:#0d9488;margin-bottom:4px">
+    Embeddings Deep Dive
+  </div>
+  <div style="font-size:16px;font-weight:700;color:#0f172a;margin-bottom:3px">
+    Exploring Embedding Space
+  </div>
+  <div style="font-size:12px;color:#475569;margin-bottom:12px">
+    Explore how words cluster by meaning in vector space, see vector arithmetic
+    in action, and compare cosine similarity between words.
+  </div>
+
+  <!-- tabs -->
+  <div class="emb-tab-row">
+    <button class="emb-tab active" onclick="window.embShowTab('space')">Embedding space</button>
+    <button class="emb-tab" onclick="window.embShowTab('arithmetic')">Vector arithmetic</button>
+    <button class="emb-tab" onclick="window.embShowTab('similarity')">Similarity</button>
+    <button class="emb-tab" onclick="window.embShowTab('dynamic')">Dynamic Vectors</button>
+  </div>
+
+  <!-- TAB: space -->
+  <div id="emb-tab-space">
+    <div class="emb-canvas-box">
+      <canvas id="emb-canvas"></canvas>
+      <div class="emb-tooltip" id="emb-tooltip"></div>
+    </div>
+    <div class="emb-legend" id="emb-legend"></div>
+  </div>
+
+  <!-- TAB: arithmetic -->
+  <div id="emb-tab-arithmetic" style="display:none">
+    <div class="emb-analogy-box">
+      <div style="font-size:12px;color:#475569;margin-bottom:10px">Vector arithmetic works because direction encodes meaning — "royalty" and "gender" are learnable directions in the space.</div>
+      <div class="emb-vec-row">
+        <span class="emb-vec-chip"><span class="dot" style="background:#6366f1"></span>king</span>
+        <span class="emb-op">&minus;</span>
+        <span class="emb-vec-chip"><span class="dot" style="background:#6366f1"></span>man</span>
+        <span class="emb-op">+</span>
+        <span class="emb-vec-chip"><span class="dot" style="background:#ea580c"></span>woman</span>
+        <span class="emb-op">&asymp;</span>
+        <span class="emb-result-chip">queen</span>
+      </div>
+      <div class="emb-vec-row" style="margin-top:10px">
+        <span class="emb-vec-chip"><span class="dot" style="background:#0d9488"></span>Paris</span>
+        <span class="emb-op">&minus;</span>
+        <span class="emb-vec-chip"><span class="dot" style="background:#0d9488"></span>France</span>
+        <span class="emb-op">+</span>
+        <span class="emb-vec-chip"><span class="dot" style="background:#0d9488"></span>Germany</span>
+        <span class="emb-op">&asymp;</span>
+        <span class="emb-result-chip">Berlin</span>
+      </div>
+      <div class="emb-vec-row" style="margin-top:10px">
+        <span class="emb-vec-chip"><span class="dot" style="background:#d97706"></span>walking</span>
+        <span class="emb-op">&minus;</span>
+        <span class="emb-vec-chip"><span class="dot" style="background:#d97706"></span>walk</span>
+        <span class="emb-op">+</span>
+        <span class="emb-vec-chip"><span class="dot" style="background:#d97706"></span>swim</span>
+        <span class="emb-op">&asymp;</span>
+        <span class="emb-result-chip">swimming</span>
+      </div>
+    </div>
+    <div style="font-size:11px;color:#94a3b8;margin-top:6px">
+      Visualised below: the "royalty" direction (king&rarr;queen, prince&rarr;princess) and "gender" direction are roughly parallel &mdash; the model has learned these as geometric relationships, not explicit rules.
+    </div>
+    <div class="emb-dim-strip" id="emb-arith-bars"></div>
+    <div style="display:flex;gap:2px" id="emb-arith-labels"></div>
+  </div>
+
+  <!-- TAB: similarity -->
+  <div id="emb-tab-similarity" style="display:none">
+    <div style="font-size:12px;color:#475569;margin-bottom:8px">Select a word to see its cosine similarity to all others. Cosine similarity measures the angle between vectors &mdash; 1.0 = identical direction, 0 = unrelated, negative = opposite meaning.</div>
+    <div class="emb-selector" id="emb-word-selector"></div>
+    <table class="emb-cos-table" id="emb-cos-table">
+      <tbody id="emb-cos-body"></tbody>
+    </table>
+  </div>
+
+  <!-- TAB: dynamic vectors -->
+  <div id="emb-tab-dynamic" style="display:none">
+    <div style="font-size:11px;color:#475569;margin-bottom:6px">
+      Static embeddings (Word2Vec, GloVe) give a word exactly one vector, forever.
+      Transformer models compute a new vector every time from the surrounding words &mdash;
+      the same word gets a different vector in every sentence. Select a sentence below
+      and watch "bank" relocate.
+    </div>
+    <div class="emb-selector" id="emb-ctx-selector"></div>
+    <div class="emb-sentence-box" id="emb-ctx-sentence"></div>
+
+    <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:8px 12px;margin-top:8px">
+      <svg width="100%" viewBox="0 0 680 170" role="img" style="display:block">
+        <title>Contextual embedding position shifting between word-sense clusters</title>
+        <desc>A static embedding stays fixed at the center regardless of context, while a contextual embedding moves toward the cluster matching the current sentence's meaning of the word bank.</desc>
+        <text font-size="10" x="120" y="22" text-anchor="middle" fill="#94a3b8">Nature / water</text>
+        <circle cx="120" cy="36" r="4.5" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1"></circle>
+        <text font-size="10" x="560" y="22" text-anchor="middle" fill="#94a3b8">Finance / institution</text>
+        <circle cx="560" cy="36" r="4.5" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1"></circle>
+        <text font-size="10" x="120" y="154" text-anchor="middle" fill="#94a3b8">Storage / reserve</text>
+        <circle cx="120" cy="134" r="4.5" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1"></circle>
+        <text font-size="10" x="560" y="154" text-anchor="middle" fill="#94a3b8">Reliance / trust</text>
+        <circle cx="560" cy="134" r="4.5" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1"></circle>
+
+        <line id="emb-dyn-line" x1="340" y1="85" x2="340" y2="85" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"></line>
+        <circle cx="340" cy="85" r="7" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="2 2"></circle>
+        <text font-size="9" x="340" y="100" text-anchor="middle" fill="#94a3b8">static (fixed)</text>
+
+        <circle id="emb-dyn-dot" cx="340" cy="85" r="7.5" fill="#6366f1" style="transition:cx .4s ease,cy .4s ease"></circle>
+        <text id="emb-dyn-dot-label" font-size="10" font-weight="600" x="340" y="72" text-anchor="middle" fill="#0f172a"></text>
+      </svg>
+    </div>
+
+    <div style="font-size:11px;font-weight:500;color:#475569;margin:8px 0 3px">Static embedding (Word2Vec) &mdash; same vector every time</div>
+    <div class="emb-dim-strip" id="emb-dyn-static-bars"></div>
+    <div style="display:flex;gap:2px" id="emb-dyn-dim-labels-1"></div>
+
+    <div style="font-size:11px;font-weight:500;color:#475569;margin:8px 0 3px">Contextual embedding (Transformer) &mdash; recomputed for this sentence</div>
+    <div class="emb-dim-strip" id="emb-dyn-ctx-bars"></div>
+    <div style="display:flex;gap:2px" id="emb-dyn-dim-labels-2"></div>
+  </div>
+
+  <!-- key insight -->
+  <div style="margin-top:10px;background:#f0fdf4;border-left:3px solid #16a34a;
+              border-radius:0 8px 8px 0;padding:10px 14px">
+    <span style="font-weight:700;color:#16a34a;font-size:13px">Key insight &mdash;</span>
+    <span style="color:#475569;font-size:13px">
+      Vector arithmetic works because directions in embedding space encode
+      meaning &mdash; king &minus; man + woman &asymp; queen because "gender" and "royalty"
+      are learnable geometric directions.
+    </span>
+  </div>
+
+<script>
+(function(){
+var CLUSTERS = [
+  { label: 'Royalty', color: '#6366f1', words: [
+    { w: 'king',    x: 0.18, y: 0.22 },
+    { w: 'queen',   x: 0.24, y: 0.30 },
+    { w: 'prince',  x: 0.12, y: 0.34 },
+    { w: 'princess',x: 0.20, y: 0.40 },
+  ]},
+  { label: 'Animals', color: '#0d9488', words: [
+    { w: 'dog',     x: 0.72, y: 0.18 },
+    { w: 'cat',     x: 0.80, y: 0.26 },
+    { w: 'puppy',   x: 0.66, y: 0.28 },
+    { w: 'kitten',  x: 0.76, y: 0.36 },
+  ]},
+  { label: 'Geography', color: '#2563eb', words: [
+    { w: 'Paris',   x: 0.48, y: 0.60 },
+    { w: 'France',  x: 0.38, y: 0.68 },
+    { w: 'Berlin',  x: 0.56, y: 0.68 },
+    { w: 'Germany', x: 0.64, y: 0.60 },
+  ]},
+  { label: 'Verbs', color: '#d97706', words: [
+    { w: 'run',     x: 0.30, y: 0.72 },
+    { w: 'running', x: 0.22, y: 0.80 },
+    { w: 'swim',    x: 0.40, y: 0.80 },
+    { w: 'swimming',x: 0.50, y: 0.86 },
+  ]},
+];
+
+var ALL_WORDS = CLUSTERS.flatMap(function(c){ return c.words.map(function(w){ return Object.assign({}, w, { color: c.color, cluster: c.label }); }); });
+var WORD_MAP = {};
+ALL_WORDS.forEach(function(w){ WORD_MAP[w.w] = w; });
+
+var canvas, ctx, W, H, dpr;
+
+function initCanvas() {
+  canvas = document.getElementById('emb-canvas');
+  ctx = canvas.getContext('2d');
+  var box = canvas.parentElement.getBoundingClientRect();
+  dpr = window.devicePixelRatio || 1;
+  W = box.width; H = box.height;
+  canvas.width = W * dpr; canvas.height = H * dpr;
+  ctx.scale(dpr, dpr);
+}
+
+function px(word) { return { x: word.x * W, y: word.y * H }; }
+
+function drawSpace() {
+  if (!canvas) return;
+  ctx.clearRect(0, 0, W, H);
+  var gridColor = 'rgba(0,0,0,0.04)';
+  var i;
+
+  for (i = 0; i <= 10; i++) {
+    ctx.beginPath(); ctx.strokeStyle = gridColor; ctx.lineWidth = 0.5;
+    ctx.moveTo(i * W/10, 0); ctx.lineTo(i * W/10, H); ctx.stroke();
+    ctx.moveTo(0, i * H/10); ctx.lineTo(W, i * H/10); ctx.stroke();
+  }
+
+  CLUSTERS.forEach(function(c) {
+    c.words.forEach(function(a, i) {
+      c.words.forEach(function(b, j) {
+        if (j <= i) return;
+        var pa = px(a), pb = px(b);
+        ctx.beginPath(); ctx.strokeStyle = c.color + '28'; ctx.lineWidth = 1;
+        ctx.moveTo(pa.x, pa.y); ctx.lineTo(pb.x, pb.y); ctx.stroke();
+      });
+    });
+  });
+
+  ALL_WORDS.forEach(function(w) {
+    var p = px(w);
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 6, 0, Math.PI*2);
+    ctx.fillStyle = w.color;
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,0.8)';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    ctx.font = "500 12px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
+    ctx.fillStyle = 'rgba(0,0,0,0.75)';
+    ctx.textAlign = 'left';
+    var label_x = p.x + 10;
+    var label_y = p.y + 4;
+    ctx.fillText(w.w, label_x, label_y);
+  });
+
+  ctx.font = "11px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
+  ctx.fillStyle = 'rgba(0,0,0,0.25)';
+  ctx.textAlign = 'left'; ctx.fillText('\u2190 unrelated', 8, H - 8);
+  ctx.textAlign = 'right'; ctx.fillText('related \u2192', W - 8, H - 8);
+}
+
+function buildLegend() {
+  var el = document.getElementById('emb-legend');
+  el.innerHTML = CLUSTERS.map(function(c){
+    return '<div class="emb-legend-item"><div class="emb-legend-dot" style="background:'+c.color+'"></div>'+c.label+'</div>';
+  }).join('');
+}
+
+canvas = document.getElementById('emb-canvas');
+canvas.addEventListener('mousemove', function(e) {
+  var rect = canvas.getBoundingClientRect();
+  var mx = (e.clientX - rect.left) * (W / rect.width);
+  var my = (e.clientY - rect.top) * (H / rect.height);
+  var closest = null, minD = 999;
+  ALL_WORDS.forEach(function(w) {
+    var p = px(w);
+    var d = Math.hypot(p.x - mx, p.y - my);
+    if (d < minD) { minD = d; closest = w; }
+  });
+  var tip = document.getElementById('emb-tooltip');
+  if (minD < 24 && closest) {
+    tip.style.left = (e.clientX - rect.left + 12) + 'px';
+    tip.style.top = (e.clientY - rect.top - 28) + 'px';
+    tip.innerHTML = '<b>'+closest.w+'</b> <span style="color:'+closest.color+'">'+closest.cluster+'</span>';
+    tip.style.opacity = '1';
+  } else {
+    tip.style.opacity = '0';
+  }
+});
+
+function buildArithBars() {
+  var dims = ['gender','royalty','location','tense','size','abstract'];
+  var colors = ['#6366f1','#6366f1','#2563eb','#d97706','#0d9488','#ea580c'];
+  var container = document.getElementById('emb-arith-bars');
+  var labels = document.getElementById('emb-arith-labels');
+  var vals = [0.85, 0.92, 0.12, 0.08, 0.20, 0.15];
+  container.innerHTML = dims.map(function(d,i){
+    return '<div class="emb-dim-bar" style="background:'+colors[i]+';height:'+vals[i]*32+'px" title="'+d+':'+vals[i]+'"></div>';
+  }).join('');
+  labels.innerHTML = dims.map(function(d){
+    return '<div class="emb-dim-label" style="flex:1">'+d+'</div>';
+  }).join('');
+}
+
+function cosineSim(a, b) {
+  var va = { x: a.x - 0.5, y: a.y - 0.5 };
+  var vb = { x: b.x - 0.5, y: b.y - 0.5 };
+  var ma = Math.hypot(va.x, va.y);
+  var mb = Math.hypot(vb.x, vb.y);
+  if (ma === 0 || mb === 0) return 0;
+  return (va.x*vb.x + va.y*vb.y) / (ma * mb);
+}
+
+var selectedWord = 'king';
+
+function buildSelector() {
+  var sel = document.getElementById('emb-word-selector');
+  sel.innerHTML = ALL_WORDS.map(function(w){
+    return '<button class="emb-word-btn'+(w.w === selectedWord ? ' sel' : '')+'" onclick="window.embSelectWord(\''+w.w+'\')">'+w.w+'</button>';
+  }).join('');
+}
+
+function selectWord(w) {
+  selectedWord = w;
+  buildSelector();
+  buildCosTable();
+}
+
+function buildCosTable() {
+  var src = WORD_MAP[selectedWord];
+  var rows = ALL_WORDS
+    .filter(function(w){ return w.w !== selectedWord; })
+    .map(function(w){ return { w: w.w, color: w.color, sim: cosineSim(src, w) }; })
+    .sort(function(a,b){ return b.sim - a.sim; });
+
+  document.getElementById('emb-cos-body').innerHTML = rows.map(function(r) {
+    var pct = Math.max(0, Math.min(1, (r.sim + 1) / 2));
+    return '<tr>' +
+      '<td><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:'+r.color+';margin-right:6px"></span>'+r.w+'</td>' +
+      '<td>' +
+        '<span class="emb-sim-bar" style="width:'+pct*80+'px;background:'+r.color+'40"></span>' +
+        r.sim.toFixed(3) +
+      '</td>' +
+    '</tr>';
+  }).join('');
+}
+
+function showTab(name) {
+  ['space','arithmetic','similarity','dynamic'].forEach(function(t) {
+    document.getElementById('emb-tab-'+t).style.display = t === name ? '' : 'none';
+    var btns = document.querySelectorAll('.emb-tab');
+    var tabNames = ['space','arithmetic','similarity','dynamic'];
+    btns.forEach(function(btn,i) {
+      btn.classList.toggle('active', tabNames[i] === name);
+    });
+  });
+  if (name === 'space') drawSpace();
+  if (name === 'similarity') { buildSelector(); buildCosTable(); }
+}
+
+// ---- Dynamic Vectors tab ----
+var CONTEXTS = [
+  { key:'river',   color:'#0d9488', cluster:{x:120,y:36},  sense:'Nature / water',
+    sentence:'She sat on the grassy river BANK and watched the water flow past.',
+    dims:[0.05,0.92,0.10,0.15,0.08] },
+  { key:'savings', color:'#6366f1', cluster:{x:560,y:36},  sense:'Finance / institution',
+    sentence:'He deposited his paycheck at the BANK downtown.',
+    dims:[0.90,0.05,0.20,0.30,0.85] },
+  { key:'blood',   color:'#d97706', cluster:{x:120,y:134}, sense:'Storage / reserve',
+    sentence:'The hospital keeps a blood BANK for emergency transfusions.',
+    dims:[0.20,0.10,0.88,0.20,0.35] },
+  { key:'relyon',  color:'#8b5cf6', cluster:{x:560,y:134}, sense:'Reliance / trust',
+    sentence:'You can BANK on her to finish the project on time.',
+    dims:[0.10,0.05,0.15,0.90,0.10] }
+];
+var DYN_DIMS = ['financial','aquatic','storage','trust','institution'];
+var STATIC_DIMS = DYN_DIMS.map(function(_, i){
+  var sum = CONTEXTS.reduce(function(acc, c){ return acc + c.dims[i]; }, 0);
+  return sum / CONTEXTS.length;
+});
+var currentCtx = 'river';
+
+function ctxByKey(key) { return CONTEXTS.filter(function(c){ return c.key === key; })[0]; }
+
+function renderCtxButtons() {
+  var el = document.getElementById('emb-ctx-selector');
+  el.innerHTML = CONTEXTS.map(function(c){
+    return '<button class="emb-word-btn'+(c.key === currentCtx ? ' sel' : '')+'" onclick="window.embSelectContext(\''+c.key+'\')">'+c.sense+'</button>';
+  }).join('');
+}
+
+function renderCtxSentence() {
+  var c = ctxByKey(currentCtx);
+  document.getElementById('emb-ctx-sentence').innerHTML =
+    c.sentence.replace('BANK', '<span class="emb-dyn-highlight">bank</span>');
+}
+
+function renderCtxMap() {
+  var c = ctxByKey(currentCtx);
+  var dot = document.getElementById('emb-dyn-dot');
+  var label = document.getElementById('emb-dyn-dot-label');
+  var line = document.getElementById('emb-dyn-line');
+  dot.setAttribute('cx', c.cluster.x);
+  dot.setAttribute('cy', c.cluster.y);
+  dot.setAttribute('fill', c.color);
+  label.setAttribute('x', c.cluster.x);
+  label.setAttribute('y', c.cluster.y < 85 ? c.cluster.y + 16 : c.cluster.y - 12);
+  label.textContent = 'bank (' + c.sense + ')';
+  line.setAttribute('x2', c.cluster.x);
+  line.setAttribute('y2', c.cluster.y);
+}
+
+function dynDimBarsHTML(vals, color) {
+  return vals.map(function(v, i){
+    return '<div class="emb-dim-bar" style="background:'+color+';height:'+v*32+'px" title="'+DYN_DIMS[i]+': '+v.toFixed(2)+'"></div>';
+  }).join('');
+}
+function dynDimLabelsHTML() {
+  return DYN_DIMS.map(function(d){ return '<div class="emb-dim-label" style="flex:1">'+d+'</div>'; }).join('');
+}
+
+function renderCtxBars() {
+  var c = ctxByKey(currentCtx);
+  document.getElementById('emb-dyn-static-bars').innerHTML = dynDimBarsHTML(STATIC_DIMS, '#94a3b8');
+  document.getElementById('emb-dyn-dim-labels-1').innerHTML = dynDimLabelsHTML();
+  document.getElementById('emb-dyn-ctx-bars').innerHTML = dynDimBarsHTML(c.dims, c.color);
+  document.getElementById('emb-dyn-dim-labels-2').innerHTML = dynDimLabelsHTML();
+}
+
+function renderDynamicTab() {
+  renderCtxButtons();
+  renderCtxSentence();
+  renderCtxMap();
+  renderCtxBars();
+}
+
+window.embSelectContext = function(key) {
+  currentCtx = key;
+  renderDynamicTab();
+};
+
+window.embShowTab = showTab;
+window.embSelectWord = selectWord;
+
+renderDynamicTab();
+
+setTimeout(function() {
+  initCanvas();
+  drawSpace();
+  buildLegend();
+  buildArithBars();
+}, 50);
+})();
+</script>
+
+</div></div>

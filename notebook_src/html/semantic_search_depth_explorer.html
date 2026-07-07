@@ -1,0 +1,313 @@
+<div style="font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;color:#0f172a;padding:8px 0">
+<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:16px;
+            padding:16px 20px;margin-bottom:12px">
+
+<style>
+* { box-sizing: border-box; }
+.ss-tab-row { display:flex; gap:2px; margin-bottom:16px; padding-top:1rem; }
+.ss-tab { padding:5px 14px; border-radius:6px; font-size:13px; cursor:pointer; background:transparent; border:0.5px solid #e2e8f0; color:#475569; transition:background .15s,color .15s; }
+.ss-tab.active { background:#f8fafc; color:#0f172a; border-color:#94a3b8; }
+.ss-panel { display:none; }
+.ss-panel.active { display:block; }
+
+.ss-query-btn { padding:5px 12px; border-radius:20px; border:0.5px solid #cbd5e1; background:#fff; color:#475569; font-size:12px; cursor:pointer; transition:all .15s; white-space:nowrap; }
+.ss-query-btn.active { background:#eef2ff; border-color:#6366f1; color:#4f46e5; }
+
+.ss-doc-row { margin:6px 0; }
+.ss-doc-label { font-size:12px; color:#475569; margin-bottom:3px; display:flex; justify-content:space-between; }
+.ss-doc-text { font-size:12px; color:#94a3b8; font-style:italic; }
+.ss-bar-track { background:#f8fafc; border-radius:4px; height:10px; overflow:hidden; }
+.ss-bar-fill { height:100%; border-radius:4px; transition:width .5s cubic-bezier(.4,0,.2,1), background .4s; }
+
+.ss-kw-badge { display:inline-block; padding:2px 7px; border-radius:4px; font-size:11px; margin-left:8px; }
+.ss-kw-miss { background:#fef2f2; color:#dc2626; }
+.ss-kw-hit  { background:#f0fdf4; color:#16a34a; }
+
+.ss-depth-grid { display:grid; grid-template-columns:160px repeat(3,1fr); gap:1px; background:#e2e8f0; border-radius:12px; overflow:hidden; font-size:12px; }
+.ss-dg-cell { background:#fff; padding:8px 10px; }
+.ss-dg-head { background:#f8fafc; font-size:12px; font-weight:500; color:#0f172a; padding:8px 10px; }
+.ss-dg-qtype { background:#f8fafc; font-size:12px; color:#475569; padding:8px 10px; }
+
+.ss-score-pill { display:inline-block; width:100%; text-align:center; padding:4px 0; border-radius:5px; font-size:12px; font-weight:500; cursor:pointer; transition:opacity .15s; }
+.ss-score-pill:hover { opacity:.8; }
+
+.ss-detail-box { margin-top:14px; background:#f8fafc; border-radius:12px; padding:12px 14px; font-size:12px; color:#475569; min-height:60px; transition:all .2s; }
+.ss-detail-title { font-size:13px; font-weight:500; color:#0f172a; margin-bottom:4px; }
+
+.ss-dim-row { display:flex; align-items:center; gap:10px; margin:5px 0; font-size:12px; }
+.ss-dim-name { width:120px; color:#475569; flex-shrink:0; }
+.ss-dim-track { flex:1; background:#f8fafc; border-radius:3px; height:8px; overflow:hidden; }
+.ss-dim-bar { height:100%; border-radius:3px; transition:width .5s; }
+.ss-dim-val { width:36px; text-align:right; color:#94a3b8; }
+</style>
+
+  <!-- header -->
+  <div style="font-size:11px;font-weight:700;letter-spacing:2px;
+              text-transform:uppercase;color:#6366f1;margin-bottom:6px">
+    Semantic Search
+  </div>
+  <div style="font-size:20px;font-weight:700;color:#0f172a;margin-bottom:4px">
+    Search Quality &amp; Model Depth
+  </div>
+  <div style="font-size:13px;color:#475569;margin-bottom:24px">
+    Semantic search matches meaning, not keywords. Explore how queries with zero
+    keyword overlap still find the right documents, and how embedding model depth
+    affects retrieval quality across different query types.
+  </div>
+
+  <!-- content -->
+
+<div class="ss-tab-row">
+  <button class="ss-tab active" onclick="ssSwitchTab('search',this)">Live search demo</button>
+  <button class="ss-tab" onclick="ssSwitchTab('depth',this)">Model depth effects</button>
+  <button class="ss-tab" onclick="ssSwitchTab('dims',this)">What depth adds</button>
+</div>
+
+<div class="ss-panel active" id="ss-tab-search">
+  <div style="font-size:12px;color:#475569;margin-bottom:10px">Select a query. Watch which documents match — and notice when there's zero keyword overlap.</div>
+  <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px" id="ss-query-btns"></div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;align-items:center;margin-bottom:8px">
+    <div style="font-size:11px;color:#94a3b8;font-weight:500">DOCUMENT</div>
+    <div style="display:flex;justify-content:space-between;font-size:11px;color:#94a3b8;font-weight:500;padding-right:2px"><span>SEMANTIC SCORE</span><span>KEYWORD MATCH?</span></div>
+  </div>
+  <div id="ss-doc-list"></div>
+  <div style="margin-top:12px;padding:10px 12px;background:#f8fafc;border-radius:8px;font-size:12px;color:#475569" id="ss-search-insight"></div>
+</div>
+
+<div class="ss-panel" id="ss-tab-depth">
+  <div style="font-size:12px;color:#475569;margin-bottom:12px">Click any cell to see why that model tier handles that query type the way it does.</div>
+  <div class="ss-depth-grid" id="ss-depth-grid"></div>
+  <div class="ss-detail-box" id="ss-depth-detail">
+    <div style="color:#94a3b8;font-size:12px">Click a cell above to see the explanation.</div>
+  </div>
+</div>
+
+<div class="ss-panel" id="ss-tab-dims">
+  <div style="font-size:12px;color:#475569;margin-bottom:12px">How each architectural dimension of an embedding model contributes to search quality. Drag the model size slider to see how they scale together.</div>
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+    <span style="font-size:12px;color:#475569">Model size</span>
+    <input type="range" min="0" max="2" value="1" step="1" id="ss-size-slider" style="flex:1" oninput="ssUpdateDims(this.value)">
+    <span style="font-size:12px;font-weight:500;color:#0f172a;min-width:90px" id="ss-size-label">Medium (110M)</span>
+  </div>
+  <div id="ss-dims-list"></div>
+</div>
+
+  <!-- key insight -->
+  <div style="margin-top:20px;background:#eef2ff;border-left:4px solid #6366f1;
+              border-radius:0 8px 8px 0;padding:14px 18px">
+    <span style="font-weight:700;color:#6366f1">Key insight —</span>
+    <span style="color:#475569;font-size:14px">
+      Deeper embedding models don't just find more results — they understand
+      context, polysemy, and even partial negation. A shallow model sees "car"
+      and "vehicle" as unrelated; a deep model knows they're the same concept.
+    </span>
+  </div>
+
+<script>
+(function(){
+const QUERIES = [
+  { label:'car accident',    color:'#6366f1' },
+  { label:'housing costs',   color:'#2563eb' },
+  { label:'banking',         color:'#0d9488' },
+  { label:'pet playing',     color:'#d97706' },
+  { label:'sports record',   color:'#ea580c' },
+  { label:'medical research',color:'#be185d' },
+];
+
+const DOCS = [
+  { text:'The vehicle collided with a lamppost on the highway at speed.' },
+  { text:'Monthly rent prices have surged 40% across major metropolitan areas.' },
+  { text:'She deposited the cheque at the local financial institution.' },
+  { text:'The dog chased the ball enthusiastically across the green lawn.' },
+  { text:'The athlete broke the fastest mile record in competition history.' },
+  { text:'Scientists discovered a promising new treatment for the disease.' },
+];
+
+const SCORES = [
+  [0.91, 0.08, 0.06, 0.09, 0.12, 0.10],
+  [0.07, 0.89, 0.14, 0.05, 0.08, 0.11],
+  [0.09, 0.18, 0.86, 0.06, 0.07, 0.09],
+  [0.06, 0.05, 0.05, 0.90, 0.10, 0.07],
+  [0.11, 0.07, 0.06, 0.12, 0.88, 0.13],
+  [0.08, 0.10, 0.09, 0.07, 0.14, 0.87],
+];
+
+const KW_OVERLAP = [
+  [false, false, false, false, false, false],
+  [false, false, false, false, false, false],
+  [false, false, true,  false, false, false],
+  [false, false, false, true,  false, false],
+  [false, false, false, false, true,  false],
+  [false, false, false, false, false, true ],
+];
+
+const INSIGHTS = [
+  '"Car accident" matched "vehicle collided" with 0.91 similarity — zero shared words. The model understands car\u2248vehicle and accident\u2248collided as the same concept.',
+  '"Housing costs" found "rent prices surged" at 0.89 — no overlap. Housing\u2192rent, costs\u2192prices are learnt synonyms in context.',
+  '"Banking" found the financial institution passage. Here there IS some keyword overlap ("financial"), showing hybrid wins.',
+  '"Pet playing" mapped to "dog chased the ball" — pet\u2192dog, playing\u2192chased are inferred from co-occurrence patterns in training.',
+  '"Sports record" found "athlete broke the fastest mile" — sports is a broader hypernym the model has learnt covers athletics.',
+  '"Medical research" matched "scientists discovered a new treatment" — medical\u2192scientists and research\u2192discovered as contextual synonyms.',
+];
+
+var currentQ = 0;
+
+function renderQueryBtns() {
+  document.getElementById('ss-query-btns').innerHTML = QUERIES.map(function(q,i){
+    return '<button class="ss-query-btn'+(i===currentQ?' active':'')+'" onclick="ssSelectQuery('+i+')">' +
+      q.label +
+    '</button>';
+  }).join('');
+}
+
+function renderDocs() {
+  var scores = SCORES[currentQ];
+  var kw = KW_OVERLAP[currentQ];
+  var color = QUERIES[currentQ].color;
+  var order = scores.map(function(s,i){ return {s:s,i:i}; }).sort(function(a,b){ return b.s - a.s; });
+
+  document.getElementById('ss-doc-list').innerHTML = order.map(function(o){
+    var s = o.s, i = o.i;
+    var pct = Math.round(s * 100);
+    var barColor = s > 0.7 ? color : (s > 0.3 ? '#94a3b8' : '#cbd5e1');
+    return '<div class="ss-doc-row">' +
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;align-items:center">' +
+        '<div class="ss-doc-text">' + DOCS[i].text + '</div>' +
+        '<div style="display:flex;align-items:center;gap:6px">' +
+          '<div class="ss-bar-track" style="flex:1"><div class="ss-bar-fill" style="width:'+pct+'%;background:'+barColor+'"></div></div>' +
+          '<span style="font-size:11px;color:#475569;min-width:30px">'+pct+'%</span>' +
+          '<span class="ss-kw-badge '+(kw[i]?'ss-kw-hit':'ss-kw-miss')+'">'+(kw[i]?'keyword hit':'no keywords')+'</span>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+
+  document.getElementById('ss-search-insight').textContent = INSIGHTS[currentQ];
+}
+
+var QTYPES = ['Synonym matching','Polysemy (word sense)','Negation','Long-range context'];
+var MODELS = ['Shallow\n(Word2Vec/GloVe)','Medium\n(MiniLM 22M)','Deep\n(E5-large 335M)'];
+var MODEL_LABELS = ['Shallow (Word2Vec)','Medium (MiniLM 22M)','Deep (E5-large 335M)'];
+
+var PERF = [
+  [68, 88, 95],
+  [22, 58, 85],
+  [12, 30, 62],
+  [18, 55, 88],
+];
+
+var DETAILS = [
+  [
+    'Shallow models learn co-occurrence statistics so common synonyms like car/automobile are usually nearby in the vector space. Performance is reasonable but breaks for rare or domain-specific synonyms.',
+    'Medium models trained with contrastive objectives (matching paraphrases) handle synonyms very well. The training signal directly pushes paraphrases together.',
+    'Deep models with large training sets capture even rare synonyms and cross-domain equivalences. Near-perfect on standard synonym benchmarks (BEIR, MTEB).',
+  ],
+  [
+    '"Bank" gets one static vector that blurs financial and river senses together. Retrieving "river bank" passages with a financial query returns false positives — the model has no way to disambiguate.',
+    'Contextual models (BERT-style) produce different vectors for "bank" depending on surrounding words. Medium models handle common polysemy but struggle with subtle or rare senses.',
+    'More layers = more context absorbed before producing the final vector. Deep models correctly separate "river bank" from "savings bank" even in short passages, because attention spans the whole input.',
+  ],
+  [
+    'Shallow models have no concept of negation. "animals that are NOT dangerous" and "dangerous animals" produce nearly identical vectors. Negation is invisible.',
+    'Medium models learn some negation patterns from training data but it is fragile — they often ignore "not" especially in longer or complex sentences.',
+    'Deep models still struggle with negation relative to other capabilities — this is a known hard problem. Scores improve but it remains the weakest axis even at large scale.',
+  ],
+  [
+    'Shallow models embed one word at a time, then average. A 5-sentence passage gets the same representation regardless of sentence order or long-distance dependencies.',
+    'Attention can span the full input, so medium models capture intra-sentence dependencies well. Longer documents (>512 tokens) are truncated, losing tail content.',
+    'Deeper attention stacks build richer cross-sentence representations. Larger context windows (up to 8192 tokens in models like E5-mistral) handle document-level coherence.',
+  ],
+];
+
+function scoreColor(s) {
+  if (s >= 80) return { bg:'#f0fdf4', fg:'#059669' };
+  if (s >= 55) return { bg:'#fef3c7', fg:'#92400e' };
+  return { bg:'#fef2f2', fg:'#991b1b' };
+}
+
+function renderDepthGrid() {
+  var html = '';
+  html += '<div class="ss-dg-head"></div>';
+  MODEL_LABELS.forEach(function(m){
+    html += '<div class="ss-dg-head" style="text-align:center">'+m+'</div>';
+  });
+  QTYPES.forEach(function(q,qi){
+    html += '<div class="ss-dg-qtype">'+q+'</div>';
+    MODELS.forEach(function(_,mi){
+      var s = PERF[qi][mi];
+      var c = scoreColor(s);
+      html += '<div class="ss-dg-cell" style="text-align:center">' +
+        '<span class="ss-score-pill" style="background:'+c.bg+';color:'+c.fg+'" onclick="ssShowDetail('+qi+','+mi+')">'+s+'/100</span>' +
+      '</div>';
+    });
+  });
+  document.getElementById('ss-depth-grid').innerHTML = html;
+}
+
+function showDetail(qi, mi) {
+  var box = document.getElementById('ss-depth-detail');
+  box.innerHTML = '<div class="ss-detail-title">'+QTYPES[qi]+' — '+MODEL_LABELS[mi]+'</div>' +
+    '<div>'+DETAILS[qi][mi]+'</div>';
+}
+
+var DIMS = [
+  { name:'Embedding dim',   desc:'Width of the output vector. More dimensions = finer-grained distinctions between concepts.',
+    vals:[0.30, 0.60, 0.90], units:['300d','384d','1024d'] },
+  { name:'Layer depth',     desc:'Number of transformer layers. Each layer refines the representation using the full context of the input.',
+    vals:[0.0,  0.55, 0.90], units:['0 (static)','6 layers','24 layers'] },
+  { name:'Attention heads', desc:'Parallel attention patterns per layer. More heads let the model simultaneously track different relationship types (syntax, co-reference, topic).',
+    vals:[0.0,  0.50, 0.85], units:['0','8 heads','16 heads'] },
+  { name:'Training data',   desc:'Scale and diversity of training corpus. More data covers more domains and rare vocabulary.',
+    vals:[0.40, 0.65, 0.90], units:['web crawl','multi-domain','massive multi-lingual'] },
+  { name:'Training objective', desc:'Contrastive learning (pushing paraphrases together, non-matches apart) dramatically outperforms simple masked-language-model pretraining for retrieval.',
+    vals:[0.20, 0.70, 0.92], units:['co-occurrence','contrastive (weak)','contrastive (hard neg.)'] },
+  { name:'Context window',  desc:'Max tokens processed at once. Longer window = long documents are understood holistically, not truncated.',
+    vals:[0.10, 0.45, 0.85], units:['N/A','512 tok','8192 tok'] },
+];
+
+var MODEL_SIZE_LABELS = ['Shallow (Word2Vec, ~100M params)', 'Medium (MiniLM, ~22\u2013110M)', 'Deep (E5-large, ~335M+)'];
+var DIM_COLORS = ['#6366f1','#0d9488','#2563eb','#d97706','#ea580c','#be185d'];
+
+function updateDims(v) {
+  document.getElementById('ss-size-label').textContent = MODEL_SIZE_LABELS[v];
+  var list = document.getElementById('ss-dims-list');
+  list.innerHTML = DIMS.map(function(d,i){
+    var val = d.vals[v];
+    var pct = Math.round(val * 100);
+    var unit = d.units[v];
+    return '<div class="ss-dim-row">' +
+      '<div class="ss-dim-name">'+d.name+'</div>' +
+      '<div class="ss-dim-track"><div class="ss-dim-bar" style="width:'+pct+'%;background:'+DIM_COLORS[i]+'"></div></div>' +
+      '<div class="ss-dim-val">'+pct+'%</div>' +
+      '<div style="width:130px;font-size:11px;color:#94a3b8;flex-shrink:0">'+unit+'</div>' +
+    '</div>' +
+    '<div style="font-size:11px;color:#94a3b8;margin:-3px 0 8px 130px;line-height:1.5">'+d.desc+'</div>';
+  }).join('');
+}
+
+function switchTab(name, btn) {
+  document.querySelectorAll('.ss-panel').forEach(function(p){ p.classList.remove('active'); });
+  document.querySelectorAll('.ss-tab').forEach(function(t){ t.classList.remove('active'); });
+  document.getElementById('ss-tab-'+name).classList.add('active');
+  btn.classList.add('active');
+}
+
+// Expose handlers on window with ss prefix
+window.ssSwitchTab = switchTab;
+window.ssSelectQuery = function(i){
+  currentQ = i;
+  renderQueryBtns();
+  renderDocs();
+};
+window.ssShowDetail = showDetail;
+window.ssUpdateDims = updateDims;
+
+renderQueryBtns();
+renderDocs();
+renderDepthGrid();
+updateDims(1);
+})();
+</script>
+
+</div></div>

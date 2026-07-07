@@ -1,0 +1,350 @@
+<div style="font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;color:#0f172a;padding:6px 0">
+<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;
+            padding:12px 16px;margin-bottom:10px">
+
+<style>
+*{box-sizing:border-box}
+.ir-tab-row{display:flex;gap:2px;flex-wrap:wrap;padding-top:0.4rem;margin-bottom:10px}
+.ir-tab{padding:4px 12px;border-radius:6px;font-size:12px;cursor:pointer;background:transparent;border:0.5px solid #e2e8f0;color:#475569;transition:background .15s,color .15s}
+.ir-tab.active{background:#f8fafc;color:#0f172a;border-color:#94a3b8}
+.ir-panel{display:none}
+.ir-panel.active{display:block}
+
+.ir-strat-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.ir-strat-btn{padding:4px 11px;border-radius:20px;border:0.5px solid #cbd5e1;background:#fff;color:#475569;font-size:11px;cursor:pointer;transition:all .15s}
+.ir-strat-btn.active{background:#fef2f2;border-color:#e11d48;color:#be123c}
+.ir-strat-desc{font-size:11px;color:#475569;margin-bottom:6px;line-height:1.5}
+.ir-example-box{background:#f8fafc;border:0.5px solid #cbd5e1;border-radius:8px;padding:9px 11px;font-family:'SFMono-Regular',Consolas,'Liberation Mono',Menlo,monospace;font-size:10.5px;color:#0f172a;white-space:pre-wrap;line-height:1.5;margin-top:6px}
+
+.ir-score-row{display:flex;align-items:center;gap:8px;margin:6px 0;font-size:11px}
+.ir-score-label{width:96px;color:#475569;flex-shrink:0}
+.ir-score-track{flex:1;background:#f1f5f9;border-radius:4px;height:10px;overflow:hidden}
+.ir-score-fill{height:100%;border-radius:4px;transition:width .4s}
+.ir-score-val{width:32px;text-align:right;color:#0f172a;font-weight:500}
+.ir-winner{display:inline-block;font-size:9.5px;font-weight:600;padding:1px 7px;border-radius:4px;margin-left:6px}
+
+.ir-mg{display:grid;grid-template-columns:minmax(0,4fr) repeat(4,minmax(0,2.4fr));gap:1px;background:#e2e8f0;border-radius:8px;overflow:hidden;margin-bottom:6px;font-size:10.5px}
+.ir-mh{background:#f8fafc;padding:5px 6px;font-weight:500;color:#0f172a;text-align:center}
+.ir-mhl{text-align:left}
+.ir-mk{background:#f8fafc;padding:5px 8px;color:#475569}
+.ir-mc{padding:4px;text-align:center;background:#fff;color:#475569}
+.ir-mc-win{background:#f0fdf4;color:#166534;font-weight:700}
+
+.ir-note{background:#f8fafc;border-radius:8px;padding:8px 10px;font-size:10.5px;color:#475569;margin-top:6px;line-height:1.4}
+.ir-warn-banner{margin-top:8px;padding:6px 10px;border-radius:7px;font-size:11px}
+.ir-warn-bad{background:#fef2f2;color:#991b1b}
+.ir-warn-good{background:#f0fdf4;color:#166534}
+
+.ir-hop-row{display:flex;gap:6px;margin-bottom:8px}
+.ir-hop-btn{flex:1;padding:5px 8px;border-radius:7px;border:0.5px solid #cbd5e1;background:#fff;color:#475569;font-size:11px;cursor:pointer;text-align:center;transition:all .15s}
+.ir-hop-btn.active{background:#eff6ff;border-color:#2563eb;color:#1d4ed8;font-weight:600}
+.ir-g-node{transition:opacity .2s}
+.ir-g-node.dim{opacity:.25}
+.ir-g-edge{transition:opacity .2s,stroke-width .2s}
+.ir-g-edge.dim{opacity:.2}
+.ir-g-edge.hit{stroke-width:2.5}
+
+.ir-rank-cols{display:flex;gap:10px;flex-wrap:wrap}
+.ir-rank-col{flex:1;min-width:220px}
+.ir-rank-col-title{font-size:10.5px;font-weight:600;color:#475569;margin-bottom:5px;text-transform:uppercase;letter-spacing:0.5px}
+.ir-rank-item{display:flex;gap:7px;align-items:flex-start;background:#f8fafc;border-radius:7px;padding:5px 8px;margin-bottom:4px;font-size:10.5px;color:#475569}
+.ir-rank-num{font-weight:700;color:#0f172a;flex-shrink:0;width:16px}
+.ir-rank-item.top{border-left:3px solid #16a34a}
+</style>
+
+  <!-- header -->
+  <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;
+              text-transform:uppercase;color:#e11d48;margin-bottom:4px">
+    Information Retrieval
+  </div>
+  <div style="font-size:16px;font-weight:700;color:#0f172a;margin-bottom:3px">
+    Getting the Right Chunk: Methods for Information Retrieval
+  </div>
+  <div style="font-size:12px;color:#475569;margin-bottom:10px">
+    Embedding search is only one retrieval strategy among several. Real systems combine
+    lexical matching, semantic search, graph traversal, re-ranking, and query rewriting —
+    because each method fails differently, and their failures rarely overlap.
+  </div>
+
+  <div class="ir-tab-row">
+    <button class="ir-tab active" onclick="irSwitchTab('sparsedense',this)">Sparse vs Dense</button>
+    <button class="ir-tab" onclick="irSwitchTab('hybrid',this)">Hybrid &amp; Fusion</button>
+    <button class="ir-tab" onclick="irSwitchTab('graph',this)">Graph Traversal</button>
+    <button class="ir-tab" onclick="irSwitchTab('rerank',this)">Re-ranking</button>
+    <button class="ir-tab" onclick="irSwitchTab('query',this)">Query Transformation</button>
+  </div>
+
+<!-- TAB 1: sparse vs dense -->
+<div class="ir-panel active" id="ir-tab-sparsedense">
+  <div class="ir-strat-desc">Sparse retrieval (BM25/TF-IDF) matches exact tokens via an inverted index. Dense retrieval matches meaning via embeddings. Pick a query to see which wins — and why.</div>
+  <div class="ir-strat-row" id="ir-sd-btns"></div>
+  <div id="ir-sd-scores"></div>
+  <div class="ir-note" id="ir-sd-note"></div>
+</div>
+
+<!-- TAB 2: hybrid & fusion -->
+<div class="ir-panel" id="ir-tab-hybrid">
+  <div class="ir-strat-desc">Neither method alone covers both failure modes, so production systems run both and merge the ranked lists — commonly with <b>Reciprocal Rank Fusion</b>: score = 1/(60 + sparse_rank) + 1/(60 + dense_rank).</div>
+  <div class="ir-mg" id="ir-hybrid-grid"></div>
+  <div class="ir-note">Notice the winner: a document that was only <i>decent</i> (rank 2) on <b>both</b> lists outranks documents that were #1 on just one list. Fusion rewards consistent relevance over a single lucky match.</div>
+</div>
+
+<!-- TAB 3: graph traversal -->
+<div class="ir-panel" id="ir-tab-graph">
+  <div class="ir-strat-desc">Query: <i>"Who leads the organization that funded the water study Dr. Amara Nwosu published?"</i> Step through the hops — vector search alone typically stalls after hop 1.</div>
+  <div class="ir-hop-row" id="ir-hop-btns"></div>
+  <svg width="100%" viewBox="0 0 680 190" role="img">
+    <title>Multi-hop graph traversal from a study to its funder's director</title>
+    <desc>A study node connects to its author, its funder, and the funder's director across three relationship hops.</desc>
+    <defs>
+      <marker id="ir-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+      </marker>
+    </defs>
+    <line id="ir-edge-1" class="ir-g-edge" x1="195" y1="95" x2="255" y2="95" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#ir-arrow)"></line>
+    <text font-size="9.5" x="225" y="86" text-anchor="middle" fill="#94a3b8">AUTHORED_BY</text>
+    <line id="ir-edge-2" class="ir-g-edge" x1="405" y1="95" x2="465" y2="95" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#ir-arrow)"></line>
+    <text font-size="9.5" x="435" y="86" text-anchor="middle" fill="#94a3b8">FUNDED_BY</text>
+    <line id="ir-edge-3" class="ir-g-edge" x1="565" y1="115" x2="565" y2="150" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#ir-arrow)"></line>
+    <text font-size="9.5" x="608" y="135" text-anchor="middle" fill="#94a3b8">LED_BY</text>
+
+    <g class="ir-g-node" id="ir-node-study">
+      <rect x="20" y="70" width="175" height="50" rx="8" fill="#f0fdf4" stroke="#0d9488" stroke-width="1"></rect>
+      <text font-size="11" font-weight="600" x="107" y="90" text-anchor="middle" fill="#0f172a">Water Safety Study</text>
+      <text font-size="9.5" x="107" y="105" text-anchor="middle" fill="#475569">(2024) — the source doc</text>
+    </g>
+    <g class="ir-g-node" id="ir-node-author">
+      <rect x="258" y="70" width="147" height="50" rx="8" fill="#eef2ff" stroke="#6366f1" stroke-width="1"></rect>
+      <text font-size="11" font-weight="600" x="331" y="90" text-anchor="middle" fill="#0f172a">Dr. Amara Nwosu</text>
+      <text font-size="9.5" x="331" y="105" text-anchor="middle" fill="#475569">author (hop 1)</text>
+    </g>
+    <g class="ir-g-node" id="ir-node-funder">
+      <rect x="468" y="70" width="147" height="50" rx="8" fill="#fef3c7" stroke="#d97706" stroke-width="1"></rect>
+      <text font-size="11" font-weight="600" x="541" y="90" text-anchor="middle" fill="#0f172a">GreenFund Fdn.</text>
+      <text font-size="9.5" x="541" y="105" text-anchor="middle" fill="#475569">funder (hop 2)</text>
+    </g>
+    <g class="ir-g-node" id="ir-node-director">
+      <rect x="468" y="150" width="147" height="36" rx="8" fill="#fef2f2" stroke="#dc2626" stroke-width="1"></rect>
+      <text font-size="11" font-weight="600" x="541" y="172" text-anchor="middle" fill="#0f172a">Tunde Bakare — director (hop 3)</text>
+    </g>
+  </svg>
+  <div class="ir-warn-banner" id="ir-hop-note"></div>
+</div>
+
+<!-- TAB 4: re-ranking -->
+<div class="ir-panel" id="ir-tab-rerank">
+  <div class="ir-strat-desc">Query: <i>"does eating sugar cause hyperactivity in children"</i>. Stage 1 retrieves cheaply by keyword/vector overlap; Stage 2 re-scores the same candidates by reading query and passage together — much slower, so it only runs on the small shortlist.</div>
+  <div class="ir-rank-cols">
+    <div class="ir-rank-col">
+      <div class="ir-rank-col-title">Stage 1 — fast retrieval order</div>
+      <div id="ir-rerank-fast"></div>
+    </div>
+    <div class="ir-rank-col">
+      <div class="ir-rank-col-title">Stage 2 — after cross-encoder re-rank</div>
+      <div id="ir-rerank-final"></div>
+    </div>
+  </div>
+  <div class="ir-note">The sugar-content guideline (heavy keyword overlap on "sugar" and "children") drops from #1 to #4. The myth-busting passage (weaker keyword overlap, but directly relevant) rises to #1 — only a model that reads the query and passage together catches that.</div>
+</div>
+
+<!-- TAB 5: query transformation -->
+<div class="ir-panel" id="ir-tab-query">
+  <div class="ir-strat-desc">Questions and answers are often phrased so differently that even a good embedding model places them far apart. These techniques transform the query before it ever hits the index.</div>
+  <div class="ir-strat-row" id="ir-qt-btns"></div>
+  <div id="ir-qt-desc" style="font-size:11px;color:#475569;line-height:1.5"></div>
+  <div class="ir-example-box" id="ir-qt-example"></div>
+  <div class="ir-note" id="ir-qt-tradeoff"></div>
+</div>
+
+  <!-- key insight -->
+  <div style="margin-top:10px;background:#fff1f2;border-left:3px solid #e11d48;
+              border-radius:0 8px 8px 0;padding:10px 14px">
+    <span style="font-weight:700;color:#e11d48;font-size:13px">Key insight —</span>
+    <span style="color:#475569;font-size:13px">
+      There is no single best retrieval method — only trade-offs between exactness,
+      semantic reach, latency, and cost. Production RAG systems layer several of
+      these techniques rather than betting everything on one.
+    </span>
+  </div>
+</div></div>
+
+<script>
+(function(){
+window.irSwitchTab = function(name, btn){
+  document.querySelectorAll('#ir-tab-sparsedense, #ir-tab-hybrid, #ir-tab-graph, #ir-tab-rerank, #ir-tab-query').forEach(function(p){ p.classList.remove('active'); });
+  document.querySelectorAll('.ir-tab').forEach(function(t){ t.classList.remove('active'); });
+  document.getElementById('ir-tab-' + name).classList.add('active');
+  btn.classList.add('active');
+};
+
+// ---- Tab 1: sparse vs dense ----
+var SD_QUERIES = [
+  { key:'code', q:'"error code E4021" in the manual', sparse:0.94, dense:0.31, winner:'sparse',
+    note:'Rare alphanumeric codes are exact tokens. BM25 matches them precisely; an embedding model rarely saw this exact code in training and blurs it toward generic "error" text.' },
+  { key:'tremor', q:'"why do my hands shake after coffee"', sparse:0.12, dense:0.89, winner:'dense',
+    note:'The matching document says "caffeine-induced tremor" — zero shared keywords. Only a semantic model connects shake&asymp;tremor and coffee&asymp;caffeine.' },
+  { key:'citation', q:'"Nkechi Eze v. State of Lagos, 2019"', sparse:0.91, dense:0.42, winner:'sparse',
+    note:'Legal citations and proper names are exact-match critical — a dense model can retrieve a similar-sounding but wrong case entirely.' },
+  { key:'potable', q:'"is the water safe to drink"', sparse:0.55, dense:0.85, winner:'dense',
+    note:'Paraphrases like "meets safety standards" or "potable" are semantically equivalent but share almost no exact words with the query.' }
+];
+var currentSD = 'code';
+
+function renderSDButtons(){
+  document.getElementById('ir-sd-btns').innerHTML = SD_QUERIES.map(function(s){
+    return '<button class="ir-strat-btn' + (s.key === currentSD ? ' active' : '') +
+      '" onclick="irSelectSD(\'' + s.key + '\')">' + s.q + '</button>';
+  }).join('');
+}
+
+function renderSDScores(){
+  var s = SD_QUERIES.filter(function(x){ return x.key === currentSD; })[0];
+  function row(label, val, isWinner, color){
+    return '<div class="ir-score-row"><div class="ir-score-label">' + label + '</div>' +
+      '<div class="ir-score-track"><div class="ir-score-fill" style="width:' + (val*100) + '%;background:' + color + '"></div></div>' +
+      '<div class="ir-score-val">' + val.toFixed(2) + '</div>' +
+      (isWinner ? '<span class="ir-winner" style="background:#f0fdf4;color:#166534">winner</span>' : '') + '</div>';
+  }
+  document.getElementById('ir-sd-scores').innerHTML =
+    row('Sparse (BM25)', s.sparse, s.winner === 'sparse', '#d97706') +
+    row('Dense (embedding)', s.dense, s.winner === 'dense', '#6366f1');
+  document.getElementById('ir-sd-note').textContent = s.note;
+}
+
+window.irSelectSD = function(key){
+  currentSD = key;
+  renderSDButtons();
+  renderSDScores();
+};
+
+// ---- Tab 2: hybrid & fusion ----
+var HYBRID_DOCS = [
+  { name:'Official vaccine safety FAQ', note:'exact terms, dense clinical phrasing', sparseRank:1, denseRank:4 },
+  { name:'Plain-language explainer blog', note:'on-topic, almost no shared words', sparseRank:4, denseRank:1 },
+  { name:'Balanced news article', note:'mixes statistics and plain language', sparseRank:2, denseRank:2 },
+  { name:'Loosely related forum comment', note:'tangential', sparseRank:3, denseRank:3 }
+];
+function renderHybridGrid(){
+  var K = 60;
+  var rows = HYBRID_DOCS.map(function(d){
+    var score = 1/(K + d.sparseRank) + 1/(K + d.denseRank);
+    return { name:d.name, note:d.note, sparseRank:d.sparseRank, denseRank:d.denseRank, score:score };
+  });
+  rows.sort(function(a,b){ return b.score - a.score; });
+  var grid = '<div class="ir-mh ir-mhl">Document</div><div class="ir-mh">Sparse rank</div>' +
+    '<div class="ir-mh">Dense rank</div><div class="ir-mh">RRF score</div><div class="ir-mh">Fused rank</div>';
+  rows.forEach(function(r, i){
+    var winCls = i === 0 ? ' ir-mc-win' : '';
+    grid += '<div class="ir-mk"><b>' + r.name + '</b><br><span style="color:#94a3b8">' + r.note + '</span></div>' +
+      '<div class="ir-mc">#' + r.sparseRank + '</div>' +
+      '<div class="ir-mc">#' + r.denseRank + '</div>' +
+      '<div class="ir-mc' + winCls + '">' + r.score.toFixed(4) + '</div>' +
+      '<div class="ir-mc' + winCls + '">#' + (i + 1) + '</div>';
+  });
+  document.getElementById('ir-hybrid-grid').innerHTML = grid;
+}
+
+// ---- Tab 3: graph traversal ----
+var HOPS = [
+  { n:1, label:'Hop 1: study → author', nodes:['ir-node-study','ir-node-author'], edges:['ir-edge-1'],
+    note:'⚠ A single vector search over "the water study Dr. Amara Nwosu published" typically stops here — this is the only fact directly similar to the query text.' },
+  { n:2, label:'Hop 2: study → funder', nodes:['ir-node-study','ir-node-author','ir-node-funder'], edges:['ir-edge-1','ir-edge-2'],
+    note:'⚠ The funder\'s name may sit in the study\'s acknowledgements — retrievable by luck, but the query never mentioned "funding" or "GreenFund", so semantic similarity to it is weak.' },
+  { n:3, label:'Hop 3: funder → director', nodes:['ir-node-study','ir-node-author','ir-node-funder','ir-node-director'], edges:['ir-edge-1','ir-edge-2','ir-edge-3'],
+    note:'✓ The director\'s name lives in a completely separate "About Us" document with zero lexical or semantic overlap with the original query. Only explicit graph traversal — follow FUNDED_BY, then follow LED_BY — reliably reaches it.' }
+];
+var currentHop = 1;
+
+function renderHopButtons(){
+  document.getElementById('ir-hop-btns').innerHTML = HOPS.map(function(h){
+    return '<button class="ir-hop-btn' + (h.n === currentHop ? ' active' : '') + '" onclick="irSelectHop(' + h.n + ')">' + h.label + '</button>';
+  }).join('');
+}
+
+function renderHopGraph(){
+  var h = HOPS.filter(function(x){ return x.n === currentHop; })[0];
+  var allNodes = ['ir-node-study','ir-node-author','ir-node-funder','ir-node-director'];
+  var allEdges = ['ir-edge-1','ir-edge-2','ir-edge-3'];
+  allNodes.forEach(function(id){
+    document.getElementById(id).classList.toggle('dim', h.nodes.indexOf(id) === -1);
+  });
+  allEdges.forEach(function(id){
+    var el = document.getElementById(id);
+    var active = h.edges.indexOf(id) !== -1;
+    el.classList.toggle('dim', !active);
+    el.classList.toggle('hit', active);
+  });
+  document.getElementById('ir-hop-note').className = 'ir-warn-banner ' + (h.n === 3 ? 'ir-warn-good' : 'ir-warn-bad');
+  document.getElementById('ir-hop-note').textContent = h.note;
+}
+
+window.irSelectHop = function(n){
+  currentHop = n;
+  renderHopButtons();
+  renderHopGraph();
+};
+
+// ---- Tab 4: re-ranking ----
+var RERANK_DOCS = [
+  { text:'"Sugar causes hyperactivity" is one of the most persistent parenting myths.', fast:2, final:1 },
+  { text:'A double-blind study found no behavioral difference between sugar and placebo groups.', fast:4, final:2 },
+  { text:'Activity spikes at birthday parties are confounded by excitement, not sugar.', fast:3, final:3 },
+  { text:'Sugar content guidelines for children\'s diets by age group.', fast:1, final:4 },
+  { text:'List of sugar-free snack recipes for kids.', fast:5, final:5 }
+];
+
+function renderRerankLists(){
+  var byFast = RERANK_DOCS.slice().sort(function(a,b){ return a.fast - b.fast; });
+  var byFinal = RERANK_DOCS.slice().sort(function(a,b){ return a.final - b.final; });
+  function list(docs, rankKey){
+    return docs.map(function(d){
+      var top = rankKey === 'final' && d.final === 1 ? ' top' : '';
+      return '<div class="ir-rank-item' + top + '"><span class="ir-rank-num">#' + d[rankKey] + '</span><span>' + d.text + '</span></div>';
+    }).join('');
+  }
+  document.getElementById('ir-rerank-fast').innerHTML = list(byFast, 'fast');
+  document.getElementById('ir-rerank-final').innerHTML = list(byFinal, 'final');
+}
+
+// ---- Tab 5: query transformation ----
+var QT_MODES = [
+  { key:'raw', label:'Naive: embed the question',
+    desc:'Embed the question directly and search. Questions are phrased interrogatively; the matching KB chunk is phrased declaratively — they can land far apart in vector space even when the chunk is the perfect answer.',
+    example:'Query: "Do humans only use 10% of their brain?"\n→ embedded as-is, may miss the declarative myth-busting chunk entirely.',
+    tradeoff:'Cheapest option — but weakest recall whenever the answer isn\'t phrased like the question.' },
+  { key:'hyde', label:'HyDE: embed a hypothetical answer',
+    desc:'Ask the LLM to draft a plausible answer first (even if imperfect in its facts), then embed that answer instead of the question. Declarative-to-declarative matching lands much closer to the real chunk.',
+    example:'LLM drafts: "This is a myth — virtually all brain regions are metabolically active..."\n→ this draft\'s embedding lands near the real KB chunk saying the same thing.',
+    tradeoff:'No indexing changes needed, works on any existing index — but costs one extra LLM call on every query, adding latency.' },
+  { key:'reverse', label:'Reverse-HyDE: pre-generate questions per chunk',
+    desc:'At indexing time, generate synthetic questions each chunk would answer, and embed those questions instead of (or alongside) the chunk. At query time, the real question matches question-to-question.',
+    example:'Chunk: "Deoxygenated blood is dark red, never blue."\n→ synthetic Q indexed: "Is blood blue before it\'s oxygenated?"\n→ real query "Does blood turn blue without oxygen?" matches directly — no LLM call at search time.',
+    tradeoff:'Fast, consistent query latency — but upfront indexing cost, and needs re-indexing whenever the knowledge base changes.' }
+];
+var currentQT = 'raw';
+
+function renderQT(){
+  var m = QT_MODES.filter(function(x){ return x.key === currentQT; })[0];
+  document.getElementById('ir-qt-btns').innerHTML = QT_MODES.map(function(x){
+    return '<button class="ir-strat-btn' + (x.key === currentQT ? ' active' : '') +
+      '" onclick="irSelectQT(\'' + x.key + '\')">' + x.label + '</button>';
+  }).join('');
+  document.getElementById('ir-qt-desc').textContent = m.desc;
+  document.getElementById('ir-qt-example').textContent = m.example;
+  document.getElementById('ir-qt-tradeoff').textContent = m.tradeoff;
+}
+
+window.irSelectQT = function(key){
+  currentQT = key;
+  renderQT();
+};
+
+renderSDButtons();
+renderSDScores();
+renderHybridGrid();
+renderHopButtons();
+renderHopGraph();
+renderRerankLists();
+renderQT();
+})();
+</script>

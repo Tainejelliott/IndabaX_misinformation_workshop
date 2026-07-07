@@ -1,0 +1,312 @@
+<div style="font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;color:#0f172a;padding:6px 0">
+<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;
+            padding:12px 16px;margin-bottom:10px">
+
+  <style>
+    .elr-ts { font-size: 10px; fill: #475569; }
+    .elr-th { font-size: 11px; font-weight: 500; fill: #0f172a; }
+    .elr-c-teal rect { fill: #f0fdf4; stroke: #0d9488; }
+    .elr-c-purple rect { fill: #eef2ff; stroke: #6366f1; }
+    .elr-c-blue rect { fill: #eff6ff; stroke: #2563eb; }
+    .elr-c-amber rect { fill: #fef3c7; stroke: #d97706; }
+    .elr-c-gray rect { fill: #f8fafc; stroke: #94a3b8; }
+    .elr-tab-row { display: flex; gap: 2px; margin-bottom: 10px; }
+    .elr-tab { padding: 4px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; background: transparent; border: 0.5px solid #e2e8f0; color: #475569; transition: background .15s, color .15s; }
+    .elr-tab.active { background: #f8fafc; color: #0f172a; border-color: #94a3b8; }
+    .elr-panel { display: none; }
+    .elr-panel.active { display: block; }
+  </style>
+
+  <!-- header -->
+  <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;
+              text-transform:uppercase;color:#6366f1;margin-bottom:4px">
+    Embeddings &amp; LLMs
+  </div>
+  <div style="font-size:16px;font-weight:700;color:#0f172a;margin-bottom:3px">
+    How Embeddings Power the RAG Pipeline
+  </div>
+  <div style="font-size:12px;color:#475569;margin-bottom:12px">
+    Embeddings handle retrieval while LLMs handle generation — vectors never cross
+    the boundary. Different embedding models encode the same relationships but in
+    incompatible coordinate systems.
+  </div>
+
+  <div class="elr-tab-row">
+    <button class="elr-tab active" onclick="elrSwitchTab('rag', this)">RAG pipeline</button>
+    <button class="elr-tab" onclick="elrSwitchTab('spaces', this)">Different spaces, same geometry</button>
+    <button class="elr-tab" onclick="elrSwitchTab('broken', this)">What breaks cross-model</button>
+  </div>
+
+<!-- TAB 1: RAG pipeline -->
+<div class="elr-panel active" id="tab-rag">
+<svg width="100%" viewBox="0 0 680 330" role="img">
+  <title>RAG pipeline showing embeddings for retrieval and text to LLM</title>
+  <desc>Two-phase pipeline: indexing phase embeds documents into a vector store, query phase retrieves text and sends it to the LLM</desc>
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+    </marker>
+  </defs>
+
+  <!-- Phase label: Indexing -->
+  <text class="elr-ts" x="40" y="14" fill="#059669" font-weight="500">Indexing phase (offline)</text>
+  <line x1="40" y1="18" x2="640" y2="18" stroke="#059669" stroke-width="0.5" stroke-dasharray="3 3"></line>
+
+  <!-- Doc -->
+  <g class="elr-c-teal">
+    <rect x="40" y="26" width="110" height="42" rx="7" stroke-width="0.5"></rect>
+    <text class="elr-th" x="95" y="41" text-anchor="middle" dominant-baseline="central">Documents</text>
+    <text class="elr-ts" x="95" y="56" text-anchor="middle" dominant-baseline="central">raw text chunks</text>
+  </g>
+  <line x1="150" y1="47" x2="181" y2="47" marker-end="url(#arr)" stroke="#0d9488"></line>
+
+  <!-- Embed model -->
+  <g class="elr-c-purple">
+    <rect x="184" y="26" width="130" height="42" rx="7" stroke-width="0.5"></rect>
+    <text class="elr-th" x="249" y="41" text-anchor="middle" dominant-baseline="central">Embedding model</text>
+    <text class="elr-ts" x="249" y="56" text-anchor="middle" dominant-baseline="central">any model (Llama, BGE…)</text>
+  </g>
+  <line x1="314" y1="47" x2="345" y2="47" marker-end="url(#arr)" stroke="#818cf8"></line>
+
+  <!-- Vectors -->
+  <g class="elr-c-purple">
+    <rect x="348" y="26" width="110" height="42" rx="7" stroke-width="0.5"></rect>
+    <text class="elr-th" x="403" y="40" text-anchor="middle" dominant-baseline="central">Vectors</text>
+    <text class="elr-ts" x="403" y="56" text-anchor="middle" dominant-baseline="central">[0.2, −0.8, …] &#8594; DB</text>
+  </g>
+  <line x1="403" y1="68" x2="403" y2="87" marker-end="url(#arr)" stroke="#818cf8"></line>
+
+  <!-- Vector DB -->
+  <g class="elr-c-gray">
+    <rect x="318" y="90" width="170" height="34" rx="7" stroke-width="0.5"></rect>
+    <text class="elr-th" x="403" y="104" text-anchor="middle" dominant-baseline="central">Vector store</text>
+    <text class="elr-ts" x="403" y="117" text-anchor="middle" dominant-baseline="central">Pinecone, pgvector, Weaviate…</text>
+  </g>
+
+  <!-- Divider -->
+  <text class="elr-ts" x="40" y="140" fill="#2563eb" font-weight="500">Query phase (live)</text>
+  <line x1="40" y1="144" x2="640" y2="144" stroke="#2563eb" stroke-width="0.5" stroke-dasharray="3 3"></line>
+
+  <!-- User query -->
+  <g class="elr-c-blue">
+    <rect x="40" y="154" width="110" height="34" rx="7" stroke-width="0.5"></rect>
+    <text class="elr-th" x="95" y="167" text-anchor="middle" dominant-baseline="central">User query</text>
+    <text class="elr-ts" x="95" y="179" text-anchor="middle" dominant-baseline="central">"What is X?"</text>
+  </g>
+  <path d="M150 171 L249 171 L249 68" fill="none" stroke="#3b82f6" stroke-width="1" marker-end="url(#arr)" stroke-dasharray="4 3"></path>
+  <text class="elr-ts" x="185" y="163" fill="#2563eb">same embedding model</text>
+
+  <!-- Similarity search -->
+  <line x1="403" y1="124" x2="403" y2="196" stroke="#818cf8" stroke-width="1" stroke-dasharray="2 2"></line>
+  <g class="elr-c-purple">
+    <rect x="318" y="196" width="170" height="44" rx="7" stroke-width="0.5"></rect>
+    <text class="elr-th" x="403" y="210" text-anchor="middle" dominant-baseline="central">Similarity search</text>
+    <text class="elr-ts" x="403" y="224" text-anchor="middle" dominant-baseline="central">cosine distance → top-k</text>
+  </g>
+
+  <!-- Retrieved TEXT -->
+  <line x1="318" y1="218" x2="240" y2="218" marker-end="url(#arr)" stroke="#0d9488"></line>
+  <g class="elr-c-teal">
+    <rect x="100" y="196" width="140" height="44" rx="7" stroke-width="0.5"></rect>
+    <text class="elr-th" x="170" y="210" text-anchor="middle" dominant-baseline="central">Retrieved TEXT</text>
+    <text class="elr-ts" x="170" y="224" text-anchor="middle" dominant-baseline="central">original chunks, not vectors</text>
+  </g>
+
+  <!-- Arrow from text to LLM (routed clear of the callout box below) -->
+  <line x1="170" y1="240" x2="170" y2="247" stroke="#0d9488" stroke-width="1"></line>
+  <line x1="170" y1="247" x2="490" y2="247" marker-end="url(#arr)" stroke="#0d9488"></line>
+
+  <!-- LLM -->
+  <g class="elr-c-amber">
+    <rect x="490" y="210" width="150" height="74" rx="9" stroke-width="0.5"></rect>
+    <text class="elr-th" x="565" y="228" text-anchor="middle" dominant-baseline="central">LLM</text>
+    <text class="elr-ts" x="565" y="244" text-anchor="middle" dominant-baseline="central">GPT, Claude, Gemini… any model</text>
+    <text class="elr-ts" x="565" y="260" text-anchor="middle" dominant-baseline="central">computes its own embeddings</text>
+  </g>
+
+  <!-- Key callout box -->
+  <rect x="40" y="252" width="240" height="34" rx="7" fill="none" stroke="#0d9488" stroke-width="1" stroke-dasharray="3 2"></rect>
+  <text class="elr-ts" x="52" y="266" fill="#059669" font-weight="500">Key insight — the LLM only receives</text>
+  <text class="elr-ts" x="52" y="278" fill="#059669">plain text. Vectors never cross &#8594;</text>
+
+  <!-- Answer -->
+  <line x1="565" y1="284" x2="565" y2="302" marker-end="url(#arr)" stroke="#d97706"></line>
+  <text class="elr-th" x="565" y="314" text-anchor="middle" dominant-baseline="central" font-size="11">Answer</text>
+</svg>
+</div>
+
+<!-- TAB 2: Same geometry different spaces -->
+<div class="elr-panel" id="tab-spaces">
+<svg width="100%" viewBox="0 0 680 330" role="img">
+  <title>Two different embedding spaces encoding the same semantic relationships</title>
+  <desc>Llama embedding space and OpenAI embedding space both place similar words close together despite different coordinates</desc>
+  <defs>
+    <marker id="arr2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+    </marker>
+  </defs>
+
+  <!-- Left space: Llama -->
+  <g class="elr-c-purple">
+    <rect x="30" y="20" width="270" height="26" rx="7" stroke-width="0.5"></rect>
+    <text class="elr-th" x="165" y="33" text-anchor="middle" dominant-baseline="central">Llama embedding space</text>
+  </g>
+  <rect x="30" y="46" width="270" height="190" rx="7" fill="none" stroke="#e2e8f0" stroke-width="0.5"></rect>
+
+  <!-- Llama dots — animals cluster top-left, royalty bottom-right -->
+  <circle cx="90" cy="97" r="6" fill="#0d9488"></circle><text class="elr-ts" x="100" y="100">dog</text>
+  <circle cx="120" cy="119" r="6" fill="#0d9488"></circle><text class="elr-ts" x="130" y="122">cat</text>
+  <circle cx="75" cy="126" r="6" fill="#0d9488"></circle><text class="elr-ts" x="85" y="129">puppy</text>
+  <line x1="90" y1="97" x2="120" y2="119" stroke="#0d9488" stroke-width="0.5" opacity="0.4"></line>
+  <line x1="90" y1="97" x2="75" y2="126" stroke="#0d9488" stroke-width="0.5" opacity="0.4"></line>
+  <line x1="120" y1="119" x2="75" y2="126" stroke="#0d9488" stroke-width="0.5" opacity="0.4"></line>
+
+  <circle cx="220" cy="184" r="6" fill="#6366f1"></circle><text class="elr-ts" x="230" y="187">king</text>
+  <circle cx="195" cy="206" r="6" fill="#6366f1"></circle><text class="elr-ts" x="205" y="209">queen</text>
+  <circle cx="240" cy="210" r="6" fill="#6366f1"></circle><text class="elr-ts" x="250" y="213">prince</text>
+  <line x1="220" y1="184" x2="195" y2="206" stroke="#6366f1" stroke-width="0.5" opacity="0.4"></line>
+  <line x1="220" y1="184" x2="240" y2="210" stroke="#6366f1" stroke-width="0.5" opacity="0.4"></line>
+  <line x1="195" y1="206" x2="240" y2="210" stroke="#6366f1" stroke-width="0.5" opacity="0.4"></line>
+
+  <line x1="120" y1="119" x2="195" y2="206" stroke="#e2e8f0" stroke-width="0.5" stroke-dasharray="3 2"></line>
+  <text class="elr-ts" x="145" y="163" fill="#94a3b8">far apart</text>
+
+  <text class="elr-ts" x="165" y="248" text-anchor="middle" fill="#94a3b8">dog: [0.21, 0.87, −0.43, …]</text>
+  <text class="elr-ts" x="165" y="260" text-anchor="middle" fill="#94a3b8">king: [−0.65, 0.11, 0.72, …]</text>
+
+  <!-- Right space: OpenAI -->
+  <g class="elr-c-blue">
+    <rect x="380" y="20" width="270" height="26" rx="7" stroke-width="0.5"></rect>
+    <text class="elr-th" x="515" y="33" text-anchor="middle" dominant-baseline="central">OpenAI embedding space</text>
+  </g>
+  <rect x="380" y="46" width="270" height="190" rx="7" fill="none" stroke="#e2e8f0" stroke-width="0.5"></rect>
+
+  <circle cx="500" cy="184" r="6" fill="#0d9488"></circle><text class="elr-ts" x="510" y="187">dog</text>
+  <circle cx="530" cy="162" r="6" fill="#0d9488"></circle><text class="elr-ts" x="540" y="165">cat</text>
+  <circle cx="510" cy="206" r="6" fill="#0d9488"></circle><text class="elr-ts" x="520" y="209">puppy</text>
+  <line x1="500" y1="184" x2="530" y2="162" stroke="#0d9488" stroke-width="0.5" opacity="0.4"></line>
+  <line x1="500" y1="184" x2="510" y2="206" stroke="#0d9488" stroke-width="0.5" opacity="0.4"></line>
+  <line x1="530" y1="162" x2="510" y2="206" stroke="#0d9488" stroke-width="0.5" opacity="0.4"></line>
+
+  <circle cx="430" cy="97" r="6" fill="#6366f1"></circle><text class="elr-ts" x="440" y="100">king</text>
+  <circle cx="455" cy="119" r="6" fill="#6366f1"></circle><text class="elr-ts" x="465" y="122">queen</text>
+  <circle cx="415" cy="122" r="6" fill="#6366f1"></circle><text class="elr-ts" x="425" y="125">prince</text>
+  <line x1="430" y1="97" x2="455" y2="119" stroke="#6366f1" stroke-width="0.5" opacity="0.4"></line>
+  <line x1="430" y1="97" x2="415" y2="122" stroke="#6366f1" stroke-width="0.5" opacity="0.4"></line>
+  <line x1="455" y1="119" x2="415" y2="122" stroke="#6366f1" stroke-width="0.5" opacity="0.4"></line>
+
+  <line x1="455" y1="119" x2="500" y2="184" stroke="#e2e8f0" stroke-width="0.5" stroke-dasharray="3 2"></line>
+  <text class="elr-ts" x="485" y="153" fill="#94a3b8">far apart</text>
+
+  <text class="elr-ts" x="515" y="248" text-anchor="middle" fill="#94a3b8">dog: [0.73, −0.12, 0.55, …]</text>
+  <text class="elr-ts" x="515" y="260" text-anchor="middle" fill="#94a3b8">king: [−0.08, 0.91, −0.34, …]</text>
+
+  <!-- Middle connector -->
+  <text class="elr-th" x="340" y="151" text-anchor="middle" dominant-baseline="central">&#8800;</text>
+  <text class="elr-ts" x="340" y="166" text-anchor="middle" fill="#94a3b8">coordinates</text>
+  <text class="elr-th" x="340" y="208" text-anchor="middle" dominant-baseline="central">=</text>
+  <text class="elr-ts" x="340" y="222" text-anchor="middle" fill="#94a3b8">relationships</text>
+
+  <!-- Bottom note -->
+  <rect x="30" y="278" width="620" height="34" rx="7" fill="none" stroke="#e2e8f0" stroke-width="0.5"></rect>
+  <text class="elr-ts" x="340" y="291" text-anchor="middle" fill="#475569">Retrieval only cares about relative distances within one space, not absolute coordinates.</text>
+  <text class="elr-ts" x="340" y="303" text-anchor="middle" fill="#475569">Query and documents must use the same embedding model — cross-space comparison is meaningless.</text>
+</svg>
+</div>
+
+<!-- TAB 3: What breaks -->
+<div class="elr-panel" id="tab-broken">
+<svg width="100%" viewBox="0 0 680 300" role="img">
+  <title>What breaks when trying to use embeddings cross-model</title>
+  <desc>Showing that internal hidden states cannot be shared between models, only text can cross the boundary</desc>
+  <defs>
+    <marker id="arr3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+    </marker>
+  </defs>
+
+  <!-- BROKEN scenario -->
+  <text class="elr-ts" x="40" y="16" fill="#dc2626" font-weight="500">❌  What doesn't work — feeding internal vectors cross-model</text>
+
+  <g class="elr-c-purple">
+    <rect x="40" y="28" width="200" height="70" rx="7" stroke-width="0.5"></rect>
+    <text class="elr-th" x="140" y="46" text-anchor="middle" dominant-baseline="central">Llama</text>
+    <text class="elr-ts" x="140" y="62" text-anchor="middle" dominant-baseline="central">dim=4096 &middot; vocab=32000</text>
+    <text class="elr-ts" x="140" y="76" text-anchor="middle" dominant-baseline="central">learned basis vectors</text>
+  </g>
+
+  <line x1="240" y1="63" x2="410" y2="63" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="5 3" marker-end="url(#arr3)"></line>
+  <text class="elr-ts" x="325" y="54" text-anchor="middle" fill="#dc2626">hidden states</text>
+  <line x1="311" y1="69" x2="339" y2="87" stroke="#ef4444" stroke-width="2"></line>
+  <line x1="339" y1="69" x2="311" y2="87" stroke="#ef4444" stroke-width="2"></line>
+
+  <g class="elr-c-amber">
+    <rect x="410" y="28" width="200" height="70" rx="7" stroke-width="0.5"></rect>
+    <text class="elr-th" x="510" y="46" text-anchor="middle" dominant-baseline="central">GPT-4</text>
+    <text class="elr-ts" x="510" y="62" text-anchor="middle" dominant-baseline="central">dim=12288 &middot; vocab=100256</text>
+    <text class="elr-ts" x="510" y="76" text-anchor="middle" dominant-baseline="central">completely different space</text>
+  </g>
+
+  <rect x="40" y="106" width="570" height="30" rx="6" fill="none" stroke="#ef4444" stroke-width="0.5"></rect>
+  <text class="elr-ts" x="325" y="117" text-anchor="middle" fill="#dc2626">Different dimensionality, tokenisers, and learned basis —</text>
+  <text class="elr-ts" x="325" y="129" text-anchor="middle" fill="#dc2626">a Llama vector fed to GPT is pure noise.</text>
+
+  <!-- WORKS scenario -->
+  <text class="elr-ts" x="40" y="154" fill="#059669" font-weight="500">✓  What does work — text crosses the boundary</text>
+
+  <g class="elr-c-purple">
+    <rect x="40" y="168" width="130" height="40" rx="7" stroke-width="0.5"></rect>
+    <text class="elr-th" x="105" y="182" text-anchor="middle" dominant-baseline="central">Any embed</text>
+    <text class="elr-ts" x="105" y="196" text-anchor="middle" dominant-baseline="central">model</text>
+  </g>
+  <line x1="170" y1="188" x2="221" y2="188" marker-end="url(#arr3)" stroke="#0d9488"></line>
+
+  <g class="elr-c-gray">
+    <rect x="224" y="168" width="130" height="40" rx="7" stroke-width="0.5"></rect>
+    <text class="elr-th" x="289" y="182" text-anchor="middle" dominant-baseline="central">Vector store</text>
+    <text class="elr-ts" x="289" y="196" text-anchor="middle" dominant-baseline="central">retrieves text</text>
+  </g>
+  <line x1="354" y1="188" x2="405" y2="188" marker-end="url(#arr3)" stroke="#0d9488"></line>
+
+  <g class="elr-c-teal">
+    <rect x="408" y="168" width="110" height="40" rx="7" stroke-width="0.5"></rect>
+    <text class="elr-th" x="463" y="182" text-anchor="middle" dominant-baseline="central">Plain text</text>
+    <text class="elr-ts" x="463" y="196" text-anchor="middle" dominant-baseline="central">"The cat sat…"</text>
+  </g>
+  <line x1="518" y1="188" x2="569" y2="188" marker-end="url(#arr3)" stroke="#0d9488"></line>
+
+  <g class="elr-c-amber">
+    <rect x="572" y="168" width="68" height="40" rx="7" stroke-width="0.5"></rect>
+    <text class="elr-th" x="606" y="188" text-anchor="middle" dominant-baseline="central">LLM</text>
+  </g>
+
+  <!-- Note on active research -->
+  <rect x="40" y="224" width="600" height="56" rx="7" fill="none" stroke="#e2e8f0" stroke-width="0.5"></rect>
+  <text class="elr-th" x="55" y="240" dominant-baseline="central" font-size="11">Active research area: embedding space alignment</text>
+  <text class="elr-ts" x="55" y="257" fill="#475569">Linear probing / adapter layers (CLIP for image&#8596;text, mBERT/LaBSE across 100+ languages)</text>
+  <text class="elr-ts" x="55" y="270" fill="#475569">can learn a mapping between two spaces — but only with explicit joint training.</text>
+</svg>
+</div>
+
+  <!-- key insight -->
+  <div style="margin-top:10px;background:#eff6ff;border-left:3px solid #2563eb;
+              border-radius:0 8px 8px 0;padding:10px 14px">
+    <span style="font-weight:700;color:#2563eb;font-size:13px">Key insight —</span>
+    <span style="color:#475569;font-size:13px">
+      Text crosses model boundaries freely, but vectors cannot. The LLM never sees
+      embedding vectors — it only receives the retrieved plain text. Query and
+      documents must always use the same embedding model.
+    </span>
+  </div>
+</div></div>
+
+<script>
+(function(){
+  window.elrSwitchTab = function(name, btn) {
+    document.querySelectorAll('.elr-panel').forEach(function(p){ p.classList.remove('active'); });
+    document.querySelectorAll('.elr-tab').forEach(function(t){ t.classList.remove('active'); });
+    document.getElementById('tab-' + name).classList.add('active');
+    btn.classList.add('active');
+  };
+})();
+</script>

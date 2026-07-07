@@ -1,0 +1,246 @@
+<div style="font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;color:#0f172a;padding:6px 0">
+<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;
+            padding:12px 16px;margin-bottom:10px">
+
+  <style>
+    @keyframes rag-pulseglow{0%,100%{opacity:0.55;stroke-width:1}50%{opacity:1;stroke-width:2}}
+    @keyframes rag-dashmove{to{stroke-dashoffset:-20}}
+    .rag-spotlight{animation:rag-pulseglow 1s ease-in-out infinite}
+    .rag-flowline{stroke-dasharray:5 5;animation:rag-dashmove 0.9s linear infinite}
+    .rag-matchline{animation:rag-pulseglow 1.4s ease-in-out infinite}
+  </style>
+
+  <!-- header -->
+  <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;
+              text-transform:uppercase;color:#8b5cf6;margin-bottom:4px">
+    What is RAG?
+  </div>
+  <div style="font-size:16px;font-weight:700;color:#0f172a;margin-bottom:3px">
+    The Retrieval-Augmented Generation Pipeline
+  </div>
+  <div style="font-size:12px;color:#475569;margin-bottom:12px">
+    Documents are extracted and stored as embeddings offline. At query time, the system
+    searches those embeddings, retrieves matching chunks, and augments the LLM's
+    generation with grounded facts.
+  </div>
+
+  <!-- animated SVG diagram -->
+  <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;
+              padding:8px 12px;margin-bottom:10px">
+    <svg width="100%" viewBox="0 0 680 320" role="img" style="display:block">
+      <title>Retrieval augmented generation pipeline</title>
+      <desc>Top row shows documents being extracted and turned into embeddings stored
+            in a vector store, offline. Bottom row shows a query compared to those
+            stored vectors through search and retrieval, merged with the query in
+            augmented generation to produce an answer.</desc>
+      <defs>
+        <marker id="rag-arrow" viewBox="0 0 10 10" refX="8" refY="5"
+                markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke"
+                stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+
+      <!-- offline section label -->
+      <text font-size="10" x="20" y="18" fill="#94a3b8">Building the index (offline)</text>
+
+      <!-- documents -->
+      <rect x="20" y="46" width="80" height="50" rx="7"
+            fill="none" stroke="#e2e8f0" stroke-width="0.5" stroke-dasharray="3 3"/>
+      <text font-size="10" x="60" y="71" text-anchor="middle"
+            dominant-baseline="central" fill="#475569">Docs</text>
+      <text font-size="10" x="60" y="110" text-anchor="middle" fill="#94a3b8">Documents</text>
+
+      <line x1="100" y1="71" x2="163" y2="71" class="rag-flowline"
+            stroke="#94a3b8" stroke-width="1" marker-end="url(#rag-arrow)"/>
+
+      <!-- information extraction -->
+      <circle id="rag-stage-extract" cx="200" cy="71" r="30"
+              fill="#f8fafc" stroke="#6366f1" stroke-width="1"/>
+      <path d="M188,63 L200,63 M188,71 L204,71 M188,79 L196,79"
+            stroke="#6366f1" stroke-width="2" stroke-linecap="round"/>
+      <text font-size="11" font-weight="700" x="200" y="112"
+            text-anchor="middle" fill="#0f172a">Information extraction</text>
+      <text font-size="10" x="200" y="126" text-anchor="middle"
+            fill="#94a3b8">Chunking and parsing</text>
+
+      <line x1="230" y1="71" x2="287" y2="71" class="rag-flowline"
+            stroke="#94a3b8" stroke-width="1" marker-end="url(#rag-arrow)"/>
+
+      <!-- information representation / vector store -->
+      <rect id="rag-rep-box" x="290" y="36" width="220" height="70" rx="10"
+            fill="#f8fafc" stroke="#0d9488" stroke-width="1"/>
+      <g id="rag-rep-bars"></g>
+      <g>
+        <circle cx="390" cy="48" r="5" fill="#d97706"/>
+        <circle cx="450" cy="87" r="5" fill="#d97706"/>
+        <circle cx="360" cy="55" r="4" fill="#6366f1" opacity="0.5"/>
+        <circle cx="420" cy="63" r="4" fill="#6366f1" opacity="0.5"/>
+        <circle cx="475" cy="52" r="4" fill="#0d9488" opacity="0.5"/>
+        <circle cx="485" cy="79" r="4" fill="#0d9488" opacity="0.5"/>
+      </g>
+      <text font-size="11" font-weight="700" x="400" y="112"
+            text-anchor="middle" fill="#0f172a">Information representation</text>
+      <text font-size="10" x="400" y="126" text-anchor="middle"
+            fill="#94a3b8">Embeds and stores each chunk</text>
+
+      <!-- connection from offline to online -->
+      <path d="M510,71 L545,71 L545,160 L268,160 L268,207" fill="none"
+            stroke="#94a3b8" stroke-width="0.5" stroke-dasharray="3 3"
+            marker-end="url(#rag-arrow)"/>
+      <text font-size="10" x="370" y="172" text-anchor="middle"
+            fill="#94a3b8">searches stored vectors</text>
+
+      <!-- matching lines -->
+      <line class="rag-matchline" x1="390" y1="48" x2="268" y2="210"
+            stroke="#d97706" stroke-width="2" opacity="0.7"/>
+      <line class="rag-matchline" x1="450" y1="87" x2="268" y2="210"
+            stroke="#d97706" stroke-width="2" opacity="0.7"/>
+      <line x1="485" y1="79" x2="268" y2="210"
+            stroke="#94a3b8" stroke-width="1" opacity="0.15"/>
+
+      <!-- online section label -->
+      <text font-size="10" x="20" y="196" fill="#94a3b8">Answering a query (online)</text>
+
+      <!-- query -->
+      <rect x="20" y="215" width="80" height="50" rx="7"
+            fill="none" stroke="#e2e8f0" stroke-width="0.5" stroke-dasharray="3 3"/>
+      <text font-size="10" x="60" y="240" text-anchor="middle"
+            dominant-baseline="central" fill="#475569">Query</text>
+      <text font-size="10" x="60" y="280" text-anchor="middle" fill="#94a3b8">User question</text>
+
+      <line x1="100" y1="240" x2="163" y2="240" class="rag-flowline"
+            stroke="#94a3b8" stroke-width="1" marker-end="url(#rag-arrow)"/>
+
+      <!-- search & retrieval (combined) -->
+      <rect id="rag-stage-search" x="168" y="210" width="200" height="60" rx="30"
+            fill="#f8fafc" stroke="#0d9488" stroke-width="1"/>
+      <circle cx="207" cy="240" r="5" fill="#0d9488"/>
+      <rect x="258" y="233" width="26" height="13" rx="3"
+            fill="#fef3c7" stroke="#d97706" stroke-width="0.5"/>
+      <rect x="288" y="233" width="26" height="13" rx="3"
+            fill="#fef3c7" stroke="#d97706" stroke-width="0.5"/>
+      <text font-size="11" font-weight="700" x="268" y="284"
+            text-anchor="middle" fill="#0f172a">Search &amp; retrieval</text>
+      <text font-size="10" x="268" y="298" text-anchor="middle"
+            fill="#94a3b8">Finds and retrieves matching chunks</text>
+
+      <line x1="368" y1="240" x2="397" y2="240" class="rag-flowline"
+            stroke="#94a3b8" stroke-width="1" marker-end="url(#rag-arrow)"/>
+
+      <!-- augmented generation -->
+      <rect id="rag-stage-augment" x="400" y="210" width="150" height="60" rx="8"
+            fill="#f8fafc" stroke="#8b5cf6" stroke-width="1"/>
+      <g id="rag-augment-bars"></g>
+      <text font-size="11" font-weight="700" x="475" y="284"
+            text-anchor="middle" fill="#0f172a">Augmented generation</text>
+      <text font-size="10" x="475" y="298" text-anchor="middle"
+            fill="#94a3b8">Merges chunks with query</text>
+
+      <line x1="550" y1="240" x2="572" y2="240" class="rag-flowline"
+            stroke="#94a3b8" stroke-width="1" marker-end="url(#rag-arrow)"/>
+
+      <!-- answer -->
+      <rect x="575" y="218" width="65" height="44" rx="7"
+            fill="#f0fdf4" stroke="#16a34a" stroke-width="0.5"/>
+      <text font-size="12" font-weight="700" x="607" y="240"
+            text-anchor="middle" dominant-baseline="central" fill="#166534">Answer</text>
+    </svg>
+
+    <!-- controls -->
+    <div style="display:flex;align-items:center;gap:8px;margin-top:6px">
+      <button id="rag-playBtn" onclick="ragTogglePlay()"
+              style="background:#fff;border:1px solid #e2e8f0;border-radius:7px;
+                     padding:3px 10px;cursor:pointer;font-size:12px;color:#475569;
+                     font-family:inherit;line-height:1">&#x23F8;</button>
+      <button onclick="ragResetAll()"
+              style="background:#fff;border:1px solid #e2e8f0;border-radius:7px;
+                     padding:3px 10px;cursor:pointer;font-size:12px;color:#475569;
+                     font-family:inherit;line-height:1">&#x21BA;</button>
+      <span style="font-size:11px;color:#94a3b8" id="rag-stageLabel">now: information extraction</span>
+    </div>
+  </div>
+
+  <!-- key insight -->
+  <div style="margin-top:10px;background:#fdf4ff;border-left:3px solid #8b5cf6;
+              border-radius:0 8px 8px 0;padding:10px 14px">
+    <span style="font-weight:700;color:#8b5cf6;font-size:13px">Key insight —</span>
+    <span style="color:#475569;font-size:13px">
+      RAG separates <strong>what the model knows</strong> (its parameters) from
+      <strong>what it can access</strong> (the knowledge base). The quality of every
+      answer is bounded by the quality of the retrieved context.
+    </span>
+  </div>
+</div></div>
+
+<script>
+(function(){
+  var stages = [
+    {id:'rag-stage-extract', name:'information extraction'},
+    {id:'rag-rep-box', name:'information representation'},
+    {id:'rag-stage-search', name:'search & retrieval'},
+    {id:'rag-stage-augment', name:'augmented generation'}
+  ];
+
+  var barColors = ['#6366f1','#0d9488','#d97706','#8b5cf6'];
+
+  function barGroup(id, cx, cy){
+    var g = document.getElementById(id);
+    g.innerHTML = '';
+    var heights = [9,14,6,11];
+    barColors.forEach(function(c,i){
+      var x = cx - 16 + i*9;
+      var h = heights[i];
+      var rect = document.createElementNS('http://www.w3.org/2000/svg','rect');
+      rect.setAttribute('x', x);
+      rect.setAttribute('width', 6);
+      rect.setAttribute('height', h);
+      rect.setAttribute('y', cy + 10 - h);
+      rect.setAttribute('rx', 1.5);
+      rect.setAttribute('fill', c);
+      rect.setAttribute('opacity', 0.85);
+      g.appendChild(rect);
+    });
+  }
+
+  var idx = 0;
+  var playing = true;
+  var timer = null;
+
+  function applySpotlight(){
+    stages.forEach(function(s){
+      var el = document.getElementById(s.id);
+      if(el) el.classList.remove('rag-spotlight');
+    });
+    var current = stages[idx];
+    var el = document.getElementById(current.id);
+    if(el) el.classList.add('rag-spotlight');
+    document.getElementById('rag-stageLabel').textContent = 'now: ' + current.name;
+  }
+
+  function advance(){
+    idx = (idx + 1) % stages.length;
+    applySpotlight();
+  }
+
+  window.ragTogglePlay = function(){
+    playing = !playing;
+    document.getElementById('rag-playBtn').innerHTML = playing ? '&#x23F8;' : '&#x25B6;';
+    if(playing){
+      timer = setInterval(advance, 1600);
+    } else {
+      clearInterval(timer);
+    }
+  };
+
+  window.ragResetAll = function(){
+    idx = 0;
+    applySpotlight();
+  };
+
+  barGroup('rag-rep-bars', 400, 71);
+  barGroup('rag-augment-bars', 475, 240);
+  applySpotlight();
+  timer = setInterval(advance, 1600);
+})();
+</script>

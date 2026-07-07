@@ -1,0 +1,317 @@
+<div style="font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;color:#0f172a;padding:8px 0">
+<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:16px;
+            padding:16px 20px;margin-bottom:12px">
+
+  <style>
+*{box-sizing:border-box}
+.kg-tabs{display:flex;gap:2px;flex-wrap:wrap;padding-top:1rem;margin-bottom:14px}
+.kg-tb{padding:5px 11px;border-radius:6px;font-size:12px;cursor:pointer;background:transparent;border:0.5px solid #e2e8f0;color:#475569;transition:all .15s}
+.kg-tb.kg-on{background:#f8fafc;color:#0f172a;border-color:#94a3b8}
+.kg-pn{display:none}.kg-pn.kg-on{display:block}
+.kg-edge{stroke:#cbd5e1;stroke-width:1;fill:none}
+.kg-el{font-size:10px;fill:#94a3b8;font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif}
+.kg-np{font-size:12px;font-weight:500;fill:#4f46e5;font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif}
+.kg-no{font-size:12px;font-weight:500;fill:#1e40af;font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif}
+.kg-nl{font-size:12px;font-weight:500;fill:#065f46;font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif}
+.kg-ng{cursor:pointer}.kg-ng circle,.kg-ng rect{transition:opacity .15s}.kg-ng:hover circle,.kg-ng:hover rect{opacity:.75}
+.kg-nd{background:#f8fafc;border-radius:8px;padding:9px 12px;font-size:12px;color:#475569;min-height:50px;margin:8px 0}
+.kg-pc{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0}
+.kg-pb{background:#f8fafc;border-radius:8px;padding:9px 11px}
+.kg-pt{font-size:12px;font-weight:500;margin-bottom:4px}
+.kg-pi{font-size:11px;color:#475569;margin:2px 0;padding-left:8px}
+.kg-mg{display:grid;grid-template-columns:minmax(0,6fr) repeat(3,minmax(0,5fr));gap:1px;background:#e2e8f0;border-radius:8px;overflow:hidden;margin-bottom:8px}
+.kg-mh{background:#f8fafc;padding:7px 8px;font-size:11px;font-weight:500;color:#0f172a;text-align:center}
+.kg-mhl{text-align:left}
+.kg-mk{background:#f8fafc;padding:7px 8px;font-size:11px;color:#475569}
+.kg-mc{padding:5px 4px;text-align:center;display:flex;align-items:center;justify-content:center;background:#fff}
+.kg-mct{text-align:left;padding:5px 8px;font-size:11px;color:#475569;background:#fff}
+.kg-chip{padding:2px 7px;border-radius:4px;font-size:10px;font-weight:500}
+.kg-rag-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
+@media(max-width:500px){.kg-rag-cards{grid-template-columns:1fr}}
+.kg-rc{background:#f8fafc;border-radius:12px;padding:10px 12px}
+.kg-rt{font-size:12px;font-weight:500;margin-bottom:6px}
+.kg-rs{font-size:11px;color:#475569;margin:3px 0;padding:2px 7px;border-left:2px solid #cbd5e1;line-height:1.4}
+.kg-emb-t{width:100%;border-collapse:collapse;font-size:11px}
+.kg-emb-t th{background:#f8fafc;padding:6px 8px;font-weight:500;color:#475569;border-bottom:0.5px solid #e2e8f0;text-align:left}
+.kg-emb-t td{padding:5px 8px;border-bottom:0.5px solid #e2e8f0;vertical-align:top;line-height:1.4}
+.kg-emb-t tr:last-child td{border-bottom:none}
+.kg-mstake{background:#f8fafc;border-radius:8px;padding:7px 10px;cursor:pointer;margin-bottom:5px}
+.kg-mstake-t{font-size:12px;font-weight:500;color:#0f172a;display:flex;justify-content:space-between;align-items:center}
+.kg-mstake-b{font-size:11px;color:#475569;margin-top:5px;display:none;line-height:1.5}
+.kg-mstake.kg-op .kg-mstake-b{display:block}
+.kg-chev{font-size:10px;color:#94a3b8;transition:transform .2s;display:inline-block}
+.kg-mstake.kg-op .kg-chev{transform:rotate(180deg)}
+.kg-legend{display:flex;gap:14px;margin-bottom:6px;font-size:11px;color:#475569}
+.kg-ldot{display:inline-block;width:9px;height:9px;border-radius:50%;vertical-align:middle;margin-right:3px}
+.kg-lsq{display:inline-block;width:9px;height:9px;border-radius:2px;vertical-align:middle;margin-right:3px}
+.kg-note{background:#f8fafc;border-radius:8px;padding:9px 11px;font-size:11px;color:#475569;margin-top:8px;line-height:1.5}
+  </style>
+
+  <!-- header -->
+  <div style="font-size:11px;font-weight:700;letter-spacing:2px;
+              text-transform:uppercase;color:#2563eb;margin-bottom:6px">
+    Knowledge Representation
+  </div>
+  <div style="font-size:20px;font-weight:700;color:#0f172a;margin-bottom:4px">
+    Knowledge Graphs &amp; Data Stores
+  </div>
+  <div style="font-size:13px;color:#475569;margin-bottom:24px">
+    Knowledge graphs model entities and relationships as queryable triples.
+    Compare knowledge graphs, vector stores, and relational databases to
+    understand when to use each — and why most production systems combine all three.
+  </div>
+
+  <!-- content -->
+
+<div class="kg-tabs">
+  <button class="kg-tb kg-on" onclick="kgSw(1,this)">Knowledge graphs</button>
+  <button class="kg-tb" onclick="kgSw(2,this)">Datastore guide</button>
+  <button class="kg-tb" onclick="kgSw(3,this)">Modality &amp; language</button>
+  <button class="kg-tb" onclick="kgSw(4,this)">RAG embedding impact</button>
+</div>
+
+<div id="kg-p1" class="kg-pn kg-on">
+  <div class="kg-legend">
+    <span><span class="kg-ldot" style="background:#eef2ff;border:1px solid #6366f1"></span>Person</span>
+    <span><span class="kg-lsq" style="background:#eff6ff;border:1px solid #2563eb"></span>Organisation</span>
+    <span><span class="kg-ldot" style="background:#f0fdf4;border:1px solid #0d9488"></span>Location</span>
+    <span style="color:#94a3b8;margin-left:auto">Click a node →</span>
+  </div>
+  <svg width="100%" viewBox="0 0 680 320" role="img">
+    <title>Example knowledge graph: Alice, Bob, Acme Corp, London</title>
+    <desc>Person nodes Alice and Bob, Organisation node Acme Corp, Location node London, connected by KNOWS, WORKS_AT, LIVES_IN, HQ_IN, BORN_IN relationships</desc>
+    <defs>
+      <marker id="ka" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+        <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+      </marker>
+    </defs>
+    <line class="kg-edge" x1="139" y1="238" x2="272" y2="152" marker-end="url(#ka)"></line>
+    <text class="kg-el" x="197" y="198" text-anchor="middle">KNOWS</text>
+    <line class="kg-edge" x1="334" y1="133" x2="411" y2="133" marker-end="url(#ka)"></line>
+    <text class="kg-el" x="372" y="124" text-anchor="middle">WORKS_AT</text>
+    <line class="kg-edge" x1="300" y1="167" x2="300" y2="222" marker-end="url(#ka)"></line>
+    <text class="kg-el" x="316" y="197" text-anchor="start">LIVES_IN</text>
+    <line class="kg-edge" x1="453" y1="157" x2="329" y2="238" marker-end="url(#ka)"></line>
+    <text class="kg-el" x="408" y="190" text-anchor="middle">HQ_IN</text>
+    <path class="kg-edge" d="M144 256 Q205 234 266 256" marker-end="url(#ka)"></path>
+    <text class="kg-el" x="205" y="241" text-anchor="middle">BORN_IN</text>
+    <g class="kg-ng" id="kg-ng-alice" onclick="kgSelNode('alice')">
+      <circle cx="300" cy="133" r="30" style="fill:#eef2ff;stroke:#6366f1" stroke-width="1"></circle>
+      <text class="kg-np" x="300" y="137" text-anchor="middle" dominant-baseline="central">Alice</text>
+    </g>
+    <text class="kg-el" x="300" y="180" text-anchor="middle">Person</text>
+    <g class="kg-ng" id="kg-ng-bob" onclick="kgSelNode('bob')">
+      <circle cx="110" cy="256" r="30" style="fill:#eef2ff;stroke:#6366f1" stroke-width="1"></circle>
+      <text class="kg-np" x="110" y="260" text-anchor="middle" dominant-baseline="central">Bob</text>
+    </g>
+    <text class="kg-el" x="110" y="303" text-anchor="middle">Person</text>
+    <g class="kg-ng" id="kg-ng-acme" onclick="kgSelNode('acme')">
+      <rect x="415" y="111" width="150" height="44" rx="8" style="fill:#eff6ff;stroke:#2563eb" stroke-width="1"></rect>
+      <text class="kg-no" x="490" y="137" text-anchor="middle" dominant-baseline="central">Acme Corp</text>
+    </g>
+    <text class="kg-el" x="490" y="174" text-anchor="middle">Organisation</text>
+    <g class="kg-ng" id="kg-ng-london" onclick="kgSelNode('london')">
+      <circle cx="300" cy="256" r="30" style="fill:#f0fdf4;stroke:#0d9488" stroke-width="1"></circle>
+      <text class="kg-nl" x="300" y="260" text-anchor="middle" dominant-baseline="central">London</text>
+    </g>
+    <text class="kg-el" x="300" y="303" text-anchor="middle">Location</text>
+  </svg>
+  <div class="kg-nd" id="kg-node-detail"><span style="color:#94a3b8">Click any node to see its properties and triples.</span></div>
+  <div class="kg-pc">
+    <div class="kg-pb">
+      <div class="kg-pt" style="color:#16a34a">Strengths</div>
+      <div class="kg-pi">Multi-hop traversal over arbitrarily deep relationships</div>
+      <div class="kg-pi">Relationships are first-class — queryable, typed, dated</div>
+      <div class="kg-pi">Explainability: every answer cites a path of triples</div>
+      <div class="kg-pi">Schema-on-read: add entity types without migrations</div>
+      <div class="kg-pi">Inference and rule-based reasoning over connected facts</div>
+      <div class="kg-pi">Entity linking merges duplicates across sources</div>
+    </div>
+    <div class="kg-pb">
+      <div class="kg-pt" style="color:#dc2626">Challenges</div>
+      <div class="kg-pi">Build cost: NER, relation extraction, entity resolution</div>
+      <div class="kg-pi">Cypher/SPARQL query complexity vs SQL familiarity</div>
+      <div class="kg-pi">Entity disambiguation at scale is an unsolved hard problem</div>
+      <div class="kg-pi">Cold-start: sparse graphs give poor retrieval until populated</div>
+      <div class="kg-pi">No native support for semantic similarity or fuzzy matching</div>
+      <div class="kg-pi">Update consistency — contradictory triples accumulate silently</div>
+    </div>
+  </div>
+  <div style="font-size:12px;font-weight:500;color:#475569;margin:8px 0 5px">Common implementation mistakes (click to expand)</div>
+  <div id="kg-mistakes"></div>
+</div>
+
+<div id="kg-p2" class="kg-pn">
+  <div style="font-size:11px;color:#475569;margin-bottom:8px">Fitness of each store for a given requirement. In production, most serious knowledge bases combine all three.</div>
+  <div class="kg-mg" id="kg-ds-grid"></div>
+  <div class="kg-note"><strong style="color:#0f172a;font-weight:500">Hybrid is the norm.</strong> Graph for entity relationships + vector store for unstructured passage retrieval + relational for transactional facts and aggregations. The art is deciding where each fact lives and how the query layer stitches them together.</div>
+</div>
+
+<div id="kg-p3" class="kg-pn">
+  <div style="font-size:11px;color:#475569;margin-bottom:8px">Suitability of each store per data modality, assuming standard implementations.</div>
+  <div class="kg-mg" id="kg-mod-grid"></div>
+  <div style="font-size:12px;font-weight:500;color:#475569;margin:10px 0 6px">Language &amp; multilingual considerations</div>
+  <div class="kg-mg" id="kg-lang-grid"></div>
+  <div class="kg-note"><strong style="color:#0f172a;font-weight:500">Key rule:</strong> multilingual embeddings (mE5, LaBSE, text-embedding-3-large) map different languages into shared vector neighbourhoods automatically. Knowledge graph labels and literals do NOT — every entity name must be stored explicitly per language. A graph node for "Paris" needs separate <code>rdfs:label</code> entries for French, English, German, etc., or cross-lingual entity linking will fail.</div>
+</div>
+
+<div id="kg-p4" class="kg-pn">
+  <div style="font-size:11px;color:#475569;margin-bottom:8px">Three RAG architectures and what the embedding model must do well in each.</div>
+  <div class="kg-rag-cards" id="kg-rag-cards"></div>
+  <div style="font-size:12px;font-weight:500;color:#475569;margin:4px 0 7px">Embedding model depth × retrieval quality</div>
+  <table class="kg-emb-t">
+    <thead>
+      <tr>
+        <th style="min-width:140px">Retrieval context</th>
+        <th style="color:#dc2626">Shallow<br><span style="font-weight:400;font-size:10px">Word2Vec / GloVe</span></th>
+        <th style="color:#d97706">Medium<br><span style="font-weight:400;font-size:10px">MiniLM / all-mpnet</span></th>
+        <th style="color:#16a34a">Deep / large<br><span style="font-weight:400;font-size:10px">E5-large / text-emb-3</span></th>
+      </tr>
+    </thead>
+    <tbody id="kg-emb-body"></tbody>
+  </table>
+</div>
+
+  <!-- key insight -->
+  <div style="margin-top:20px;background:#eff6ff;border-left:4px solid #2563eb;
+              border-radius:0 8px 8px 0;padding:14px 18px">
+    <span style="font-weight:700;color:#2563eb">Key insight —</span>
+    <span style="color:#475569;font-size:14px">
+      Hybrid is the norm in production. Graph for entity relationships, vector
+      store for unstructured passage retrieval, and relational for transactional
+      facts. The art is deciding where each fact lives and how the query layer
+      stitches them together.
+    </span>
+  </div>
+</div></div>
+
+<script>
+(function(){
+window.kgSw = function(n,btn){
+  [1,2,3,4].forEach(function(i){document.getElementById('kg-p'+i).classList.toggle('kg-on',i===n)});
+  document.querySelectorAll('.kg-tb').forEach(function(b){b.classList.remove('kg-on')});
+  btn.classList.add('kg-on');
+};
+
+var ND={
+  alice:{label:'Alice',type:'Person',props:{age:34,role:'Engineer',nationality:'British'},
+    triples:['(Alice, WORKS_AT, Acme Corp)','(Alice, LIVES_IN, London)','(Bob, KNOWS, Alice)']},
+  bob:{label:'Bob',type:'Person',props:{age:41,role:'Investor',nationality:'American'},
+    triples:['(Bob, KNOWS, Alice)','(Bob, BORN_IN, London)']},
+  acme:{label:'Acme Corp',type:'Organisation',props:{founded:2010,sector:'Technology',employees:320},
+    triples:['(Alice, WORKS_AT, Acme Corp)','(Acme Corp, HQ_IN, London)']},
+  london:{label:'London',type:'Location',props:{country:'UK',population:'9.5M',timezone:'UTC+0'},
+    triples:['(Alice, LIVES_IN, London)','(Acme Corp, HQ_IN, London)','(Bob, BORN_IN, London)']}
+};
+
+window.kgSelNode = function(id){
+  var d=ND[id];
+  var ps=Object.entries(d.props).map(function(e){return '<span style="background:#fff;padding:1px 6px;border-radius:3px;border:0.5px solid #cbd5e1;margin-right:4px;font-size:10px">'+e[0]+': '+e[1]+'</span>';}).join('');
+  var ts=d.triples.map(function(t){return '<code style="display:block;font-family:\'Courier New\', monospace;font-size:10px;color:#0f172a;margin:2px 0">'+t+'</code>';}).join('');
+  document.getElementById('kg-node-detail').innerHTML='<strong style="color:#0f172a">'+d.label+'</strong> <span style="font-size:10px;color:#94a3b8">'+d.type+'</span><div style="margin:4px 0">'+ps+'</div><div style="margin-top:5px;font-size:10px;color:#94a3b8;margin-bottom:2px">Stored triples:</div>'+ts;
+  document.querySelectorAll('.kg-ng circle,.kg-ng rect').forEach(function(el){el.style.opacity='0.4'});
+  var el=document.querySelector('#kg-ng-'+id+' circle, #kg-ng-'+id+' rect');
+  if(el) el.style.opacity='1';
+};
+
+var MISTAKES=[
+  {t:'Over-engineering the ontology upfront',b:'Designing a complete, correct, exhaustive schema before loading any data. Start with 5\u20138 entity types and 10\u201315 relation types. The ontology must evolve from real queries, not theoretical completeness \u2014 otherwise you spend 6 months building a schema that nobody queries.'},
+  {t:'No entity disambiguation strategy',b:'Storing \u201cApple (the fruit)\u201d and \u201cApple Inc.\u201d as the same node because they share a surface form. Or creating thousands of duplicate nodes for the same real-world entity. Without a named entity linking (NEL) step, the graph becomes a mess of duplicates and false connections.'},
+  {t:'Missing temporal modelling',b:'Facts change: Alice leaves Acme Corp, two companies merge, a country\u2019s capital moves. Storing edges without valid_from/valid_to timestamps means stale facts stay live and corrupt all multi-hop queries indefinitely.'},
+  {t:'Conflating ontology with instance level',b:'Mixing schema nodes (the class \u201cPerson\u201d) with instance nodes (\u201cAlice\u201d) in the same traversal. Queries start returning type definitions instead of data. Use separate named graphs or strict rdf:type separation.'},
+  {t:'No contradiction / consistency checking',b:'Inserting new triples without checking against existing ones. Over time the graph accumulates contradictions \u2014 Alice WORKS_AT two companies simultaneously, a city is HQ_IN two countries \u2014 which silently degrade every downstream RAG answer.'},
+];
+document.getElementById('kg-mistakes').innerHTML=MISTAKES.map(function(m){return '\
+  <div class="kg-mstake" onclick="this.classList.toggle(\'kg-op\')">\
+    <div class="kg-mstake-t">'+m.t+'<span class="kg-chev">\u25BC</span></div>\
+    <div class="kg-mstake-b">'+m.b+'</div>\
+  </div>';}).join('');
+
+function chip(l){
+  var m={
+    strong:{bg:'#f0fdf4',fg:'#16a34a',lbl:'Strong'},
+    partial:{bg:'#fef3c7',fg:'#d97706',lbl:'Partial'},
+    weak:{bg:'#fef2f2',fg:'#dc2626',lbl:'Weak'},
+    na:{bg:'#f8fafc',fg:'#94a3b8',lbl:'N/A'},
+  };
+  var c=m[l]||m.na;
+  return '<span class="kg-chip" style="background:'+c.bg+';color:'+c.fg+'">'+c.lbl+'</span>';
+}
+
+var DS_ROWS=[
+  ['Multi-hop relationship queries','strong','weak','weak'],
+  ['Semantic / meaning-based search','weak','strong','weak'],
+  ['Full-text keyword search','partial','partial','partial'],
+  ['Structured aggregation (SUM, GROUP BY)','weak','weak','strong'],
+  ['Schema flexibility / evolution','strong','strong','weak'],
+  ['Unstructured data (images, audio, video)','weak','strong','weak'],
+  ['Explainability & audit trail','strong','weak','strong'],
+  ['ACID transactions & consistency','partial','weak','strong'],
+  ['Scale to billions of records','partial','strong','strong'],
+  ['Sub-50ms query latency at scale','partial','strong','strong'],
+];
+var dg='<div class="kg-mh kg-mhl">Requirement</div><div class="kg-mh">Knowledge Graph</div><div class="kg-mh">Vector Store</div><div class="kg-mh">Relational DB</div>';
+DS_ROWS.forEach(function(row){var c=row[0];var s=row.slice(1);dg+='<div class="kg-mk">'+c+'</div>'+s.map(function(v){return '<div class="kg-mc">'+chip(v)+'</div>';}).join('');});
+document.getElementById('kg-ds-grid').innerHTML=dg;
+
+var MOD_ROWS=[
+  ['Text (documents, passages)','strong','strong','partial'],
+  ['Image / video','weak','strong','weak'],
+  ['Audio / speech','weak','strong','weak'],
+  ['Tabular / structured data','partial','weak','strong'],
+  ['Source code','weak','strong','partial'],
+  ['Multi-modal (text + image)','weak','strong','weak'],
+];
+var mg='<div class="kg-mh kg-mhl">Modality</div><div class="kg-mh">Knowledge Graph</div><div class="kg-mh">Vector Store</div><div class="kg-mh">Relational DB</div>';
+MOD_ROWS.forEach(function(row){var c=row[0];var s=row.slice(1);mg+='<div class="kg-mk">'+c+'</div>'+s.map(function(v){return '<div class="kg-mc">'+chip(v)+'</div>';}).join('');});
+document.getElementById('kg-mod-grid').innerHTML=mg;
+
+var LANG_ROWS=[
+  ['Monolingual (English-only)','Any model works; domain-tuned best','Labels in one language; simple','Standard UTF-8 collation'],
+  ['Multilingual (50+ languages)','mE5 / LaBSE / text-emb-3-large essential','Every label must be stored per language explicitly','Unicode collation; locale-aware sorting'],
+  ['Low-resource languages','mBERT / XLM-R; lower quality','Very sparse coverage in KGs','Character-level tokenisers needed'],
+  ['Cross-lingual retrieval (DE query \u2192 EN doc)','Multilingual contrastive model required','KG needs multilingual entity linking','Not applicable natively'],
+  ['Code-switching (mixed language text)','Dedicated code-switch models','KG labels typically monolingual','Character encoding risks'],
+];
+var lg='<div class="kg-mh kg-mhl">Language scenario</div><div class="kg-mh">Embedding model choice</div><div class="kg-mh">KG impact</div><div class="kg-mh">Relational impact</div>';
+LANG_ROWS.forEach(function(row){var sc=row[0],e=row[1],k=row[2],r=row[3];lg+='<div class="kg-mk">'+sc+'</div><div class="kg-mct">'+e+'</div><div class="kg-mct">'+k+'</div><div class="kg-mct">'+r+'</div>';});
+document.getElementById('kg-lang-grid').innerHTML=lg;
+
+var RAG_CARDS=[
+  {title:'Graph RAG',color:'#818cf8',
+   steps:['1. NER on query \u2192 extract anchor entities','2. Entity linking \u2192 map to KG node IDs','3. Multi-hop Cypher/SPARQL traversal from anchors','4. Serialise subgraph triples to natural language context','5. LLM generates answer grounded in subgraph'],
+   needs:'Entity linking precision; graph coverage; relation extraction quality',
+   fails:'Entity not found \u2192 empty context; over-traversal \u2192 noisy context; stale facts'},
+  {title:'Dense vector RAG',color:'#3b82f6',
+   steps:['1. Chunk corpus and embed at index time','2. Embed query with same model','3. ANN search (HNSW/FAISS) \u2192 top-k chunks by cosine sim','4. Re-rank (optional: cross-encoder)','5. LLM synthesises answer from retrieved passages'],
+   needs:'Same model for query and docs; chunk size matched to query granularity; domain coverage in training data',
+   fails:'Semantic drift for out-of-domain text; long-doc truncation; negation blindness'},
+  {title:'SQL / hybrid RAG',color:'#0d9488',
+   steps:['1. Schema-aware text-to-SQL (or structured query gen)','2. Execute SQL against relational / graph store','3. Optionally augment with vector retrieval for text cols','4. Combine structured results + passages in prompt','5. LLM synthesises final answer'],
+   needs:'Accurate schema grounding; table/column linking; handling of ambiguous column names',
+   fails:'Hallucinated SQL; wrong join; numeric precision loss; schema drift breaks generation'},
+];
+document.getElementById('kg-rag-cards').innerHTML=RAG_CARDS.map(function(c){return '\
+  <div class="kg-rc">\
+    <div class="kg-rt" style="color:'+c.color+'">'+c.title+'</div>\
+    '+c.steps.map(function(s){return '<div class="kg-rs">'+s+'</div>';}).join('')+'\
+    <div style="margin-top:7px;font-size:10px"><strong style="color:#475569;font-weight:500">Needs: </strong><span style="color:#94a3b8">'+c.needs+'</span></div>\
+    <div style="margin-top:3px;font-size:10px"><strong style="color:#475569;font-weight:500">Fails when: </strong><span style="color:#dc2626">'+c.fails+'</span></div>\
+  </div>';}).join('');
+
+var EMB_ROWS=[
+  ['Dense vector passage retrieval','Synonym drift; static vectors hurt recall','Good recall; contextual paraphrase handled well','Excellent; domain transfer; long-context models available'],
+  ['Graph RAG entity extraction','Fragile NER \u2014 surface-form exact match only','Contextual NER generalises better across phrasings','Handles ambiguous entity boundaries; coreference'],
+  ['Cross-lingual / multilingual retrieval','Fails \u2014 single language vector space','Partial \u2014 multilingual model required explicitly','Strong with multilingual contrastive training (mE5, LaBSE)'],
+  ['Multi-modal retrieval (image + text)','Not supported','Not supported (text-only models)','CLIP / ImageBind enables text\u2194image alignment'],
+  ['Long-document retrieval (>1 k tokens)','Averaging destroys ordering \u2014 poor','Truncation loses tail \u2014 moderate','Late chunking + 8 k context window \u2014 strong'],
+  ['Negation & contrast ("NOT about X")','Not handled \u2014 negation invisible','Weak; negation partially captured','Improved via hard-negative contrastive training'],
+];
+var COLS=['color:#dc2626','color:#d97706','color:#16a34a'];
+document.getElementById('kg-emb-body').innerHTML=EMB_ROWS.map(function(row){var ctx=row[0];var cells=row.slice(1);return '\
+  <tr>\
+    <td style="font-weight:500;color:#0f172a">'+ctx+'</td>\
+    '+cells.map(function(c,i){return '<td style="'+COLS[i]+'">'+c+'</td>';}).join('')+'\
+  </tr>';}).join('');
+})();
+</script>
