@@ -95,6 +95,8 @@ documentation or reference site, `article` = journalism / popular-science piece.
 |---|---|---|---|---|
 | paper | GLiNER: Generalist Model for Named Entity Recognition using Bidirectional Transformer | Zaratiana, Tomeh, Holat, Charnois (2023/2024), NAACL | [arxiv.org/abs/2311.08526](https://arxiv.org/abs/2311.08526) | "Transformer NER" and LLM/generalist NER row in the method-comparison grid |
 | webpage | spaCy: Industrial-Strength NLP | Explosion (Honnibal, Montani) | [spacy.io](https://spacy.io/) | "Statistical NER (CRF, spaCy)" row in the method-comparison grid |
+| paper | Open Information Extraction from the Web | Banko, Cafarella, Soderland, Broadhead, Etzioni (2007), IJCAI | [turing.cs.washington.edu/papers/ijcai07.pdf](http://turing.cs.washington.edu/papers/ijcai07.pdf) | "Ontology vs Open" tab: the schema-free, high-recall OpenIE side of the comparison |
+| paper | Ontology-based Information Extraction: An Introduction and a Survey of Current Approaches | Wimalasuriya, Dou (2010), Journal of Information Science | [journals.sagepub.com/doi/abs/10.1177/0165551509360123](https://journals.sagepub.com/doi/abs/10.1177/0165551509360123) | "Ontology vs Open" tab: the schema-constrained OBIE side, and the framing of grounding OpenIE output back onto a controlled vocabulary |
 
 ## `knowledge_representation_spectrum.html` — "From Prose to Predicates"
 
@@ -140,6 +142,16 @@ documentation or reference site, `article` = journalism / popular-science piece.
 | paper | Chain-of-Verification Reduces Hallucination in Large Language Models | Dhuliawala, Komeili, Xu, Raileanu, Li, Celikyilmaz, Weston (2023), ACL Findings 2024 | [arxiv.org/abs/2309.11495](https://arxiv.org/abs/2309.11495) | "Chain-of-Verification" tab: the draft → plan → verify → revise pipeline |
 | article | No, You Can't See the Great Wall of China from Space | Scientific American | [scientificamerican.com/article/no-you-cant-see-the-great-wall-of-space](https://www.scientificamerican.com/article/no-you-cant-see-the-great-wall-of-china-from-space/) | "Chain-of-Verification" tab: the worked myth-correction example |
 | paper | ReAct: Synergizing Reasoning and Acting in Language Models | Yao, Zhao, Yu, Du, Shafran, Narasimhan, Cao (2023), ICLR | [arxiv.org/abs/2210.03629](https://arxiv.org/abs/2210.03629) | "Agentic (ReAct)" tab: the Thought/Action/Observation trace |
+
+## `extraction_validation_methods.html` — "Validating & Verifying Extracted Information"
+
+| Type | Title | Author(s) | Link | Used for |
+|---|---|---|---|---|
+| paper | RARR: Researching and Revising What Language Models Say, Using Language Models | Gao, Dai, Pasupat, Chen, Chaganty, Fan, Zhao, Lao, Lee, Juan, Guu (2022) | [arxiv.org/abs/2210.08726](https://arxiv.org/abs/2210.08726) | "Source Grounding" tab: checking a claim (here, an extracted triple) against a quoted span of its source text |
+| paper | Attributed Question Answering: Evaluation and Modeling for Attributed Large Language Models | Bohnet, Tran, Verga, Aharoni, Andor, Soares, et al. (2022), Google Research | [arxiv.org/abs/2212.08037](https://arxiv.org/abs/2212.08037) | "Schema Validation" and "Source Grounding" tabs: general framing of requiring every extracted fact to be attributable/checkable before being trusted |
+| paper | SemEval-2017 Task 1: Semantic Textual Similarity — Multilingual and Cross-lingual Focused Evaluation (STS Benchmark) | Cer, Diab, Agirre, Lopez-Gazpio, Specia (2017) | [arxiv.org/abs/1708.00055](https://arxiv.org/abs/1708.00055) | "Round-Trip Check" tab: the cosine-similarity-as-meaning-preservation idea and its calibration, matching the STS-B-calibrated back-translation check used in this workshop's Part 2 hands-on |
+| paper | Sentence-BERT: Sentence Embeddings using Siamese BERT-Networks | Reimers, Gurevych (2019), EMNLP-IJCNLP | [arxiv.org/abs/1908.10084](https://arxiv.org/abs/1908.10084) | "Round-Trip Check" tab: the embedding model family used to compute the cosine-similarity score between original and reconstructed text |
+| paper | Self-Consistency Improves Chain of Thought Reasoning in Language Models | Wang, Wei, Schuurmans, Le, Chi, Narang, Chowdhery, Zhou (2022) | [arxiv.org/abs/2203.11171](https://arxiv.org/abs/2203.11171) | "Cross-Run Consistency" tab: sampling the same (extraction) prompt twice and keeping only triples both runs agree on, applied here to extraction instead of generation |
 
 ## `hyde.html` (unused asset — kept as source material; not currently linked from the notebook)
 

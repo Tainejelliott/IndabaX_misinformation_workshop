@@ -38,6 +38,8 @@ def semantic_search_depth_explorer(): return load_html("semantic_search_depth_ex
 
 def information_extraction_methods(): return load_html("information_extraction_methods.html")
 
+def extraction_validation_methods(): return load_html("extraction_validation_methods.html")
+
 def knowledge_representation_spectrum(): return load_html("knowledge_representation_spectrum.html")
 
 def information_retrieval_methods(): return load_html("information_retrieval_methods.html")

@@ -54,6 +54,9 @@
 .ie-date-flag{background:#fef3c7;color:#92400e;font-weight:600;padding:1px 4px;border-radius:3px}
 .ie-date-card{background:#fff;border:0.5px solid #cbd5e1;border-radius:8px;padding:8px 10px;font-size:11px;color:#475569;flex:1}
 .ie-date-card b{display:block;font-size:12px;color:#0f172a;margin-top:2px}
+
+.ie-ontology-box{background:#eff6ff;border:0.5px solid #bfdbfe;border-radius:8px;padding:8px 10px;font-size:10.5px;color:#1e3a8a;margin-bottom:8px;line-height:1.4}
+.ie-ontology-box.dimmed{opacity:.45}
 </style>
 
   <!-- header -->
@@ -71,11 +74,12 @@
   </div>
 
   <div class="ie-tab-row">
-    <button class="ie-tab active" onclick="ieSwitchTab('pipeline',this)">Extraction pipeline</button>
-    <button class="ie-tab" onclick="ieSwitchTab('chunking',this)">Chunking demo</button>
-    <button class="ie-tab" onclick="ieSwitchTab('methods',this)">Method comparison</button>
-    <button class="ie-tab" onclick="ieSwitchTab('pitfalls',this)">Common pitfalls</button>
+    <button class="ie-tab active" onclick="ieSwitchTab('pipeline',this)">Extraction Pipeline</button>
+    <button class="ie-tab" onclick="ieSwitchTab('chunking',this)">Chunking</button>
+    <button class="ie-tab" onclick="ieSwitchTab('ontology',this)">Ontology vs Open</button>
     <button class="ie-tab" onclick="ieSwitchTab('disambiguation',this)">Disambiguation</button>
+    <button class="ie-tab" onclick="ieSwitchTab('methods',this)">Method Comparison</button>
+    <button class="ie-tab" onclick="ieSwitchTab('pitfalls',this)">Common Pitfalls</button>
   </div>
 
 <!-- TAB 1: pipeline -->
@@ -172,19 +176,25 @@
   <div class="ie-chunk-cards" id="ie-chunk-cards"></div>
 </div>
 
-<!-- TAB 3: method comparison -->
-<div class="ie-panel" id="ie-tab-methods">
-  <div style="font-size:11px;color:#475569;margin-bottom:8px">How well each extraction method performs, from cheapest/most rigid to most flexible/most expensive.</div>
-  <div class="ie-mg" id="ie-methods-grid"></div>
-  <div class="ie-note">Most production pipelines combine tiers: cheap rule-based extraction for high-confidence fields, with LLM-prompted extraction reserved for ambiguous cases — always behind a validation step (see Common pitfalls).</div>
+<!-- TAB 3: ontology-based vs open information extraction -->
+<div class="ie-panel" id="ie-tab-ontology">
+  <div style="font-size:11px;color:#475569;margin-bottom:8px">
+    A second, orthogonal choice to the extraction technology above: constrain the
+    extractor to a predefined schema, or let it extract everything and reconcile the
+    mess afterward. This workshop's Part 2 hands-on runs both of these on a real
+    biomedical abstract.
+  </div>
+  <div class="ie-ontology-box" id="ie-ont-schema">Ontology for this demo — Types: Person &middot; Organisation &middot; Location &nbsp;|&nbsp; Relations: WORKS_AT &middot; AUTHORED &middot; LOCATED_IN</div>
+  <div style="font-size:11px;color:#0f172a;margin-bottom:6px">Source sentence: <i>"Dr. Amara Nwosu, based at the University of Lagos, authored a new water-safety study. Her lab retested every sample twice before publishing the results."</i></div>
+  <div class="ie-strat-row" id="ie-extract-btns"></div>
+  <div class="ie-chunk-cards" id="ie-extract-triples"></div>
+  <div class="ie-warn-banner" id="ie-extract-note"></div>
+  <div style="font-size:11px;font-weight:600;color:#0f172a;margin:12px 0 4px">OBIE vs OpenIE</div>
+  <div class="ie-mg" id="ie-obie-openie-grid"></div>
+  <div class="ie-note">Most production KG pipelines run OpenIE first for recall, then <b>ground</b> the results back onto an ontology (e.g. embedding similarity against a controlled vocabulary) — recovering structure without losing the facts a closed schema would have missed outright.</div>
 </div>
 
-<!-- TAB 4: common pitfalls -->
-<div class="ie-panel" id="ie-tab-pitfalls">
-  <div id="ie-mistakes"></div>
-</div>
-
-<!-- TAB 5: disambiguation -->
+<!-- TAB 4: disambiguation -->
 <div class="ie-panel" id="ie-tab-disambiguation">
   <div style="font-size:11px;color:#475569;margin-bottom:8px">
     Chunking and extraction strip away the surrounding context a reader normally uses to
@@ -228,6 +238,18 @@
   <div class="ie-mg" id="ie-disambig-grid"></div>
 </div>
 
+<!-- TAB 5: method comparison -->
+<div class="ie-panel" id="ie-tab-methods">
+  <div style="font-size:11px;color:#475569;margin-bottom:8px">How well each extraction method performs, from cheapest/most rigid to most flexible/most expensive.</div>
+  <div class="ie-mg" id="ie-methods-grid"></div>
+  <div class="ie-note">Most production pipelines combine tiers: cheap rule-based extraction for high-confidence fields, with LLM-prompted extraction reserved for ambiguous cases — always behind a validation step (see Common pitfalls).</div>
+</div>
+
+<!-- TAB 6: common pitfalls -->
+<div class="ie-panel" id="ie-tab-pitfalls">
+  <div id="ie-mistakes"></div>
+</div>
+
   <!-- key insight -->
   <div style="margin-top:10px;background:#fffbeb;border-left:3px solid #d97706;
               border-radius:0 8px 8px 0;padding:10px 14px">
@@ -243,7 +265,7 @@
 <script>
 (function(){
 window.ieSwitchTab = function(name, btn){
-  document.querySelectorAll('#ie-tab-pipeline, #ie-tab-chunking, #ie-tab-methods, #ie-tab-pitfalls, #ie-tab-disambiguation').forEach(function(p){ p.classList.remove('active'); });
+  document.querySelectorAll('#ie-tab-pipeline, #ie-tab-chunking, #ie-tab-ontology, #ie-tab-disambiguation, #ie-tab-methods, #ie-tab-pitfalls').forEach(function(p){ p.classList.remove('active'); });
   document.querySelectorAll('.ie-tab').forEach(function(t){ t.classList.remove('active'); });
   document.getElementById('ie-tab-' + name).classList.add('active');
   btn.classList.add('active');
@@ -422,6 +444,73 @@ function renderMethodsGrid(){
       vals.map(function(v){ return '<div class="ie-mc">' + chip(v) + '</div>'; }).join('');
   });
   document.getElementById('ie-methods-grid').innerHTML = grid;
+}
+
+// ---- Tab 3b: ontology-based (OBIE) vs open (OpenIE) ----
+var EXTRACTION_MODES = {
+  obie: {
+    label: 'Ontology-based (OBIE)',
+    triples: [
+      '(Dr. Amara Nwosu, WORKS_AT, University of Lagos)',
+      '(Dr. Amara Nwosu, AUTHORED, water-safety study)'
+    ],
+    note: '⚠ Only triples matching the predefined types and relations survive. "Retested every sample twice" is a real, useful fact — but it\'s invisible here because RETESTED was never in the ontology.',
+    noteClass: 'ie-warn-bad',
+    dimSchema: false
+  },
+  openie: {
+    label: 'Open (OpenIE)',
+    triples: [
+      '(Dr. Amara Nwosu, is based at, University of Lagos)',
+      '(Dr. Amara Nwosu, authored, a new water-safety study)',
+      '(Her lab, retested, every sample twice)',
+      '(Her lab, retested before, publishing the results)'
+    ],
+    note: '✓ Every relationship the model notices is kept — including the fact OBIE missed. But relation labels are free text, not canonical types, and "Her lab" isn\'t yet linked to Dr. Amara Nwosu as the same entity — both need grounding and canonicalization before this is queryable.',
+    noteClass: 'ie-warn-good',
+    dimSchema: true
+  }
+};
+var currentExtractionMode = 'obie';
+
+function renderExtractionMode(){
+  var m = EXTRACTION_MODES[currentExtractionMode];
+  document.getElementById('ie-extract-btns').innerHTML = Object.keys(EXTRACTION_MODES).map(function(k){
+    return '<button class="ie-strat-btn' + (k === currentExtractionMode ? ' active' : '') +
+      '" onclick="ieSelectExtractionMode(\'' + k + '\')">' + EXTRACTION_MODES[k].label + '</button>';
+  }).join('');
+  document.getElementById('ie-extract-triples').innerHTML = m.triples.map(function(t, i){
+    var color = CHUNK_COLORS[i % CHUNK_COLORS.length];
+    return '<div class="ie-chunk-card" style="border-left-color:' + color + '">' + t + '</div>';
+  }).join('');
+  var el = document.getElementById('ie-extract-note');
+  el.className = 'ie-warn-banner ' + m.noteClass;
+  el.textContent = m.note;
+  document.getElementById('ie-ont-schema').classList.toggle('dimmed', m.dimSchema);
+}
+
+window.ieSelectExtractionMode = function(key){
+  currentExtractionMode = key;
+  renderExtractionMode();
+};
+
+var OBIE_OPENIE_ROWS = [
+  ['Ontology-based (OBIE)', 'strong', 'weak', 'strong', 'weak'],
+  ['Open (OpenIE)', 'partial', 'strong', 'weak', 'strong']
+];
+
+function renderObieOpenieGrid(){
+  var grid = '<div class="ie-mh ie-mhl">Approach</div>' +
+    '<div class="ie-mh">Precision</div>' +
+    '<div class="ie-mh">Recall / coverage</div>' +
+    '<div class="ie-mh">Structured output</div>' +
+    '<div class="ie-mh">Works schema-free</div>';
+  OBIE_OPENIE_ROWS.forEach(function(row){
+    var name = row[0], vals = row.slice(1);
+    grid += '<div class="ie-mk">' + name + '</div>' +
+      vals.map(function(v){ return '<div class="ie-mc">' + chip(v) + '</div>'; }).join('');
+  });
+  document.getElementById('ie-obie-openie-grid').innerHTML = grid;
 }
 
 // ---- Tab 4: pitfalls ----
@@ -635,6 +724,8 @@ function renderDisambiguationTab(){
 
 renderChunkingDemo();
 renderMethodsGrid();
+renderExtractionMode();
+renderObieOpenieGrid();
 renderMistakes();
 renderDisambiguationTab();
 })();
