@@ -18,6 +18,7 @@ reason — finishing by cracking a murder mystery with a KG-RAG detective.
 | Combined | `NdabaX 2026 KG-RAG Workshop.ipynb` | **All parts in one notebook** (Colab deliverable) |
 
 The combined notebook is the one attendees open on Google Colab.
+Link to Setup and API Key : https://docs.google.com/document/d/1p-yaU-OKJpxpYteMhDVr_6w0oWTC9qwiBs0qFTgPgjQ/edit?usp=sharing
 
 ---
 
