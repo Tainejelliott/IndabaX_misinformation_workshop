@@ -19,6 +19,8 @@ misinformation is injected into it.
 Each notebook is self-contained and can be run independently; `notebook_src/`
 is the shared Python package all three import from.
 
+Step-by-step setup and API key walkthrough (Google Doc): https://docs.google.com/document/d/1p-yaU-OKJpxpYteMhDVr_6w0oWTC9qwiBs0qFTgPgjQ/edit?usp=sharing
+
 ---
 
 ## Local setup
