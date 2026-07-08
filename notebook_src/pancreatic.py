@@ -23,7 +23,7 @@ ABSTRACTS = [
     {
         "title":   "Molecular pathogenesis of pancreatic ductal adenocarcinoma",
         "authors": "(illustrative teaching abstract)",
-        "journal": "NdabaX Workshop Corpus",
+        "journal": "IndabaX Workshop Corpus",
         "year":    "—",
         "sections": [
             {"label": "BACKGROUND",
@@ -54,7 +54,7 @@ ABSTRACTS = [
     {
         "title":   "Late diagnosis and biomarkers in cancer of the pancreas",
         "authors": "(illustrative teaching abstract)",
-        "journal": "NdabaX Workshop Corpus",
+        "journal": "IndabaX Workshop Corpus",
         "year":    "—",
         "sections": [
             {"label": "BACKGROUND",
@@ -81,7 +81,7 @@ ABSTRACTS = [
     {
         "title":   "Chemotherapy and drug resistance in pancreatic adenocarcinoma",
         "authors": "(illustrative teaching abstract)",
-        "journal": "NdabaX Workshop Corpus",
+        "journal": "IndabaX Workshop Corpus",
         "year":    "—",
         "sections": [
             {"label": "BACKGROUND",
@@ -108,7 +108,7 @@ ABSTRACTS = [
     {
         "title":   "The genomic landscape and microenvironment of PDAC",
         "authors": "(illustrative teaching abstract)",
-        "journal": "NdabaX Workshop Corpus",
+        "journal": "IndabaX Workshop Corpus",
         "year":    "—",
         "sections": [
             {"label": "BACKGROUND",
@@ -136,7 +136,7 @@ ABSTRACTS = [
     {
         "title":   "Surgical resection and relapse in pancreatic cancer",
         "authors": "(illustrative teaching abstract)",
-        "journal": "NdabaX Workshop Corpus",
+        "journal": "IndabaX Workshop Corpus",
         "year":    "—",
         "sections": [
             {"label": "BACKGROUND",
@@ -307,7 +307,7 @@ def type_names() -> list[str]:
 
 
 # ── paper-card view (renders identically to notebook 4's render_abstract) ── #
-SOURCE = "NdabaX corpus"
+SOURCE = "IndabaX corpus"
 
 # Per-abstract metadata for the rich paper card: a focus question, a one-line
 # conclusion, and the MeSH concepts the abstract touches (parallel to ABSTRACTS).
