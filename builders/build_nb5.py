@@ -50,7 +50,7 @@ cells = []
 # ─── Title + Setup ─────────────────────────────────────────────────── #
 cells.append(md(
 """# Hands-on B — Knowledge Base Utilisation
-### NdabaX 2026 — Hands-on Workshop"""))
+### IndabaX 2026 — Hands-on Workshop"""))
 
 cells.append(md("## Setup"))
 cells.append(code(

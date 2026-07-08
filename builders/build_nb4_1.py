@@ -48,7 +48,7 @@ cells = []
 # ─── Title + Setup ─────────────────────────────────────────────────── #
 cells.append(md(
 """# Hands-on A.2 — Proposition Pipeline (v4.1)
-### NdabaX 2026 · a research-style KG pipeline, side-by-side with notebook 4"""))
+### IndabaX 2026 · a research-style KG pipeline, side-by-side with notebook 4"""))
 
 cells.append(md("## Setup"))
 cells.append(code(
