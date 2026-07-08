@@ -969,11 +969,12 @@ def render_graph_stats(stats: dict) -> str:
                 f'<div style="font-size:22px;font-weight:800;color:{col};">{value}</div>'
                 f'<div style="font-size:10px;color:#94a3b8;letter-spacing:.5px;'
                 f'text-transform:uppercase;">{label}</div></div>')
+    density_str = f"{stats['density']:.2f}"
     kpis = (
         f'<div style="display:flex;flex-wrap:wrap;gap:6px;background:#f8fafc;'
         f'border-radius:8px;padding:6px;margin-bottom:12px;">'
         f'{stat("nodes", stats["nodes"])}{stat("edges", stats["edges"])}'
-        f'{stat("density", f"{stats['density']:.2f}")}'
+        f'{stat("density", density_str)}'
         f'{stat("symmetric", stats["symmetric_edges"], "#8b5cf6")}'
         f'{stat("temporal", stats["temporal_edges"], "#0ea5e9")}</div>'
     )
