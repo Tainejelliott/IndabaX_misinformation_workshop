@@ -614,7 +614,7 @@ def extract_mystery_triples(
 
 
 # ══════════════════════════════════════════════════════════════════════ #
-#  Proposition-based pipeline (Hands-on A.2 v4.1)                          #
+#  Proposition-based pipeline (Case Study)                          #
 #  text → propositions → coreference resolution → triples-from-propositions #
 # ══════════════════════════════════════════════════════════════════════ #
 

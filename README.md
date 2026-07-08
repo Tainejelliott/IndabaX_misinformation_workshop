@@ -13,7 +13,7 @@ misinformation is injected into it.
 | # | Notebook | What it covers |
 |---|----------|-----------------|
 | 1 | `1 - Introduction (Interactive).ipynb` | LLMs, embeddings, knowledge bases, extraction, retrieval, and augmented generation — each concept immediately followed by real, runnable code (not just a slide). Builds a minimal RAG pipeline twice on a small myth-busting corpus: once over a vector store (ChromaDB), once over a knowledge graph, specifically to show a question the vector store structurally can't answer but the graph can. |
-| 2 | `2 - Case Study: PubMed Q&A.ipynb` | *("Hands-on A.2 — Proposition Pipeline")* — a research-style KG pipeline over a real PubMedQA abstract: proposition chunking, OpenIE vs. ontology-based (OBIE) triple extraction, round-trip back-translation validation, coreference resolution, entity mapping across synonyms, and assembling the final knowledge graph — then a preview of applying the same pipeline to a murder-mystery case. |
+| 2 | `2 - Case Study: PubMed Q&A.ipynb` | *("Case Study — Proposition Pipeline")* — a research-style KG pipeline over a real PubMedQA abstract: proposition chunking, OpenIE vs. ontology-based (OBIE) triple extraction, round-trip back-translation validation, coreference resolution, entity mapping across synonyms, and assembling the final knowledge graph — then a preview of applying the same pipeline to a murder-mystery case. |
 | 3 | `3 - Hands-on Ontology.ipynb` | *("Hands-on B — Knowledge Base Utilisation")* — attendees design their **own** extraction ontology for a case file, run extraction against it, build and evaluate their graph, then watch (and drive) an OpenAI function-calling agent investigate and solve the case by querying the graph — finishing with a misinformation-injection exercise to see how a corrupted graph changes the agent's conclusion. |
 
 Each notebook is self-contained and can be run independently; `notebook_src/`
@@ -113,7 +113,7 @@ Runtime → Run all.
 │   ├── graph_agent.py            # OpenAI function-calling agent that queries a graph
 │   ├── validation.py             # Back-translation, cosine similarity, STS-B calibration
 │   ├── mystery.py                # Hands-on B murder-mystery case data
-│   ├── pancreatic.py             # Hands-on A.2 pancreatic-cancer teaching corpus + ontology
+│   ├── pancreatic.py             # Case Study pancreatic-cancer teaching corpus + ontology
 │   └── html/                     # Static HTML assets for every interactive visual
 ├── builders/                     # One-off scripts that edit .ipynb JSON programmatically
 ├── 1 - Introduction (Interactive).ipynb

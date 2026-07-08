@@ -1942,7 +1942,7 @@ def render_segments(segments: list[dict]) -> str:
 
 
 # ══════════════════════════════════════════════════════════════════════ #
-#  Hands-on A.2 v4.1 — proposition pipeline (pancreatic cancer)            #
+#  Case Study — proposition pipeline (pancreatic cancer)            #
 # ══════════════════════════════════════════════════════════════════════ #
 
 def render_4_1_roadmap() -> str:
@@ -1984,7 +1984,7 @@ def render_4_1_roadmap() -> str:
         'same logic you will apply to the murder mystery in Hands-on B.</div>'
         + rows
     )
-    return _card("135deg,#0f766e,#14b8a6", "Hands-on A.2 · v4.1 — Proposition Pipeline",
+    return _card("135deg,#0f766e,#14b8a6", "Case Study — Proposition Pipeline",
                  "From an abstract to a proposition-grounded knowledge graph",
                  "Chunk → validate → resolve → extract → map → build", body)
 

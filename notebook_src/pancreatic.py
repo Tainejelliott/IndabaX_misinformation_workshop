@@ -1,6 +1,6 @@
 """
 notebook_src/pancreatic.py
-A small pancreatic-cancer corpus + ontology for Hands-on A.2 v4.1 (the
+A small pancreatic-cancer corpus + ontology for the Case Study notebook (the
 proposition-pipeline notebook).
 
 The five abstracts are HAND-AUTHORED for teaching from well-established,
