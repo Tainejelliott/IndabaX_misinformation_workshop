@@ -127,18 +127,9 @@ cells.append(sub("##", PUR, PURBG, "🧩", "Part 2 · Design Your Ontology",
                  "which relationships matter, and what each one MEANS."))
 
 cells.append(code(
-'''# Think from the QUESTIONS backwards — a good schema is designed for its queries:
-from notebook_src.display import render_points_card
-show(render_points_card("Design thinking", "Start from the questions, not the data",
-    "What must the graph be able to answer?", [
-    "<b>“Who had a motive?”</b> → needs a <code>Motive</code> entity and a <code>has_motive</code> relation.",
-    "<b>“Who could NOT have done it?”</b> → needs <code>has_alibi</code> — and a definition that "
-    "separates a <em>confirmed</em> alibi from a mere sighting.",
-    "<b>“Who had access to the weapon?”</b> → needs <code>Object</code> entities with "
-    "<code>owns</code> / <code>found_in</code> relations.",
-    "Each relation needs a <b>definition</b> — the extractor follows your words literally. "
-    "Vague definition in, confused graph out.",
-], grad="135deg,#5b21b6,#7c3aed"))'''))
+'''# Think from the QUESTIONS backwards — a good schema is designed for its queries.
+from notebook_src.display import render_design_thinking
+show(render_design_thinking())'''))
 
 cells.append(sub("###", PUR, PURBG, "📐", "The Reference Ontology",
                  "A worked example — five entity types, eleven relations, each with a definition"))
@@ -235,12 +226,20 @@ my_triples = extract_mystery_triples(
 )
 print(f"Extracted {len(my_triples)} validated triples")'''))
 
+cells.append(sub("###", TEAL, TEALBG, "🔍", "What a triple looks like",
+                 "Two typed nodes and a directed relationship — with the source sentence and "
+                 "confidence carried as properties ON the edge."))
+cells.append(code(
+'''from notebook_src.display import render_triple_anatomy
+# Anatomy of one of YOUR extracted triples.
+show(render_triple_anatomy(my_triples[0] if my_triples else None))'''))
+
 cells.append(code(
 '''from notebook_src.display import render_triples
 
 # Scan the table — is anything mistyped or nonsensical? Remember what you
 # see here: the coverage score in Part 5 will tell you what you MISSED.
-show(render_triples(my_triples, strategy="My Ontology"))'''))
+show(render_triples(my_triples, strategy="My Triples"))'''))
 
 # ─── Part 4 · Your Graph ───────────────────────────────────────────── #
 cells.append(sub("##", BLUE, BLUEBG, "🕸️", "Part 4 · Your Knowledge Graph",
@@ -261,6 +260,10 @@ MY_COLOURS = {
     "Motive":  "#f59e0b",   # amber
     "Time":    "#10b981",   # green
 }
+# 🎨 Other colours to try — swap any hex above for one of these:
+#   reds/pinks:  "#dc2626"  "#e11d48"  "#ec4899"      purples:   "#7c3aed"  "#a855f7"  "#8b5cf6"
+#   blues:       "#2563eb"  "#0ea5e9"  "#6366f1"      greens:    "#059669"  "#14b8a6"  "#84cc16"
+#   oranges:     "#f97316"  "#ea580c"  "#d97706"      neutrals:  "#475569"  "#78716c"  "#334155"
 
 show(render_kg(my_triples, strategy="My Mystery KG", color_by="type",
                group_colours=MY_COLOURS, height="500px"))'''))
@@ -300,26 +303,26 @@ show(render_coverage(cov))
 
 # ─── Part 6 · The Graph Agent ──────────────────────────────────────── #
 cells.append(sub("##", IND, INDBG, "🤖", "Part 6 · The Graph Agent",
-                 "Retrieval, upgraded: an LLM that decides which graph queries to run, "
-                 "runs them, and reasons over the results."))
+                 "Retrieval, upgraded: an LLM that decides which graph queries to run, runs them, and "
+                 "reasons over the results. We reason over the complete REFERENCE graph first — then, "
+                 "in Part 7, turn the agent loose on YOUR graph."))
 
 cells.append(code(
 '''from notebook_src.display import render_agent_intro
 show(render_agent_intro())'''))
 
 cells.append(code(
-'''from notebook_src.graph import build_graph, graph_stats
+'''from notebook_src.graph import build_graph
 from notebook_src.graph_agent import query_graph
-from notebook_src.display import render_agent_response, render_graph_stats
+from notebook_src.display import render_agent_response
 
-# For the demos we query the REFERENCE graph, so answers rest on complete
-# facts. (Part 7 lets the agent loose on YOUR graph.)
+# 👉 Part 6 AND the first half of Part 7 reason over the REFERENCE graph — the
+# complete, reliable gold-standard — so you see the agent work with full facts.
+# Only afterwards (Part 7) does it run on the graph YOU extracted.
 ref_graph = build_graph(ref_triples)
 REF_TYPES     = ["Suspect", "Victim", "Room", "Weapon", "Motive"]
 REF_RELATIONS = ["was murdered in", "was found in", "had motive",
-                 "was seen in", "owned", "had alibi in"]
-
-show(render_graph_stats(graph_stats(ref_graph)))'''))
+                 "was seen in", "owned", "had alibi in"]'''))
 
 cells.append(sub("###", IND, INDBG, "🙈", "Why Ground the Model At All?",
                  "Ask the same question with and without the graph"))
@@ -361,8 +364,11 @@ show(render_agent_response(my_question, res))'''))
 
 # ─── Part 7 · Solve the Case ───────────────────────────────────────── #
 cells.append(sub("##", RED, REDBG, "🔪", "Part 7 · Solve the Case",
-                 "Motive, means, opportunity — let the agent reason its way to a verdict."))
+                 "Motive, means, opportunity — let the agent reason its way to a verdict. First we "
+                 "solve it FULLY on the complete reference graph, then on the graph YOU built."))
 
+cells.append(sub("###", RED, REDBG, "📘", "First — solve it on the reference graph",
+                 "The complete gold-standard: the agent reasoning with full, reliable facts."))
 cells.append(code(
 '''q_solve = (
     "Based only on the graph, who is the most likely murderer? "
@@ -380,14 +386,19 @@ from notebook_src.mystery import CASE, is_correct
 from notebook_src.display import render_verdict
 show(render_verdict(is_correct(result_solve["answer"]), CASE["solution"]))'''))
 
-cells.append(sub("###", RED, REDBG, "🎓", "Bonus — Solve It From YOUR Graph",
-                 "The real test of your ontology: does YOUR graph contain enough signal to convict?"))
+cells.append(sub("###", RED, REDBG, "🧩", "Now — solve it from YOUR graph",
+                 "The real test of your ontology design: does the graph YOU extracted contain enough "
+                 "signal to convict? Rewrite the question to fit your own schema if you like."))
 cells.append(code(
-'''# Same question, but the agent only sees the graph YOU extracted in Part 3.
-# If it fails, look at your coverage card — which fact was it missing?
-res_mine = query_graph(q_solve, my_graph, MY_ENTITY_TYPES, MY_RELATION_TYPES,
+'''# The agent now sees ONLY the graph you built in Part 3 — using YOUR entity and
+# relation types. If it fails, check your coverage card: which fact was missing?
+
+# ✏️ EDIT ME — tailor the question to the names YOU used (or keep the default):
+my_q_solve = q_solve
+
+res_mine = query_graph(my_q_solve, my_graph, MY_ENTITY_TYPES, MY_RELATION_TYPES,
                        API_KEY, model=MODEL, max_steps=10)
-show(render_agent_response(q_solve, res_mine))
+show(render_agent_response(my_q_solve, res_mine))
 print("Correct?" , "✅ yes" if is_correct(res_mine["answer"]) else
       "❌ no — check your coverage: which facts were missing?")'''))
 
@@ -473,6 +484,24 @@ show(render_points_card("Wrap-up", "What you just built",
     "<b>...and you saw the limit</b> — a graph fights misinformation only while the graph "
     "itself is clean. One planted edge misled the agent, and corroboration is what catches it.",
 ], grad="135deg,#7f1d1d,#b91c1c"))'''))
+
+# ─── References ────────────────────────────────────────────────────── #
+cells.append(md("""## References
+
+**Concepts &amp; methods**
+- [Lewis et al. (2020) — Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks (NeurIPS)](https://arxiv.org/abs/2005.11401)
+- [Yao et al. (2023) — ReAct: Synergizing Reasoning and Acting in Language Models (ICLR)](https://arxiv.org/abs/2210.03629)
+- [Edge et al. (2024) — From Local to Global: A Graph RAG Approach](https://arxiv.org/abs/2404.16130)
+- [Reimers &amp; Gurevych (2019) — Sentence-BERT (EMNLP)](https://arxiv.org/abs/1908.10084)
+- [Wang et al. (2020) — MiniLM (NeurIPS)](https://arxiv.org/abs/2002.10957)
+
+**Models &amp; tools**
+- [OpenAI API — chat completions, function calling &amp; structured outputs](https://platform.openai.com/docs)
+- [sentence-transformers · all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2)
+- [NetworkX](https://networkx.org) · [pyvis / vis.js](https://pyvis.readthedocs.io) · [Pydantic](https://docs.pydantic.dev)
+
+*The Ashworth Manor Murder is an original, hand-authored case — no external source.*
+"""))
 
 # ─── write ─────────────────────────────────────────────────────────── #
 nb = {
