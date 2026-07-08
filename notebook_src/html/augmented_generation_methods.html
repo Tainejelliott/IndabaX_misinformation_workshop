@@ -1,0 +1,493 @@
+<div style="font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;color:#0f172a;padding:6px 0">
+<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;
+            padding:12px 16px;margin-bottom:10px">
+
+<style>
+*{box-sizing:border-box}
+.ag-tab-row{display:flex;gap:2px;flex-wrap:wrap;padding-top:0.4rem;margin-bottom:10px}
+.ag-tab{padding:4px 12px;border-radius:6px;font-size:12px;cursor:pointer;background:transparent;border:0.5px solid #e2e8f0;color:#475569;transition:background .15s,color .15s}
+.ag-tab.active{background:#f8fafc;color:#0f172a;border-color:#94a3b8}
+.ag-panel{display:none}
+.ag-panel.active{display:block}
+
+.ag-strat-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.ag-strat-btn{padding:4px 11px;border-radius:20px;border:0.5px solid #cbd5e1;background:#fff;color:#475569;font-size:11px;cursor:pointer;transition:all .15s}
+.ag-strat-btn.active{background:#ecfdf5;border-color:#059669;color:#047857}
+.ag-strat-desc{font-size:11px;color:#475569;margin-bottom:6px;line-height:1.5}
+
+.ag-chunk-row{display:flex;gap:6px;flex-wrap:nowrap;overflow-x:auto;margin-bottom:6px;padding-bottom:2px}
+.ag-chunk-card{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:6px 8px;font-size:10px;color:#475569;flex:1;min-width:110px}
+.ag-chunk-card.answer{border-color:#059669;background:#ecfdf5}
+.ag-chunk-pos{font-weight:700;color:#0f172a;font-size:9.5px;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;display:block}
+.ag-chunk-card.answer .ag-chunk-pos{color:#047857}
+
+.ag-pattern-row{margin-bottom:8px}
+.ag-pattern-label{font-size:9.5px;color:#94a3b8;margin-bottom:3px}
+.ag-pattern-chips{display:flex;gap:4px}
+.ag-rank-chip{flex:1;background:#eef2ff;border:1px solid #c7d2fe;border-radius:6px;text-align:center;padding:4px 2px;font-size:9.5px;font-weight:700;color:#4338ca}
+.ag-rank-chip.mid{background:#fef3c7;border-color:#fde68a;color:#92400e}
+
+.ag-note{background:#f8fafc;border-radius:8px;padding:8px 10px;font-size:10.5px;color:#475569;margin-top:6px;line-height:1.4}
+.ag-warn-banner{margin-top:6px;padding:6px 10px;border-radius:7px;font-size:11px}
+.ag-warn-bad{background:#fef2f2;color:#991b1b}
+.ag-warn-good{background:#f0fdf4;color:#166534}
+.ag-warn-neutral{background:#fef3c7;color:#92400e}
+
+.ag-role-cols{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.ag-role-box{flex:1;min-width:180px;background:#f8fafc;border-radius:8px;padding:8px 10px;font-size:10.5px;color:#475569;line-height:1.4}
+.ag-role-label{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;display:block}
+.ag-role-box.sys .ag-role-label{color:#7c3aed}
+.ag-role-box.user .ag-role-label{color:#2563eb}
+.ag-shared-box{background:#f8fafc;border:0.5px dashed #cbd5e1;border-radius:8px;padding:8px 10px;font-size:10.5px;color:#475569;margin-bottom:8px;line-height:1.4}
+.ag-sys-box{background:#faf5ff;border:0.5px solid #ddd6fe;border-radius:8px;padding:8px 10px;font-size:10.5px;color:#4c1d95;margin-bottom:6px;line-height:1.4;font-family:'SFMono-Regular',Consolas,'Liberation Mono',Menlo,monospace}
+.ag-sys-tag{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:#7c3aed;display:block;margin-bottom:3px;font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif}
+
+.ag-answer-box{background:#fff;border:0.5px solid #cbd5e1;border-radius:8px;padding:9px 11px;font-size:12px;color:#0f172a;line-height:1.6}
+.ag-cite{display:inline-block;background:#eef2ff;color:#4f46e5;font-size:9.5px;font-weight:700;padding:0 4px;border-radius:3px;margin:0 1px}
+.ag-source-list{margin-top:6px}
+.ag-source-item{font-size:10.5px;color:#475569;background:#f8fafc;border-radius:6px;padding:5px 8px;margin-bottom:4px}
+.ag-source-item b{color:#4f46e5}
+
+.ag-sent{display:block;padding:4px 6px;border-radius:5px;margin-bottom:3px;cursor:pointer;font-size:11.5px;line-height:1.5}
+.ag-sent.sel{outline:1.5px solid #94a3b8}
+.ag-badge{display:inline-block;font-size:9px;font-weight:700;padding:1px 6px;border-radius:4px;margin-left:6px;vertical-align:middle}
+.ag-badge-supported{background:#f0fdf4;color:#166534}
+.ag-badge-contradicted{background:#fef2f2;color:#991b1b}
+.ag-badge-unsupported{background:#fef3c7;color:#92400e}
+.ag-evidence-box{margin-top:8px;background:#f8fafc;border-radius:8px;padding:9px 11px;font-size:11px;color:#475569;min-height:18px;line-height:1.5}
+
+.ag-mg{display:grid;grid-template-columns:minmax(0,4.5fr) repeat(4,minmax(0,3fr));gap:1px;background:#e2e8f0;border-radius:8px;overflow:hidden;margin-bottom:6px;font-size:10.5px}
+.ag-mh{background:#f8fafc;padding:5px 6px;font-weight:500;color:#0f172a;text-align:center}
+.ag-mhl{text-align:left}
+.ag-mk{background:#f8fafc;padding:5px 8px;color:#475569}
+.ag-mc{padding:4px;text-align:center;background:#fff}
+.ag-chip{padding:2px 7px;border-radius:4px;font-size:9.5px;font-weight:500}
+</style>
+
+  <!-- header -->
+  <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;
+              text-transform:uppercase;color:#059669;margin-bottom:4px">
+    LLM Augmented Generation
+  </div>
+  <div style="font-size:16px;font-weight:700;color:#0f172a;margin-bottom:3px">
+    From Retrieved Chunks to a Trustworthy Answer
+  </div>
+  <div style="font-size:12px;color:#475569;margin-bottom:10px">
+    Retrieval only hands the LLM raw material. What happens next — how it's arranged in
+    the prompt, whether the model is told to cite it, how conflicts and gaps are handled,
+    and whether the final answer is checked — determines if the output is grounded or
+    just confident-sounding.
+  </div>
+
+  <div class="ag-tab-row">
+    <button class="ag-tab active" onclick="agSwitchTab('prompt',this)">U-Curve</button>
+    <button class="ag-tab" onclick="agSwitchTab('citation',this)">Grounding &amp; Citation</button>
+    <button class="ag-tab" onclick="agSwitchTab('conflict',this)">Conflicting Evidence</button>
+    <button class="ag-tab" onclick="agSwitchTab('faithful',this)">Faithfulness Check</button>
+    <button class="ag-tab" onclick="agSwitchTab('compare',this)">Closed vs Open Book</button>
+    <button class="ag-tab" onclick="agSwitchTab('strategy',this)">Prompting Strategies</button>
+  </div>
+
+<!-- TAB 1: U-curve -->
+<div class="ag-panel active" id="ag-tab-prompt">
+  <div class="ag-strat-desc">
+    LLM accuracy at using a fact traces a <b>U shape</b> across the context window — high near the start, high near the end, lowest in the middle — so naively concatenating retrieved chunks by relevance strands most of them in that weak zone as the retrieved set grows (Liu et al., "Lost in the Middle", 2023).
+  </div>
+  <div class="ag-strat-desc">
+    The fix is a separate <b>positional re-ranking</b> pass — after relevance ranking, alternate placing chunks from the top of the list toward the start and end of the prompt — typically applied with a dedicated tool such as LangChain's <code>LongContextReorder</code> rather than hand-rolled.
+  </div>
+  <div class="ag-strat-desc" style="margin-top:10px">See it in action — toggle how the same 5 relevance-ranked chunks get arranged in the prompt:</div>
+  <div class="ag-strat-row" id="ag-order-btns"></div>
+  <div class="ag-chunk-row" id="ag-chunk-row"></div>
+  <div class="ag-warn-banner" id="ag-order-note"></div>
+
+  <div class="ag-strat-desc" style="margin-top:14px">The same re-ranking pattern applied at other retrieval sizes — rank 1 always anchors the start, rank 2 the end, working inward:</div>
+  <div id="ag-pattern-blocks"></div>
+</div>
+
+<!-- TAB 2: grounding & citation -->
+<div class="ag-panel" id="ag-tab-citation">
+  <div class="ag-strat-desc">Query: <i>"Does the MMR vaccine cause autism?"</i> Compare an answer generated from the model's memory alone against one required to cite its retrieved sources.</div>
+  <div class="ag-strat-row" id="ag-cite-btns"></div>
+  <div class="ag-answer-box" id="ag-cite-answer"></div>
+  <div class="ag-source-list" id="ag-cite-sources"></div>
+  <div class="ag-note" id="ag-cite-note"></div>
+</div>
+
+<!-- TAB 3: conflicting / insufficient evidence -->
+<div class="ag-panel" id="ag-tab-conflict">
+  <div class="ag-strat-desc">Not every retrieval gives clean, agreeing evidence. The generation step must behave differently depending on what was actually found.</div>
+  <div class="ag-strat-row" id="ag-scenario-btns"></div>
+  <div class="ag-chunk-row" id="ag-scenario-chunks"></div>
+  <div class="ag-warn-banner" id="ag-scenario-behavior"></div>
+  <div class="ag-note" id="ag-scenario-note"></div>
+</div>
+
+<!-- TAB 4: faithfulness check -->
+<div class="ag-panel" id="ag-tab-faithful">
+  <div class="ag-strat-desc">Query: <i>"Is turmeric a proven cure for cancer?"</i> Click each sentence of the generated answer to check it against the retrieved context.</div>
+  <div id="ag-sentences"></div>
+  <div class="ag-evidence-box" id="ag-evidence">Click a sentence above to see what the retrieved context actually supports.</div>
+</div>
+
+<!-- TAB 5: closed vs open book -->
+<div class="ag-panel" id="ag-tab-compare">
+  <div class="ag-strat-desc">Each layer of augmentation fixes a different failure mode of pure LLM generation.</div>
+  <div class="ag-mg" id="ag-compare-grid"></div>
+  <div class="ag-note">Verification is the layer most systems skip — and the one that catches an LLM confidently overreaching past what its sources actually support (see the Faithfulness Check tab).</div>
+</div>
+
+<!-- TAB 6: prompting strategies -->
+<div class="ag-panel" id="ag-tab-strategy">
+  <div class="ag-strat-desc">The same retrieved context reaches the model through two separate channels — and prompt design across both is often what actually produces the grounded, cited, hedging behavior seen elsewhere in this section.</div>
+  <div class="ag-role-cols">
+    <div class="ag-role-box sys"><span class="ag-role-label">System prompt — set once</span>Persistent rules: the model's role, how strictly to rely on context, citation requirements, tone, and what to do when evidence is missing.</div>
+    <div class="ag-role-box user"><span class="ag-role-label">User prompt — changes every query</span>The specific request: the retrieved context for <i>this</i> question, plus the question itself.</div>
+  </div>
+  <div class="ag-shared-box"><b>Shared user prompt (identical in all four strategies below):</b><br>Context: "A Cochrane review of 29 randomized trials found regular vitamin C supplementation does not reduce the incidence of the common cold in the general population, though it modestly shortens illness duration by about 8%."<br>Question: "Does taking vitamin C prevent the common cold?"</div>
+  <div class="ag-strat-row" id="ag-ps-btns"></div>
+  <div class="ag-sys-box" id="ag-ps-sysprompt"></div>
+  <div class="ag-answer-box" id="ag-ps-answer"></div>
+  <div class="ag-note" id="ag-ps-note"></div>
+
+  <div style="font-size:11px;font-weight:600;color:#0f172a;margin:14px 0 4px">Prompting for conflict surfacing</div>
+  <div class="ag-shared-box"><b>Shared user prompt:</b><br>Context: "[Source A, 1998, RETRACTED 2010] Wakefield et al. claimed a link between the MMR vaccine and autism." / "[Source B, 2019 cohort study, 657,461 children] Found no association between MMR vaccination and autism."<br>Question: "Does the MMR vaccine cause autism?"</div>
+  <div class="ag-strat-row" id="ag-cf-btns"></div>
+  <div class="ag-sys-box" id="ag-cf-sysprompt"></div>
+  <div class="ag-answer-box" id="ag-cf-answer"></div>
+  <div class="ag-note" id="ag-cf-note"></div>
+
+  <div style="font-size:11px;font-weight:600;color:#0f172a;margin:14px 0 4px">Prompting for a faithfulness check — a separate second pass</div>
+  <div class="ag-strat-desc">Faithfulness checking is rarely one prompt. It's usually <b>two separate calls</b>: a generation call, then an independent verification call that never sees the original generation instructions — only the claim and the context.</div>
+  <div class="ag-sys-box"><span class="ag-sys-tag">Step 1 — generation prompt (same as "Grounded + cited" above)</span>Produces: <i>"Therefore, turmeric is a clinically proven cure for cancer."</i> (one sentence of a longer answer)</div>
+  <div class="ag-sys-box"><span class="ag-sys-tag">Step 2 — verification prompt (new call, new context window)</span>For each claim below, answer SUPPORTED, CONTRADICTED, or UNSUPPORTED based only on the provided context. Quote the exact text that justifies your judgment, or say "no supporting text found."<br><br>Context: "No large-scale human clinical trial has confirmed curcumin as a cancer treatment — evidence remains preliminary."<br>Claim: "Therefore, turmeric is a clinically proven cure for cancer."</div>
+  <div class="ag-answer-box">CONTRADICTED. The context explicitly states no large-scale clinical trial has confirmed this — the claim overstates preliminary lab findings into a clinical guarantee.</div>
+  <div class="ag-note">In practice this second pass is deliberately kept separate — often a smaller/cheaper model or a dedicated NLI classifier — because a model asked to grade its own answer inline tends to rubber-stamp it. Giving the verifier only the claim and the source, with no memory of "helpfully answering the user," makes it far more willing to say no. This is the pattern behind tools like RARR and evaluation frameworks like RAGAS (see References).</div>
+</div>
+
+  <!-- key insight -->
+  <div style="margin-top:10px;background:#ecfdf5;border-left:3px solid #059669;
+              border-radius:0 8px 8px 0;padding:10px 14px">
+    <span style="font-weight:700;color:#059669;font-size:13px">Key insight —</span>
+    <span style="color:#475569;font-size:13px">
+      Retrieval finds the evidence; generation decides what to do with it. An answer is
+      only as trustworthy as the weakest link in that chain — prompt layout, citation
+      discipline, conflict handling, and post-hoc verification all have to hold.
+    </span>
+  </div>
+</div></div>
+
+<script>
+(function(){
+window.agSwitchTab = function(name, btn){
+  document.querySelectorAll('#ag-tab-prompt, #ag-tab-citation, #ag-tab-conflict, #ag-tab-faithful, #ag-tab-compare, #ag-tab-strategy').forEach(function(p){ p.classList.remove('active'); });
+  document.querySelectorAll('.ag-tab').forEach(function(t){ t.classList.remove('active'); });
+  document.getElementById('ag-tab-' + name).classList.add('active');
+  btn.classList.add('active');
+};
+
+// ---- Tab 1: building the prompt ----
+var AG_CHUNKS = {
+  1: { text:'General overview of MMR vaccine ingredients and history.', isAnswer:false },
+  2: { text:'Overview of routine childhood vaccination schedules.', isAnswer:false },
+  3: { text:'2019 Danish cohort study of 657,461 children found no link between MMR and autism.', isAnswer:true },
+  4: { text:'Background on the 1998 Wakefield study, later retracted.', isAnswer:false },
+  5: { text:'General information on autism spectrum diagnostic criteria.', isAnswer:false }
+};
+var ORDERS = {
+  naive: { label:'Naive (retrieval-rank order)', seq:[1,2,3,4,5] },
+  ucurve: { label:'Position-aware (U-curve order)', seq:[1,3,5,4,2] }
+};
+var currentOrder = 'naive';
+
+function renderOrderButtons(){
+  document.getElementById('ag-order-btns').innerHTML = Object.keys(ORDERS).map(function(k){
+    return '<button class="ag-strat-btn' + (k === currentOrder ? ' active' : '') +
+      '" onclick="agSelectOrder(\'' + k + '\')">' + ORDERS[k].label + '</button>';
+  }).join('');
+}
+
+function renderChunkRow(){
+  var seq = ORDERS[currentOrder].seq;
+  document.getElementById('ag-chunk-row').innerHTML = seq.map(function(rank, i){
+    var c = AG_CHUNKS[rank];
+    return '<div class="ag-chunk-card' + (c.isAnswer ? ' answer' : '') + '">' +
+      '<span class="ag-chunk-pos">Position ' + (i + 1) + ' &middot; rank ' + rank + '</span>' + c.text + '</div>';
+  }).join('');
+}
+
+function renderOrderNote(){
+  var seq = ORDERS[currentOrder].seq;
+  var pos = seq.findIndex(function(rank){ return AG_CHUNKS[rank].isAnswer; }) + 1;
+  var el = document.getElementById('ag-order-note');
+  var risky = pos === 3;
+  el.className = 'ag-warn-banner ' + (risky ? 'ag-warn-bad' : 'ag-warn-good');
+  el.textContent = (risky ? '⚠ ' : '✓ ') + 'The chunk with the real answer sits at position ' + pos + ' of 5' +
+    (risky ? ' — right in the middle, where "Lost in the Middle" (Liu et al., 2023) found LLMs are most likely to miss it.'
+            : ' — near an edge of the context, where attention is strongest.');
+}
+
+window.agSelectOrder = function(key){
+  currentOrder = key;
+  renderOrderButtons();
+  renderChunkRow();
+  renderOrderNote();
+};
+
+function ucurveSeq(n){
+  var seq = new Array(n);
+  var left = 0, right = n - 1, rank = 1;
+  while (left <= right) {
+    seq[left] = rank++; left++;
+    if (left <= right) { seq[right] = rank++; right--; }
+  }
+  return seq;
+}
+
+function renderPatternBlocks(){
+  var sizes = [4, 8, 12];
+  document.getElementById('ag-pattern-blocks').innerHTML = sizes.map(function(n){
+    var seq = ucurveSeq(n);
+    var midStart = Math.floor((n - 1) / 2), midEnd = Math.ceil((n - 1) / 2);
+    var chips = seq.map(function(rank, i){
+      var mid = (i === midStart || i === midEnd) ? ' mid' : '';
+      return '<div class="ag-rank-chip' + mid + '">R' + rank + '</div>';
+    }).join('');
+    return '<div class="ag-pattern-row"><div class="ag-pattern-label">' + n + ' retrieved chunks</div><div class="ag-pattern-chips">' + chips + '</div></div>';
+  }).join('');
+}
+
+// ---- Tab 1b: prompting strategies ----
+var PROMPT_STRATEGIES = {
+  none: {
+    label: 'No system prompt',
+    sys: '(none — model uses default assistant behavior)',
+    answer: 'Yes, vitamin C is well known to help prevent colds and boost your immune system.',
+    note: 'With no instruction to prioritize the provided context, the model defaults to a common but inaccurate folk belief — even though the correct answer was sitting right there in the user prompt.'
+  },
+  basic: {
+    label: 'Basic instruction',
+    sys: 'You are a helpful assistant. Use the context below to answer the question.',
+    answer: 'Vitamin C may help with colds, though research on preventing them is mixed.',
+    note: '"Use the context" isn\'t "use only the context" — the model still hedges toward its prior belief instead of precisely reporting what the source says.'
+  },
+  grounded: {
+    label: 'Grounded + cited',
+    sys: 'Answer ONLY using the provided context. Cite every claim like [1]. If the context does not address the question, say so explicitly. Do not use outside knowledge.',
+    answer: 'No — a Cochrane review of 29 trials found vitamin C does not reduce cold incidence in the general population, though it may shorten duration by about 8%<span class="ag-cite">[1]</span>.',
+    note: 'Explicit grounding + citation instructions produce a precise answer matching the source exactly, instead of the model\'s prior belief.'
+  },
+  plain: {
+    label: 'Grounded + cited + plain-language',
+    sys: 'Answer ONLY using the provided context. Cite every claim like [1]. If the context does not address the question, say so. Explain in simple, non-technical language for a general audience.',
+    answer: 'No, taking vitamin C won\'t stop you from catching a cold. But if you do get sick, research suggests it might make it end about 8% faster<span class="ag-cite">[1]</span>.',
+    note: 'Same grounded facts as the previous strategy — the system prompt now also controls register and tone, not just factual discipline.'
+  }
+};
+var currentPS = 'none';
+
+function renderPromptStrategy(){
+  var s = PROMPT_STRATEGIES[currentPS];
+  document.getElementById('ag-ps-btns').innerHTML = Object.keys(PROMPT_STRATEGIES).map(function(k){
+    return '<button class="ag-strat-btn' + (k === currentPS ? ' active' : '') +
+      '" onclick="agSelectPS(\'' + k + '\')">' + PROMPT_STRATEGIES[k].label + '</button>';
+  }).join('');
+  document.getElementById('ag-ps-sysprompt').innerHTML = '<span class="ag-sys-tag">System prompt</span>' + s.sys;
+  document.getElementById('ag-ps-answer').innerHTML = s.answer;
+  document.getElementById('ag-ps-note').textContent = s.note;
+}
+
+window.agSelectPS = function(key){
+  currentPS = key;
+  renderPromptStrategy();
+};
+
+var CONFLICT_PROMPTS = {
+  naive: {
+    label: 'Naive prompt',
+    sys: 'Answer the user\'s question using the context below.',
+    answer: 'There is some evidence the vaccine may cause autism, though other research disagrees.',
+    note: '⚠ "False balance": treating a retracted 1998 study as an equally valid side of a debate, instead of noticing it was withdrawn. This is a common, subtle failure mode — not wrong facts, but wrong weighting.'
+  },
+  aware: {
+    label: 'Conflict-aware prompt',
+    sys: 'If sources disagree, do not present both sides as equally valid by default. Check for retraction notices, publication dates, and study size/methodology. Explain WHY sources disagree and which is more reliable, citing your reasoning.',
+    answer: 'No — a 1998 study first raised this claim but was formally retracted in 2010 for serious ethical and methodological failures. A far larger, more rigorous 2019 cohort study of 657,461 children found no association. The retraction — not just disagreement — is why current scientific consensus rejects the link.',
+    note: '✓ Naming the specific reason one source is unreliable (retraction, sample size, date) resolves the conflict instead of just reporting that one exists.'
+  }
+};
+var currentConflictPrompt = 'naive';
+
+function renderConflictPrompt(){
+  var c = CONFLICT_PROMPTS[currentConflictPrompt];
+  document.getElementById('ag-cf-btns').innerHTML = Object.keys(CONFLICT_PROMPTS).map(function(k){
+    return '<button class="ag-strat-btn' + (k === currentConflictPrompt ? ' active' : '') +
+      '" onclick="agSelectConflictPrompt(\'' + k + '\')">' + CONFLICT_PROMPTS[k].label + '</button>';
+  }).join('');
+  document.getElementById('ag-cf-sysprompt').innerHTML = '<span class="ag-sys-tag">System prompt</span>' + c.sys;
+  document.getElementById('ag-cf-answer').textContent = c.answer;
+  document.getElementById('ag-cf-note').textContent = c.note;
+}
+
+window.agSelectConflictPrompt = function(key){
+  currentConflictPrompt = key;
+  renderConflictPrompt();
+};
+
+// ---- Tab 2: grounding & citation ----
+var CITE_MODES = {
+  ungrounded: {
+    label: 'Ungrounded (closed-book)',
+    answer: 'No, extensive research has shown no link between the MMR vaccine and autism.',
+    note: 'Confident and correct here — but there is no way to check it, and nothing structurally stops the model from being just as confident when it is wrong.'
+  },
+  grounded: {
+    label: 'Grounded (cited)',
+    answer: 'No. A 2019 Danish cohort study of over 657,000 children found no increased risk of autism after MMR vaccination<span class="ag-cite">[1]</span>. The original 1998 study claiming a link was later retracted for serious ethical and methodological flaws<span class="ag-cite">[2]</span>.',
+    sources: [
+      { n: 1, text: 'Hviid et al. (2019), cohort study, 657,461 children, Denmark — no association between MMR and autism.' },
+      { n: 2, text: 'Editorial retraction notice, The Lancet (2010) — Wakefield et al. 1998 study retracted.' }
+    ],
+    note: 'Every claim traces to a specific, checkable source. A reader (or a downstream fact-checker) can verify each one independently.'
+  }
+};
+var currentCite = 'ungrounded';
+
+function renderCite(){
+  var m = CITE_MODES[currentCite];
+  document.getElementById('ag-cite-btns').innerHTML = Object.keys(CITE_MODES).map(function(k){
+    return '<button class="ag-strat-btn' + (k === currentCite ? ' active' : '') +
+      '" onclick="agSelectCite(\'' + k + '\')">' + CITE_MODES[k].label + '</button>';
+  }).join('');
+  document.getElementById('ag-cite-answer').innerHTML = m.answer;
+  document.getElementById('ag-cite-sources').innerHTML = m.sources ? m.sources.map(function(s){
+    return '<div class="ag-source-item"><b>[' + s.n + ']</b> ' + s.text + '</div>';
+  }).join('') : '';
+  document.getElementById('ag-cite-note').textContent = m.note;
+}
+
+window.agSelectCite = function(key){
+  currentCite = key;
+  renderCite();
+};
+
+// ---- Tab 3: conflicting / insufficient evidence ----
+var SCENARIOS = {
+  agree: {
+    label: 'Sufficient, agreeing evidence',
+    chunks: ['2019 cohort study (n=657k): no link found between MMR and autism.', '2021 meta-analysis: confirms no association across 29 independent studies.'],
+    behavior: '✓ Answer confidently, with citations: "No — confirmed by multiple large, independent studies [1][2]."',
+    behaviorClass: 'good',
+    note: 'Multiple independent, methodologically sound sources agree — safe to state directly.'
+  },
+  insufficient: {
+    label: 'Insufficient evidence',
+    chunks: ['General overview of the childhood vaccination schedule (does not address autism).', 'History of the MMR vaccine\'s development (does not address autism).'],
+    behavior: '⚠ Abstain: "The retrieved sources don\'t address this specific question — I can\'t confirm or deny it from them."',
+    behaviorClass: 'neutral',
+    note: 'Neither chunk actually answers the question. A grounded system has to recognize that and say so — not quietly fall back on the LLM\'s ungrounded parametric guess.'
+  },
+  conflict: {
+    label: 'Conflicting evidence',
+    chunks: ['Retracted 1998 study (Wakefield et al.): claimed a link between MMR and autism.', '2019 cohort study + retraction notice: found no link, and explains why the 1998 study was withdrawn.'],
+    behavior: '✓ Surface and resolve: "One 1998 study claimed a link but was withdrawn for serious flaws; subsequent large-scale studies found no association."',
+    behaviorClass: 'good',
+    note: 'Silently picking one source hides the correction. Explaining WHY the sources disagree — one was retracted — is what actually debunks the myth instead of just taking a side.'
+  }
+};
+var currentScenario = 'agree';
+
+function renderScenarios(){
+  var s = SCENARIOS[currentScenario];
+  document.getElementById('ag-scenario-btns').innerHTML = Object.keys(SCENARIOS).map(function(k){
+    return '<button class="ag-strat-btn' + (k === currentScenario ? ' active' : '') +
+      '" onclick="agSelectScenario(\'' + k + '\')">' + SCENARIOS[k].label + '</button>';
+  }).join('');
+  document.getElementById('ag-scenario-chunks').innerHTML = s.chunks.map(function(c, i){
+    return '<div class="ag-chunk-card"><span class="ag-chunk-pos">Chunk ' + (i + 1) + '</span>' + c + '</div>';
+  }).join('');
+  var behaviorEl = document.getElementById('ag-scenario-behavior');
+  behaviorEl.className = 'ag-warn-banner ' + (s.behaviorClass === 'good' ? 'ag-warn-good' : 'ag-warn-neutral');
+  behaviorEl.textContent = s.behavior;
+  document.getElementById('ag-scenario-note').textContent = s.note;
+}
+
+window.agSelectScenario = function(key){
+  currentScenario = key;
+  renderScenarios();
+};
+
+// ---- Tab 4: faithfulness check ----
+var SENTENCES = [
+  { text: 'Turmeric contains curcumin, which has anti-inflammatory properties.', status: 'supported',
+    evidence: 'Matches retrieved chunk: "Curcumin, turmeric\'s active compound, has documented anti-inflammatory effects in lab studies."' },
+  { text: 'Several preliminary lab and animal studies have explored curcumin\'s effects on cancer cells.', status: 'supported',
+    evidence: 'Matches retrieved chunk: "Early-stage lab and animal research has examined curcumin\'s interaction with cancer cell pathways."' },
+  { text: 'Therefore, turmeric is a clinically proven cure for cancer.', status: 'contradicted',
+    evidence: 'Retrieved chunk explicitly states: "No large-scale human clinical trial has confirmed curcumin as a cancer treatment — evidence remains preliminary." The answer took two supported facts and drew an unsupported leap.' }
+];
+var BADGE_LABEL = { supported: 'Supported', contradicted: 'Contradicted', unsupported: 'Unsupported' };
+var selectedSentence = null;
+
+function renderSentences(){
+  document.getElementById('ag-sentences').innerHTML = SENTENCES.map(function(s, i){
+    var bg = s.status === 'supported' ? '#f0fdf4' : (s.status === 'contradicted' ? '#fef2f2' : '#fef3c7');
+    return '<span class="ag-sent' + (selectedSentence === i ? ' sel' : '') + '" style="background:' + bg + '" onclick="agSelectSentence(' + i + ')">' +
+      s.text + '<span class="ag-badge ag-badge-' + s.status + '">' + BADGE_LABEL[s.status] + '</span></span>';
+  }).join('');
+}
+
+function renderEvidence(){
+  var el = document.getElementById('ag-evidence');
+  if (selectedSentence === null){ el.textContent = 'Click a sentence above to see what the retrieved context actually supports.'; return; }
+  el.innerHTML = '<b>' + BADGE_LABEL[SENTENCES[selectedSentence].status] + ':</b> ' + SENTENCES[selectedSentence].evidence;
+}
+
+window.agSelectSentence = function(i){
+  selectedSentence = i;
+  renderSentences();
+  renderEvidence();
+};
+
+// ---- Tab 5: closed vs open book ----
+function chip(l){
+  var m = {
+    strong:{bg:'#f0fdf4',fg:'#16a34a',lbl:'Strong'},
+    partial:{bg:'#fef3c7',fg:'#d97706',lbl:'Partial'},
+    weak:{bg:'#fef2f2',fg:'#dc2626',lbl:'Weak'}
+  };
+  var c = m[l] || m.weak;
+  return '<span class="ag-chip" style="background:' + c.bg + ';color:' + c.fg + '">' + c.lbl + '</span>';
+}
+var COMPARE_ROWS = [
+  ['Closed-book (parametric only)', 'weak', 'weak', 'weak', 'weak'],
+  ['Open-book RAG (no verification)', 'strong', 'partial', 'strong', 'weak'],
+  ['RAG + faithfulness verification', 'strong', 'strong', 'strong', 'strong']
+];
+function renderCompareGrid(){
+  var grid = '<div class="ag-mh ag-mhl">Approach</div>' +
+    '<div class="ag-mh">Up-to-date facts</div>' +
+    '<div class="ag-mh">Citeable</div>' +
+    '<div class="ag-mh">Private / niche data</div>' +
+    '<div class="ag-mh">Catches hallucination</div>';
+  COMPARE_ROWS.forEach(function(row){
+    var name = row[0], vals = row.slice(1);
+    grid += '<div class="ag-mk">' + name + '</div>' +
+      vals.map(function(v){ return '<div class="ag-mc">' + chip(v) + '</div>'; }).join('');
+  });
+  document.getElementById('ag-compare-grid').innerHTML = grid;
+}
+
+renderOrderButtons();
+renderChunkRow();
+renderOrderNote();
+renderPatternBlocks();
+renderPromptStrategy();
+renderConflictPrompt();
+renderCite();
+renderScenarios();
+renderSentences();
+renderEvidence();
+renderCompareGrid();
+})();
+</script>

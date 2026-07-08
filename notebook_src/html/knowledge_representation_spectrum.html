@@ -1,0 +1,266 @@
+<div style="font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;color:#0f172a;padding:6px 0">
+<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;
+            padding:12px 16px;margin-bottom:10px">
+
+<style>
+*{box-sizing:border-box}
+.kr-tab-row{display:flex;gap:2px;flex-wrap:wrap;padding-top:0.4rem;margin-bottom:10px}
+.kr-tab{padding:4px 12px;border-radius:6px;font-size:12px;cursor:pointer;background:transparent;border:0.5px solid #e2e8f0;color:#475569;transition:background .15s,color .15s}
+.kr-tab.active{background:#f8fafc;color:#0f172a;border-color:#94a3b8}
+.kr-panel{display:none}
+.kr-panel.active{display:block}
+
+.kr-rail{position:relative;display:flex;justify-content:space-between;margin:10px 4px 16px;padding:0 2px}
+.kr-rail::before{content:'';position:absolute;top:9px;left:12px;right:12px;height:2px;background:#e2e8f0;z-index:0}
+.kr-stop{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;background:none;border:none;font-family:inherit;padding:0;flex:1}
+.kr-stop-dot{width:16px;height:16px;border-radius:50%;background:#fff;border:2px solid #cbd5e1;transition:all .15s}
+.kr-stop.active .kr-stop-dot{border-color:#0891b2;background:#0891b2}
+.kr-stop-label{font-size:9.5px;color:#475569;text-align:center;max-width:82px;line-height:1.3}
+.kr-stop.active .kr-stop-label{color:#0f172a;font-weight:600}
+.kr-example-box{background:#f8fafc;border:0.5px solid #cbd5e1;border-radius:8px;padding:9px 11px;font-family:'SFMono-Regular',Consolas,'Liberation Mono',Menlo,monospace;font-size:10.5px;color:#0f172a;white-space:pre-wrap;line-height:1.5}
+.kr-stop-desc{font-size:11px;color:#475569;margin-top:7px;line-height:1.5}
+
+.kr-cards{display:flex;flex-direction:column;gap:7px}
+.kr-card{background:#f8fafc;border-radius:9px;padding:9px 11px;border-left:3px solid #cbd5e1}
+.kr-card-title{font-size:12px;font-weight:600;margin-bottom:3px;color:#0f172a}
+.kr-card-row{font-size:10.5px;color:#475569;margin:2px 0;line-height:1.4}
+.kr-card-row b{color:#0f172a;font-weight:500}
+
+.kr-wild-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-bottom:8px}
+@media(max-width:480px){.kr-wild-grid{grid-template-columns:1fr}}
+.kr-wild-item{background:#f8fafc;border-radius:8px;padding:7px 9px;cursor:pointer;border:1px solid #e2e8f0;transition:border-color .15s}
+.kr-wild-item.active{border-color:#0891b2;background:#ecfeff}
+.kr-wild-name{font-size:11px;font-weight:600;color:#0f172a}
+.kr-wild-badge{display:inline-block;font-size:9px;font-weight:500;padding:1px 6px;border-radius:4px;margin-left:5px;vertical-align:middle}
+.kr-wild-detail{margin-top:8px;background:#f8fafc;border-radius:8px;padding:9px 11px;font-size:11px;color:#475569;min-height:18px;line-height:1.5}
+.kr-wild-detail b{color:#0f172a}
+
+.kr-mg{display:grid;grid-template-columns:minmax(0,4fr) repeat(4,minmax(0,3fr));gap:1px;background:#e2e8f0;border-radius:8px;overflow:hidden;margin-bottom:8px}
+.kr-mh{background:#f8fafc;padding:5px 6px;font-size:10px;font-weight:500;color:#0f172a;text-align:center}
+.kr-mhl{text-align:left}
+.kr-mk{background:#f8fafc;padding:5px 8px;font-size:10.5px;color:#475569}
+.kr-mc{padding:4px;text-align:center;display:flex;align-items:center;justify-content:center;background:#fff}
+.kr-chip{padding:2px 7px;border-radius:4px;font-size:9.5px;font-weight:500}
+.kr-note{background:#f8fafc;border-radius:8px;padding:8px 10px;font-size:10.5px;color:#475569;margin-top:4px;line-height:1.4}
+</style>
+
+  <!-- header -->
+  <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;
+              text-transform:uppercase;color:#0891b2;margin-bottom:4px">
+    Information &amp; Knowledge Representation
+  </div>
+  <div style="font-size:16px;font-weight:700;color:#0f172a;margin-bottom:3px">
+    From Prose to Predicates: Representing Knowledge
+  </div>
+  <div style="font-size:12px;color:#475569;margin-bottom:10px">
+    The same fact can be written as free text, a tagged span, a database row, a graph
+    triple, or a vector — each trades human readability for machine precision
+    differently. Choosing the right representation (or combination) is the foundation
+    everything else in this workshop builds on.
+  </div>
+
+  <div class="kr-tab-row">
+    <button class="kr-tab active" onclick="krSwitchTab('spectrum',this)">The Spectrum</button>
+    <button class="kr-tab" onclick="krSwitchTab('ideologies',this)">Ideologies</button>
+    <button class="kr-tab" onclick="krSwitchTab('wild',this)">In The Wild</button>
+    <button class="kr-tab" onclick="krSwitchTab('choosing',this)">Choosing a Representation</button>
+  </div>
+
+<!-- TAB 1: the spectrum -->
+<div class="kr-panel active" id="kr-tab-spectrum">
+  <div style="font-size:11px;color:#94a3b8;margin-bottom:2px">Click a stop to see the same fact represented that way.</div>
+  <div class="kr-rail" id="kr-rail"></div>
+  <div class="kr-example-box" id="kr-example"></div>
+  <div class="kr-stop-desc" id="kr-desc"></div>
+</div>
+
+<!-- TAB 2: ideologies -->
+<div class="kr-panel" id="kr-tab-ideologies">
+  <div style="font-size:11px;color:#475569;margin-bottom:8px">Three philosophies of what it means to "represent" knowledge at all — and why most serious systems now blend them.</div>
+  <div class="kr-cards" id="kr-ideology-cards"></div>
+</div>
+
+<!-- TAB 3: in the wild -->
+<div class="kr-panel" id="kr-tab-wild">
+  <div style="font-size:11px;color:#475569;margin-bottom:8px">Real systems you've probably used, and the representation quietly doing the work underneath.</div>
+  <div class="kr-wild-grid" id="kr-wild-grid"></div>
+  <div class="kr-wild-detail" id="kr-wild-detail">Click any system above for detail.</div>
+</div>
+
+<!-- TAB 4: choosing a representation -->
+<div class="kr-panel" id="kr-tab-choosing">
+  <div style="font-size:11px;color:#475569;margin-bottom:8px">No single representation wins on every axis — that's why hybrid RAG (graph + vector) exists.</div>
+  <div class="kr-mg" id="kr-choosing-grid"></div>
+  <div class="kr-note">Most production knowledge systems are layered: free text for human review, a graph for audited multi-hop facts, and embeddings for fuzzy semantic recall — each covering the axis the others are weak on.</div>
+</div>
+
+  <!-- key insight -->
+  <div style="margin-top:10px;background:#ecfeff;border-left:3px solid #0891b2;
+              border-radius:0 8px 8px 0;padding:10px 14px">
+    <span style="font-weight:700;color:#0891b2;font-size:13px">Key insight —</span>
+    <span style="color:#475569;font-size:13px">
+      Representation is a trade-off, not a ladder to "solve." Moving toward structure
+      buys queryability and precision at the cost of expressiveness and readability —
+      the right choice depends on what you need to ask of the knowledge, not which
+      format looks most sophisticated.
+    </span>
+  </div>
+</div></div>
+
+<script>
+(function(){
+window.krSwitchTab = function(name, btn){
+  document.querySelectorAll('#kr-tab-spectrum, #kr-tab-ideologies, #kr-tab-wild, #kr-tab-choosing').forEach(function(p){ p.classList.remove('active'); });
+  document.querySelectorAll('.kr-tab').forEach(function(t){ t.classList.remove('active'); });
+  document.getElementById('kr-tab-' + name).classList.add('active');
+  btn.classList.add('active');
+};
+
+// ---- Tab 1: the spectrum ----
+var STOPS = [
+  { key:'unstructured', label:'Unstructured text',
+    example:'Dr. Amara Nwosu, a researcher at the University of Lagos, published\na study in March 2024 showing local tap water met WHO safety\nstandards.',
+    desc:'Free text. Maximum expressiveness and human readability, minimum machine queryability — meaning is implicit, not addressable.' },
+  { key:'semi', label:'Semi-structured',
+    example:'<person>Dr. Amara Nwosu</person> at <org>University of Lagos</org>\npublished a study in <date>2024-03</date> on <topic>water safety</topic>.',
+    desc:'Tagged or annotated text (NER spans, XML/HTML, markdown front-matter). Adds machine-addressable structure without discarding the original prose.' },
+  { key:'tabular', label:'Structured (tabular)',
+    example:'{\n  "author": "Amara Nwosu",\n  "org": "University of Lagos",\n  "date": "2024-03",\n  "finding": "safe"\n}',
+    desc:'Fixed schema — rows/columns or key-value records. Highly queryable (SQL, filters) but brittle: every fact must fit a predefined field.' },
+  { key:'graph', label:'Graph / ontology',
+    example:'(Amara Nwosu) -[WORKS_AT]-> (University of Lagos)\n(Amara Nwosu) -[AUTHORED]-> (Study 2024-03)\n(Study 2024-03) -[FOUND]-> (Water: Safe)',
+    desc:'Entities and typed relationships as triples. Schema-flexible and supports multi-hop reasoning, but needs entity/relation extraction to populate.' },
+  { key:'vector', label:'Vector / embedding',
+    example:'[ 0.14, -0.82, 0.31, 0.05, -0.47, 0.63, ... ]\n(one point in a 768-dimensional space)',
+    desc:'A point in continuous space. Captures similarity and nuance no symbolic schema can express — but is opaque to humans and can\'t state explicit logical rules.' }
+];
+var currentStop = 'unstructured';
+
+function renderRail(){
+  document.getElementById('kr-rail').innerHTML = STOPS.map(function(s){
+    return '<button class="kr-stop' + (s.key === currentStop ? ' active' : '') + '" onclick="krSelectStop(\'' + s.key + '\')">' +
+      '<span class="kr-stop-dot"></span><span class="kr-stop-label">' + s.label + '</span></button>';
+  }).join('');
+}
+
+function renderStopDetail(){
+  var s = STOPS.filter(function(x){ return x.key === currentStop; })[0];
+  document.getElementById('kr-example').textContent = s.example;
+  document.getElementById('kr-desc').textContent = s.desc;
+}
+
+window.krSelectStop = function(key){
+  currentStop = key;
+  renderRail();
+  renderStopDetail();
+};
+
+// ---- Tab 2: ideologies ----
+var IDEOLOGIES = [
+  { title:'Symbolic / ontological', color:'#2563eb',
+    idea:'Meaning is explicit — defined by logical rules, classes, and relations a human can read and audit (RDF, OWL, description logic).',
+    strengths:'Exact, explainable, supports formal inference and consistency checking.',
+    weaknesses:'Brittle and expensive to build and maintain; can\'t capture fuzzy "almost the same meaning" similarity.',
+    examples:'WordNet, DBpedia, SNOMED CT, Cyc' },
+  { title:'Statistical / distributional', color:'#0d9488',
+    idea:'Meaning is implicit — learned as geometric relationships from co-occurrence across massive corpora (word2vec, transformer embeddings).',
+    strengths:'Captures nuance, similarity, and analogy automatically; no manual schema; generalizes to unseen text.',
+    weaknesses:'Opaque ("why did it retrieve this?"); can\'t express hard logical constraints; prone to confident-sounding errors.',
+    examples:'Word2Vec, BERT/GPT embeddings, vector databases' },
+  { title:'Neuro-symbolic / hybrid', color:'#8b5cf6',
+    idea:'Combine both — embeddings for fuzzy semantic retrieval, symbolic graphs for precise, auditable multi-hop facts.',
+    strengths:'Best of both: explainable retrieval paths plus flexible semantic search — the architecture this workshop teaches.',
+    weaknesses:'Most complex to build; two representations of the same reality can silently drift out of sync.',
+    examples:'GraphRAG, knowledge-graph-augmented LLMs, hybrid KG+vector RAG' }
+];
+
+function renderIdeologyCards(){
+  document.getElementById('kr-ideology-cards').innerHTML = IDEOLOGIES.map(function(i){
+    return '<div class="kr-card" style="border-left-color:' + i.color + '">' +
+      '<div class="kr-card-title" style="color:' + i.color + '">' + i.title + '</div>' +
+      '<div class="kr-card-row"><b>Core idea:</b> ' + i.idea + '</div>' +
+      '<div class="kr-card-row"><b>Strengths:</b> ' + i.strengths + '</div>' +
+      '<div class="kr-card-row"><b>Weaknesses:</b> ' + i.weaknesses + '</div>' +
+      '<div class="kr-card-row"><b>Examples:</b> ' + i.examples + '</div></div>';
+  }).join('');
+}
+
+// ---- Tab 3: in the wild ----
+var WILD = [
+  { key:'wiki-prose', name:'A Wikipedia article\'s prose', type:'unstructured', typeLabel:'Unstructured', color:'#94a3b8',
+    note:'The article body is free text — richly expressive, but a machine can\'t directly query "who founded this company" from it without extraction.' },
+  { key:'wiki-infobox', name:'A Wikipedia infobox', type:'semi', typeLabel:'Semi-structured', color:'#6366f1',
+    note:'The right-hand fact panel is templated key-value pairs layered on top of the article — structured enough to query, still embedded in prose.' },
+  { key:'wikidata', name:'Wikidata', type:'graph', typeLabel:'Graph / ontology', color:'#2563eb',
+    note:'Every Wikidata item is a node with typed statements (triples) — the same facts as Wikipedia, made formally queryable via SPARQL.' },
+  { key:'spreadsheet', name:'A spreadsheet of election results', type:'tabular', typeLabel:'Structured (tabular)', color:'#d97706',
+    note:'Rigid rows and columns — perfect for aggregation (SUM, GROUP BY) but can\'t represent an irregular fact that doesn\'t fit a column.' },
+  { key:'recsys', name:'A music app\'s "recommended for you"', type:'vector', typeLabel:'Vector / embedding', color:'#0d9488',
+    note:'Songs and listening history are embedded as vectors; recommendations are just nearest neighbours — no human-readable rule decided them.' },
+  { key:'ontology', name:'A medical ontology (SNOMED CT)', type:'graph', typeLabel:'Graph / ontology', color:'#2563eb',
+    note:'Diagnoses, symptoms, and procedures are formally coded and related — built for exact, auditable clinical reasoning, not similarity search.' }
+];
+var currentWild = null;
+
+function renderWildGrid(){
+  document.getElementById('kr-wild-grid').innerHTML = WILD.map(function(w){
+    return '<div class="kr-wild-item' + (w.key === currentWild ? ' active' : '') + '" onclick="krSelectWild(\'' + w.key + '\')">' +
+      '<span class="kr-wild-name">' + w.name + '</span>' +
+      '<span class="kr-wild-badge" style="background:' + w.color + '22;color:' + w.color + '">' + w.typeLabel + '</span></div>';
+  }).join('');
+}
+
+function renderWildDetail(){
+  var el = document.getElementById('kr-wild-detail');
+  if (!currentWild){ el.innerHTML = 'Click any system above for detail.'; return; }
+  var w = WILD.filter(function(x){ return x.key === currentWild; })[0];
+  el.innerHTML = '<b>' + w.name + ':</b> ' + w.note;
+}
+
+window.krSelectWild = function(key){
+  currentWild = key;
+  renderWildGrid();
+  renderWildDetail();
+};
+
+// ---- Tab 4: choosing a representation ----
+function chip(l){
+  var m = {
+    strong:{bg:'#f0fdf4',fg:'#16a34a',lbl:'Strong'},
+    partial:{bg:'#fef3c7',fg:'#d97706',lbl:'Partial'},
+    weak:{bg:'#fef2f2',fg:'#dc2626',lbl:'Weak'}
+  };
+  var c = m[l] || m.weak;
+  return '<span class="kr-chip" style="background:' + c.bg + ';color:' + c.fg + '">' + c.lbl + '</span>';
+}
+
+var CHOOSING_ROWS = [
+  ['Free text', 'strong', 'weak', 'weak', 'weak'],
+  ['Semi-structured (tagged)', 'strong', 'partial', 'partial', 'weak'],
+  ['Structured / tabular', 'partial', 'strong', 'weak', 'weak'],
+  ['Graph / ontology', 'partial', 'strong', 'strong', 'weak'],
+  ['Vector / embedding', 'weak', 'partial', 'weak', 'strong']
+];
+
+function renderChoosingGrid(){
+  var grid = '<div class="kr-mh kr-mhl">Representation</div>' +
+    '<div class="kr-mh">Human-readable</div>' +
+    '<div class="kr-mh">Machine-queryable</div>' +
+    '<div class="kr-mh">Captures relationships</div>' +
+    '<div class="kr-mh">Captures similarity</div>';
+  CHOOSING_ROWS.forEach(function(row){
+    var name = row[0], vals = row.slice(1);
+    grid += '<div class="kr-mk">' + name + '</div>' +
+      vals.map(function(v){ return '<div class="kr-mc">' + chip(v) + '</div>'; }).join('');
+  });
+  document.getElementById('kr-choosing-grid').innerHTML = grid;
+}
+
+renderRail();
+renderStopDetail();
+renderIdeologyCards();
+renderWildGrid();
+renderWildDetail();
+renderChoosingGrid();
+})();
+</script>

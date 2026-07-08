@@ -27,3 +27,23 @@ def show(html: str) -> None:
 def concept_llm():        return load_html("concept_llm.html")
 def concept_embeddings(): return load_html("concept_embeddings.html")
 def concept_rag():        return load_html("concept_rag.html")
+
+def llm_prediction_pipeline():       return load_html("llm_prediction_pipeline.html")
+def rag_pipeline_overview():         return load_html("rag_pipeline_overview.html")
+
+def embedding_space_explorer():      return load_html("embedding_space_explorer.html")
+def embeddings_llm_relationship():   return load_html("embeddings_llm_relationship.html")
+def knowledge_graph_deep_dive():     return load_html("knowledge_graph_deep_dive.html")
+def semantic_search_depth_explorer(): return load_html("semantic_search_depth_explorer.html")
+
+def information_extraction_methods(): return load_html("information_extraction_methods.html")
+
+def extraction_validation_methods(): return load_html("extraction_validation_methods.html")
+
+def knowledge_representation_spectrum(): return load_html("knowledge_representation_spectrum.html")
+
+def information_retrieval_methods(): return load_html("information_retrieval_methods.html")
+
+def augmented_generation_methods(): return load_html("augmented_generation_methods.html")
+
+def generation_reasoning_strategies(): return load_html("generation_reasoning_strategies.html")

@@ -1,0 +1,352 @@
+<div style="font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;color:#0f172a;padding:6px 0">
+<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;
+            padding:12px 16px;margin-bottom:10px">
+
+<style>
+*{box-sizing:border-box}
+.ev-tab-row{display:flex;gap:2px;flex-wrap:wrap;padding-top:0.4rem;margin-bottom:10px}
+.ev-tab{padding:4px 12px;border-radius:6px;font-size:12px;cursor:pointer;background:transparent;border:0.5px solid #e2e8f0;color:#475569;transition:background .15s,color .15s}
+.ev-tab.active{background:#f8fafc;color:#0f172a;border-color:#94a3b8}
+.ev-panel{display:none}
+.ev-panel.active{display:block}
+
+.ev-strat-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.ev-strat-btn{padding:4px 11px;border-radius:20px;border:0.5px solid #cbd5e1;background:#fff;color:#475569;font-size:11px;cursor:pointer;transition:all .15s}
+.ev-strat-btn.active{background:#fffbeb;border-color:#d97706;color:#b45309}
+.ev-strat-desc{font-size:11px;color:#475569;margin-bottom:8px;line-height:1.5}
+
+.ev-prompt-box{background:#fffbeb;border:0.5px solid #fde68a;border-radius:8px;padding:8px 10px;font-size:10px;color:#92400e;margin-top:6px;line-height:1.5;font-family:'SFMono-Regular',Consolas,'Liberation Mono',Menlo,monospace;white-space:pre-wrap}
+.ev-prompt-tag{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:#b45309;display:block;margin-bottom:3px;font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif}
+.ev-code-box{background:#0f172a;color:#e2e8f0;border-radius:8px;padding:8px 10px;font-size:10px;margin-top:6px;line-height:1.5;font-family:'SFMono-Regular',Consolas,'Liberation Mono',Menlo,monospace;white-space:pre-wrap}
+.ev-code-box .kw{color:#fbbf24}
+.ev-code-box .cm{color:#64748b}
+
+.ev-chunk-cards{display:flex;flex-direction:column;gap:4px;margin-top:6px}
+.ev-chunk-card{background:#fff;border-left:3px solid #cbd5e1;border-radius:0 7px 7px 0;padding:5px 9px;font-size:10.5px;color:#475569}
+.ev-warn-banner{margin-top:6px;padding:6px 10px;border-radius:7px;font-size:11px}
+.ev-warn-bad{background:#fef2f2;color:#991b1b}
+.ev-warn-good{background:#f0fdf4;color:#166534}
+.ev-warn-neutral{background:#fef3c7;color:#92400e}
+
+.ev-badge{display:inline-block;font-size:9px;font-weight:700;padding:1px 6px;border-radius:4px;margin-left:6px;vertical-align:middle}
+.ev-badge-valid{background:#f0fdf4;color:#166534}
+.ev-badge-invalid{background:#fef2f2;color:#991b1b}
+.ev-badge-flag{background:#fef3c7;color:#92400e}
+
+.ev-mg{display:grid;grid-template-columns:minmax(0,5fr) repeat(4,minmax(0,4fr));gap:1px;background:#e2e8f0;border-radius:8px;overflow:hidden;margin-bottom:8px}
+.ev-mh{background:#f8fafc;padding:5px 6px;font-size:10.5px;font-weight:500;color:#0f172a;text-align:center}
+.ev-mhl{text-align:left}
+.ev-mk{background:#f8fafc;padding:5px 8px;font-size:10.5px;color:#475569}
+.ev-mc{padding:4px;text-align:center;display:flex;align-items:center;justify-content:center;background:#fff}
+.ev-chip{padding:2px 7px;border-radius:4px;font-size:9.5px;font-weight:500}
+.ev-note{background:#f8fafc;border-radius:8px;padding:8px 10px;font-size:10.5px;color:#475569;margin-top:6px;line-height:1.4}
+
+.ev-sim-row{display:flex;align-items:center;gap:8px;margin:6px 0;font-size:11px}
+.ev-sim-label{width:110px;color:#475569;flex-shrink:0}
+.ev-sim-track{flex:1;background:#f1f5f9;border-radius:4px;height:10px;overflow:hidden}
+.ev-sim-fill{height:100%;border-radius:4px}
+.ev-sim-val{width:36px;text-align:right;color:#0f172a;font-weight:500}
+
+.ev-decision-row{display:flex;gap:6px;margin-top:6px}
+.ev-decision-card{flex:1;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:7px 9px;cursor:pointer;font-size:10.5px;color:#475569}
+.ev-decision-card.sel{border-color:#d97706;background:#fffbeb}
+.ev-decision-title{font-weight:700;color:#0f172a;font-size:10.5px;margin-bottom:3px}
+</style>
+
+  <!-- header -->
+  <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;
+              text-transform:uppercase;color:#d97706;margin-bottom:4px">
+    Information Extraction
+  </div>
+  <div style="font-size:16px;font-weight:700;color:#0f172a;margin-bottom:3px">
+    Validating &amp; Verifying Extracted Information
+  </div>
+  <div style="font-size:12px;color:#475569;margin-bottom:10px">
+    Extraction is never perfect. Before a triple enters the knowledge base, production
+    pipelines run it through checks like these — most of them just another prompt,
+    but a differently-shaped one than extraction itself.
+  </div>
+
+  <div class="ev-tab-row">
+    <button class="ev-tab active" onclick="evSwitchTab('schema',this)">Schema Validation</button>
+    <button class="ev-tab" onclick="evSwitchTab('grounding',this)">Source Grounding</button>
+    <button class="ev-tab" onclick="evSwitchTab('roundtrip',this)">Round-Trip Check</button>
+    <button class="ev-tab" onclick="evSwitchTab('consistency',this)">Cross-Run Consistency</button>
+    <button class="ev-tab" onclick="evSwitchTab('contradiction',this)">Contradiction Check</button>
+    <button class="ev-tab" onclick="evSwitchTab('decision',this)">Accept / Flag / Reject</button>
+  </div>
+
+<!-- TAB 1: schema / type validation -->
+<div class="ev-panel active" id="ev-tab-schema">
+  <div class="ev-strat-desc">Ontology: Types Person &middot; Organisation &middot; Location &middot; Study &nbsp;|&nbsp; Relations WORKS_AT[Person&#8594;Organisation] &middot; AUTHORED[Person&#8594;Study] &middot; LOCATED_IN[Organisation&#8594;Location]. Every candidate triple gets checked against this before it's allowed in.</div>
+  <div class="ev-strat-row" id="ev-schema-btns"></div>
+  <div class="ev-chunk-cards" id="ev-schema-triple"></div>
+  <div class="ev-warn-banner" id="ev-schema-result"></div>
+  <div class="ev-prompt-box" id="ev-schema-prompt"></div>
+</div>
+
+<!-- TAB 2: source grounding check -->
+<div class="ev-panel" id="ev-tab-grounding">
+  <div class="ev-strat-desc">Source: <i>"Dr. Amara Nwosu, based at the University of Lagos, authored a new water-safety study."</i> Each candidate triple is checked against the source text it supposedly came from.</div>
+  <div class="ev-strat-row" id="ev-ground-btns"></div>
+  <div class="ev-chunk-cards" id="ev-ground-triple"></div>
+  <div class="ev-warn-banner" id="ev-ground-result"></div>
+  <div class="ev-prompt-box" id="ev-ground-prompt"></div>
+</div>
+
+<!-- TAB 3: round-trip / back-translation validation -->
+<div class="ev-panel" id="ev-tab-roundtrip">
+  <div class="ev-strat-desc">Instead of checking triples one at a time, reconstruct a description <b>from the triples alone</b>, then compare it back to the original source with embedding similarity. Low similarity means something got lost in extraction — the same back-translation check used in this workshop's Part 2 hands-on.</div>
+  <div class="ev-strat-row" id="ev-rt-btns"></div>
+  <div class="ev-chunk-cards" id="ev-rt-triples"></div>
+  <div class="ev-prompt-box" id="ev-rt-prompt"></div>
+  <div class="ev-note" id="ev-rt-reconstructed"></div>
+  <div class="ev-sim-row">
+    <div class="ev-sim-label">Cosine similarity</div>
+    <div class="ev-sim-track"><div class="ev-sim-fill" id="ev-rt-fill"></div></div>
+    <div class="ev-sim-val" id="ev-rt-val"></div>
+  </div>
+  <div class="ev-warn-banner" id="ev-rt-verdict"></div>
+</div>
+
+<!-- TAB 4: cross-run consistency -->
+<div class="ev-panel" id="ev-tab-consistency">
+  <div class="ev-strat-desc">Run the same extraction prompt twice — sampled independently, temperature &gt; 0 — and keep only the triples both runs agree on. This is Self-Consistency applied to extraction instead of generation: no new prompt, just the extraction prompt run twice and reconciled in code.</div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap">
+    <div style="flex:1;min-width:220px">
+      <div style="font-size:10.5px;font-weight:600;color:#475569;margin-bottom:4px">Run A</div>
+      <div class="ev-chunk-cards" id="ev-cons-a"></div>
+    </div>
+    <div style="flex:1;min-width:220px">
+      <div style="font-size:10.5px;font-weight:600;color:#475569;margin-bottom:4px">Run B</div>
+      <div class="ev-chunk-cards" id="ev-cons-b"></div>
+    </div>
+  </div>
+  <div class="ev-code-box"><span class="cm"># kept only if the same triple (up to normalization) appears in both runs</span>
+agreed = [t <span class="kw">for</span> t <span class="kw">in</span> run_a <span class="kw">if</span> t <span class="kw">in</span> run_b]
+flagged = [t <span class="kw">for</span> t <span class="kw">in</span> run_a + run_b <span class="kw">if</span> t <span class="kw">not</span> <span class="kw">in</span> agreed]</div>
+  <div class="ev-warn-banner ev-warn-good">✓ Agreed &amp; kept: WORKS_AT, AUTHORED. ⚠ Flagged (appeared once): LOCATED_IN(University of Lagos, Nigeria) — plausible, but not confirmed twice, so it goes to review rather than auto-accept.</div>
+</div>
+
+<!-- TAB 5: contradiction check -->
+<div class="ev-panel" id="ev-tab-contradiction">
+  <div class="ev-strat-desc">Before inserting a new triple, check it against what the knowledge base already believes. Not every clash is a contradiction — some are just the world changing.</div>
+  <div class="ev-chunk-cards">
+    <div class="ev-chunk-card">Existing (2020): (Alice, WORKS_AT, Acme Corp)</div>
+    <div class="ev-chunk-card">New candidate (2024): (Alice, WORKS_AT, Globex Inc)</div>
+  </div>
+  <div class="ev-prompt-box" id="ev-contra-prompt"></div>
+  <div class="ev-warn-banner ev-warn-neutral">UPDATE, not a contradiction — different timestamps on the same relation type usually mean the fact changed (a job change), not that one extraction is wrong. Without the dates, a naive check would flag this as conflicting and block both facts.</div>
+  <div class="ev-note">This is exactly why the <i>Common Pitfalls</i> tab warns against missing temporal modelling — contradiction-checking without valid_from/valid_to timestamps can't tell "the world changed" apart from "the extractor made a mistake".</div>
+</div>
+
+<!-- TAB 6: accept / flag / reject decision -->
+<div class="ev-panel" id="ev-tab-decision">
+  <div class="ev-strat-desc">The checks above are signals, not a single verdict — a real pipeline combines them into one decision per triple. Click a triple to see how its checks combine.</div>
+  <div class="ev-decision-row" id="ev-decision-cards"></div>
+  <div class="ev-warn-banner" id="ev-decision-detail"></div>
+</div>
+
+  <!-- key insight -->
+  <div style="margin-top:10px;background:#fffbeb;border-left:3px solid #d97706;
+              border-radius:0 8px 8px 0;padding:10px 14px">
+    <span style="font-weight:700;color:#d97706;font-size:13px">Key insight —</span>
+    <span style="color:#475569;font-size:13px">
+      None of these checks are exotic — most are just another prompt, shaped to
+      interrogate rather than extract. The discipline is running them at all, on
+      every triple, before it becomes a fact the rest of the system trusts.
+    </span>
+  </div>
+</div></div>
+
+<script>
+(function(){
+window.evSwitchTab = function(name, btn){
+  document.querySelectorAll('#ev-tab-schema, #ev-tab-grounding, #ev-tab-roundtrip, #ev-tab-consistency, #ev-tab-contradiction, #ev-tab-decision').forEach(function(p){ p.classList.remove('active'); });
+  document.querySelectorAll('.ev-tab').forEach(function(t){ t.classList.remove('active'); });
+  document.getElementById('ev-tab-' + name).classList.add('active');
+  btn.classList.add('active');
+};
+
+// ---- Tab 1: schema / type validation ----
+var SCHEMA_CASES = {
+  valid: {
+    label: 'Well-typed triple',
+    triple: '(Dr. Amara Nwosu [Person], WORKS_AT, University of Lagos [Organisation])',
+    result: 'VALID', resultClass: 'ev-warn-good',
+    note: '✓ Subject and object types match WORKS_AT[Person→Organisation] exactly.'
+  },
+  wrongSubject: {
+    label: 'Wrong subject type',
+    triple: '(University of Lagos [Organisation], WORKS_AT, London [Location])',
+    result: 'INVALID', resultClass: 'ev-warn-bad',
+    note: '⚠ WORKS_AT requires a Person subject — an Organisation can\'t "work at" a Location.'
+  },
+  wrongObject: {
+    label: 'Wrong object type',
+    triple: '(Dr. Amara Nwosu [Person], AUTHORED, "the water is safe" [raw string])',
+    result: 'INVALID', resultClass: 'ev-warn-bad',
+    note: '⚠ AUTHORED requires a Study/Document object — a raw quote isn\'t a typed entity at all.'
+  }
+};
+var currentSchemaCase = 'valid';
+
+function renderSchemaCheck(){
+  var c = SCHEMA_CASES[currentSchemaCase];
+  document.getElementById('ev-schema-btns').innerHTML = Object.keys(SCHEMA_CASES).map(function(k){
+    return '<button class="ev-strat-btn' + (k === currentSchemaCase ? ' active' : '') +
+      '" onclick="evSelectSchemaCase(\'' + k + '\')">' + SCHEMA_CASES[k].label + '</button>';
+  }).join('');
+  document.getElementById('ev-schema-triple').innerHTML =
+    '<div class="ev-chunk-card">' + c.triple + '<span class="ev-badge ev-badge-' + (c.result === 'VALID' ? 'valid' : 'invalid') + '">' + c.result + '</span></div>';
+  var el = document.getElementById('ev-schema-result');
+  el.className = 'ev-warn-banner ' + c.resultClass;
+  el.textContent = c.note;
+  document.getElementById('ev-schema-prompt').innerHTML =
+    '<span class="ev-prompt-tag">Validation prompt</span>Ontology: Person, Organisation, Location, Study; WORKS_AT[Person→Organisation], AUTHORED[Person→Study], LOCATED_IN[Organisation→Location].\nCandidate triple: ' + c.triple + '\nRespond VALID or INVALID. If invalid, name the specific type constraint broken.';
+}
+
+window.evSelectSchemaCase = function(key){
+  currentSchemaCase = key;
+  renderSchemaCheck();
+};
+
+// ---- Tab 2: source grounding check ----
+var GROUND_CASES = {
+  supported: {
+    label: 'Grounded triple',
+    triple: '(Dr. Amara Nwosu, WORKS_AT, University of Lagos)',
+    result: 'SUPPORTED', resultClass: 'ev-warn-good',
+    note: '✓ Quoted span: "based at the University of Lagos" — directly supports this triple.'
+  },
+  hallucinated: {
+    label: 'Hallucinated triple',
+    triple: '(Dr. Amara Nwosu, AWARDED, Nobel Prize)',
+    result: 'NOT FOUND', resultClass: 'ev-warn-bad',
+    note: '⚠ Nothing in the source mentions any award — the extractor invented this triple outright.'
+  }
+};
+var currentGroundCase = 'supported';
+
+function renderGroundCheck(){
+  var c = GROUND_CASES[currentGroundCase];
+  document.getElementById('ev-ground-btns').innerHTML = Object.keys(GROUND_CASES).map(function(k){
+    return '<button class="ev-strat-btn' + (k === currentGroundCase ? ' active' : '') +
+      '" onclick="evSelectGroundCase(\'' + k + '\')">' + GROUND_CASES[k].label + '</button>';
+  }).join('');
+  document.getElementById('ev-ground-triple').innerHTML =
+    '<div class="ev-chunk-card">' + c.triple + '<span class="ev-badge ev-badge-' + (c.result === 'SUPPORTED' ? 'valid' : 'invalid') + '">' + c.result + '</span></div>';
+  var el = document.getElementById('ev-ground-result');
+  el.className = 'ev-warn-banner ' + c.resultClass;
+  el.textContent = c.note;
+  document.getElementById('ev-ground-prompt').innerHTML =
+    '<span class="ev-prompt-tag">Grounding prompt</span>Source: "Dr. Amara Nwosu, based at the University of Lagos, authored a new water-safety study."\nClaim (as a triple): ' + c.triple + '\nQuote the exact span of the source that supports this triple, or respond NOT FOUND if it isn\'t supported.';
+}
+
+window.evSelectGroundCase = function(key){
+  currentGroundCase = key;
+  renderGroundCheck();
+};
+
+// ---- Tab 3: round-trip / back-translation ----
+var RT_CASES = {
+  complete: {
+    label: 'Complete triple set',
+    triples: ['(Dr. Amara Nwosu, WORKS_AT, University of Lagos)', '(Dr. Amara Nwosu, AUTHORED, water-safety study)', '(University of Lagos, LOCATED_IN, Lagos)'],
+    reconstructed: 'Dr. Amara Nwosu works at the University of Lagos, which is located in Lagos, and authored a water-safety study.',
+    similarity: 0.91,
+    verdict: '✓ High similarity — the triples captured the source\'s meaning with nothing important missing.',
+    verdictClass: 'ev-warn-good'
+  },
+  missing: {
+    label: 'One triple dropped',
+    triples: ['(Dr. Amara Nwosu, WORKS_AT, University of Lagos)'],
+    reconstructed: 'Dr. Amara Nwosu works at the University of Lagos.',
+    similarity: 0.58,
+    verdict: '⚠ Similarity drops noticeably once AUTHORED and LOCATED_IN are missing — the reconstruction is accurate as far as it goes, but incomplete. That gap is exactly what this check is for.',
+    verdictClass: 'ev-warn-bad'
+  }
+};
+var currentRT = 'complete';
+
+function renderRoundTrip(){
+  var c = RT_CASES[currentRT];
+  document.getElementById('ev-rt-btns').innerHTML = Object.keys(RT_CASES).map(function(k){
+    return '<button class="ev-strat-btn' + (k === currentRT ? ' active' : '') +
+      '" onclick="evSelectRT(\'' + k + '\')">' + RT_CASES[k].label + '</button>';
+  }).join('');
+  document.getElementById('ev-rt-triples').innerHTML = c.triples.map(function(t){
+    return '<div class="ev-chunk-card">' + t + '</div>';
+  }).join('');
+  document.getElementById('ev-rt-prompt').innerHTML =
+    '<span class="ev-prompt-tag">Back-translation prompt</span>Given only these triples (not the original text), write one short sentence describing what they say:\n' + c.triples.join('\n');
+  document.getElementById('ev-rt-reconstructed').innerHTML = '<b>Reconstructed text:</b> "' + c.reconstructed + '"';
+  var pct = Math.round(c.similarity * 100);
+  var fill = document.getElementById('ev-rt-fill');
+  fill.style.width = pct + '%';
+  fill.style.background = c.similarity >= 0.8 ? '#16a34a' : (c.similarity >= 0.65 ? '#d97706' : '#dc2626');
+  document.getElementById('ev-rt-val').textContent = c.similarity.toFixed(2);
+  var el = document.getElementById('ev-rt-verdict');
+  el.className = 'ev-warn-banner ' + c.verdictClass;
+  el.textContent = c.verdict;
+}
+
+window.evSelectRT = function(key){
+  currentRT = key;
+  renderRoundTrip();
+};
+
+// ---- Tab 4: cross-run consistency ----
+function renderConsistency(){
+  document.getElementById('ev-cons-a').innerHTML = [
+    '(Dr. Amara Nwosu, WORKS_AT, University of Lagos)',
+    '(Dr. Amara Nwosu, AUTHORED, water-safety study)',
+    '(University of Lagos, LOCATED_IN, Nigeria)'
+  ].map(function(t){ return '<div class="ev-chunk-card">' + t + '</div>'; }).join('');
+  document.getElementById('ev-cons-b').innerHTML = [
+    '(Dr. Amara Nwosu, WORKS_AT, University of Lagos)',
+    '(Dr. Amara Nwosu, AUTHORED, water-safety study)'
+  ].map(function(t){ return '<div class="ev-chunk-card">' + t + '</div>'; }).join('');
+}
+
+// ---- Tab 5: contradiction check ----
+function renderContradiction(){
+  document.getElementById('ev-contra-prompt').innerHTML =
+    '<span class="ev-prompt-tag">Contradiction-check prompt</span>Existing fact (2020): (Alice, WORKS_AT, Acme Corp)\nNew candidate fact (2024): (Alice, WORKS_AT, Globex Inc)\nDo these conflict? Respond CONTRADICTION, UPDATE, or NO CONFLICT, and explain briefly using the timestamps.';
+}
+
+// ---- Tab 6: accept / flag / reject ----
+var DECISIONS = [
+  { key:'accept', title:'Auto-accept', triple:'(Dr. Amara Nwosu, WORKS_AT, University of Lagos)',
+    detail:'✓ Schema: valid. ✓ Grounded: quoted span found. ✓ Cross-run: agreed in both runs. → Auto-accepted into the knowledge base.', cls:'ev-warn-good' },
+  { key:'flag', title:'Flag for review', triple:'(University of Lagos, LOCATED_IN, Nigeria)',
+    detail:'✓ Schema: valid. ✓ Grounded: plausible but only loosely implied. ⚠ Cross-run: appeared in only one of two runs. → Held for human review, not auto-inserted.', cls:'ev-warn-neutral' },
+  { key:'reject', title:'Auto-reject', triple:'(Dr. Amara Nwosu, AWARDED, Nobel Prize)',
+    detail:'✓ Schema: valid types. ✗ Grounded: no supporting span — NOT FOUND. → Rejected outright; this triple never reaches the knowledge base.', cls:'ev-warn-bad' }
+];
+var currentDecision = 'accept';
+
+function renderDecisions(){
+  document.getElementById('ev-decision-cards').innerHTML = DECISIONS.map(function(d){
+    return '<div class="ev-decision-card' + (d.key === currentDecision ? ' sel' : '') + '" onclick="evSelectDecision(\'' + d.key + '\')">' +
+      '<div class="ev-decision-title">' + d.title + '</div>' + d.triple + '</div>';
+  }).join('');
+  var d = DECISIONS.filter(function(x){ return x.key === currentDecision; })[0];
+  var el = document.getElementById('ev-decision-detail');
+  el.className = 'ev-warn-banner ' + d.cls;
+  el.textContent = d.detail;
+}
+
+window.evSelectDecision = function(key){
+  currentDecision = key;
+  renderDecisions();
+};
+
+renderSchemaCheck();
+renderGroundCheck();
+renderRoundTrip();
+renderConsistency();
+renderContradiction();
+renderDecisions();
+})();
+</script>
