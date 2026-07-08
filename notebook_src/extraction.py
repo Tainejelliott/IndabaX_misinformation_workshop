@@ -192,6 +192,7 @@ def extract_openie(
     labels: list[str],
     api_key: str,
     model: str = "gpt-4.1-nano",
+    ontology_types: list[dict] | None = None,
 ) -> list[dict]:
     """
     Extract KG triples without a predefined schema, using OpenAI.
@@ -217,7 +218,8 @@ def extract_openie(
 
     # inject the canonical ontological types into the system prompt
     type_block = "\n".join(
-        f"      - {t['type']} (UMLS {t['umls']}): {t['reason']}" for t in ONTOLOGY_TYPES
+        f"      - {t['type']} (UMLS {t['umls']}): {t['reason']}"
+        for t in (ontology_types or ONTOLOGY_TYPES)
     )
     system = _OPENIE_SYSTEM.replace("__TYPE_BLOCK__", type_block)
 
@@ -331,6 +333,9 @@ def ground_to_mesh(
     mesh_headings: list[str],
     threshold: float = 0.8,
     model_name: str = BIOMED_EMBED_MODEL,
+    m2t: dict | None = None,
+    allowed_types: list[str] | None = None,
+    synonyms: dict | None = None,
 ):
     """
     Ground every entity to the MeSH ontology with a biomedical embedding model.
@@ -346,9 +351,23 @@ def ground_to_mesh(
     """
     from sentence_transformers import util
 
-    m2t       = mesh_to_type()
-    canonical = set(ontology_type_names())
+    m2t       = m2t if m2t is not None else mesh_to_type()
+    canonical = set(allowed_types if allowed_types is not None else ontology_type_names())
     valid     = [m for m in mesh_headings if m]
+
+    # synonym dictionary: surface form (substring, longest-first) → canonical heading.
+    # Entity linking checks this BEFORE embeddings, so known aliases (PDAC, cancer of
+    # the pancreas, ...) bridge reliably even when their embedding score is low.
+    syn_pairs = sorted(
+        ((f.strip().lower(), h) for h, forms in (synonyms or {}).items() for f in forms),
+        key=lambda p: -len(p[0]))
+
+    def _syn(entity: str) -> str:
+        el = entity.strip().lower()
+        for f, h in syn_pairs:
+            if f and (f == el or f in el) and h in valid:
+                return h
+        return ""
 
     explicit: dict[str, str] = {}   # entity -> MeSH tag it already carries
     guess:    dict[str, str] = {}   # entity -> LLM's inline type guess
@@ -367,8 +386,12 @@ def ground_to_mesh(
                 guess[e] = g
     uniq = sorted(set(seen))
 
-    # embed only entities that lack an explicit MeSH tag
-    need = [e for e in uniq if e not in explicit]
+    # dictionary hits (skip anything already grounded by an explicit OBIE tag)
+    syn_hit = {e: _syn(e) for e in uniq}
+    syn_hit = {e: h for e, h in syn_hit.items() if h and e not in explicit}
+
+    # embed only entities that neither carry an explicit tag nor match a synonym
+    need = [e for e in uniq if e not in explicit and e not in syn_hit]
     best_mesh:  dict[str, str]   = {}
     best_score: dict[str, float] = {}
     if need and valid:
@@ -387,6 +410,9 @@ def ground_to_mesh(
         if e in explicit:
             mesh, score = explicit[e], 1.0
             mtype, via  = m2t.get(mesh, "Other"), "exact MeSH tag"
+        elif e in syn_hit:
+            mesh, score = syn_hit[e], 1.0
+            mtype, via  = m2t.get(mesh, "Other"), "synonym"
         else:
             mesh, score = best_mesh.get(e, ""), best_score.get(e, 0.0)
             if mesh and score >= threshold:
@@ -409,6 +435,8 @@ def ground_to_mesh(
             d[f"{role}_type"] = final_type.get(e, "Other")
             if e in explicit:
                 d[f"{role}_mesh"], d[f"{role}_score"] = explicit[e], 1.0
+            elif e in syn_hit:
+                d[f"{role}_mesh"], d[f"{role}_score"] = syn_hit[e], 1.0
             elif e in best_mesh:
                 d[f"{role}_mesh"], d[f"{role}_score"] = best_mesh[e], round(best_score[e], 2)
         typed.append(d)
@@ -583,3 +611,136 @@ def extract_mystery_triples(
         d.setdefault("section", "CASE")
         result.append(d)
     return result
+
+
+# ══════════════════════════════════════════════════════════════════════ #
+#  Proposition-based pipeline (Hands-on A.2 v4.1)                          #
+#  text → propositions → coreference resolution → triples-from-propositions #
+# ══════════════════════════════════════════════════════════════════════ #
+
+_PROPOSITION_SYSTEM = textwrap.dedent("""
+    You decompose a passage into PROPOSITIONS: minimal, atomic, single-fact
+    statements. Each proposition asserts exactly ONE relationship or fact.
+
+    Rules:
+    - Split coordinated or nested clauses into separate propositions.
+    - Stay FAITHFUL to the original wording. Do NOT resolve pronouns or
+      references yet — if the text says "it" or "they", keep "it" or "they".
+      (Coreference is a later step.)
+    - Do not add facts that are not in the passage, and do not drop any.
+    - Keep each proposition short and declarative.
+
+    Return a JSON object: {"propositions": ["...", "..."]}.
+""").strip()
+
+
+def extract_propositions(text: str, api_key: str,
+                         model: str = "gpt-4.1-nano") -> list[str]:
+    """
+    Chunk a passage into atomic, single-fact propositions (Dense-X style).
+
+    Propositions are kept faithful to the source — pronouns are preserved so the
+    coreference-resolution step has something to resolve.
+    """
+    import json
+    from openai import OpenAI
+    client = OpenAI(api_key=api_key)
+    resp = client.chat.completions.create(
+        model=model, response_format={"type": "json_object"},
+        messages=[{"role": "system", "content": _PROPOSITION_SYSTEM},
+                  {"role": "user", "content": f"Passage:\n{text}\n\nPropositions:"}])
+    raw = resp.choices[0].message.content or "{}"
+    try:
+        data = json.loads(raw)
+        return [str(p).strip() for p in data.get("propositions", []) if str(p).strip()]
+    except json.JSONDecodeError:
+        return []
+
+
+_COREF_SYSTEM = textwrap.dedent("""
+    You resolve COREFERENCE in a list of propositions. Rewrite each proposition so
+    that it is fully self-contained: replace every pronoun or anaphoric reference
+    (it, they, this, these, the disease, the tumour when ambiguous, ...) with the
+    explicit entity it denotes, using the original passage to determine the referent.
+
+    Rules:
+    - Return EXACTLY the same number of propositions, in the same order.
+    - Change ONLY the references — do not add, drop or reword facts otherwise.
+    - If a proposition is already self-contained, return it unchanged.
+
+    Return a JSON object: {"propositions": ["...", "..."]} of the same length.
+""").strip()
+
+
+def resolve_coreferences(propositions: list[str], api_key: str,
+                         model: str = "gpt-4.1-nano", context: str = "") -> list[str]:
+    """
+    Replace pronouns/anaphora in each proposition with their explicit referent,
+    using `context` (the original passage) to disambiguate. Length-preserving:
+    on any mismatch, the original propositions are returned unchanged.
+    """
+    import json
+    from openai import OpenAI
+    client = OpenAI(api_key=api_key)
+    numbered = "\n".join(f"{i+1}. {p}" for i, p in enumerate(propositions))
+    user = (f"Original passage:\n{context}\n\n" if context else "") + \
+           f"Propositions:\n{numbered}\n\nResolved propositions:"
+    resp = client.chat.completions.create(
+        model=model, response_format={"type": "json_object"},
+        messages=[{"role": "system", "content": _COREF_SYSTEM},
+                  {"role": "user", "content": user}])
+    raw = resp.choices[0].message.content or "{}"
+    try:
+        out = [str(p).strip() for p in json.loads(raw).get("propositions", []) if str(p).strip()]
+    except json.JSONDecodeError:
+        out = []
+    return out if len(out) == len(propositions) else list(propositions)
+
+
+def triples_from_propositions(propositions: list[str], api_key: str,
+                              model: str = "gpt-4.1-nano",
+                              ontology_types: list[dict] | None = None) -> list[dict]:
+    """
+    Extract triples directly from (coref-resolved) propositions. Because each
+    proposition is atomic and self-contained, extraction is cleaner than from raw
+    sentences. Every triple keeps its source proposition in `sentences`, so
+    build_graph() embeds the proposition as edge provenance.
+    """
+    from openai import OpenAI
+    client = OpenAI(api_key=api_key)
+    type_block = "\n".join(
+        f"      - {t['type']} (UMLS {t['umls']}): {t['reason']}"
+        for t in (ontology_types or ONTOLOGY_TYPES)
+    )
+    system = _OPENIE_SYSTEM.replace("__TYPE_BLOCK__", type_block)
+
+    triples: list[dict] = []
+    for prop in propositions:
+        resp = client.chat.completions.create(
+            model=model, response_format={"type": "json_object"},
+            messages=[{"role": "system", "content": system},
+                      {"role": "user", "content":
+                       f"Proposition: {prop}\n\nExtract every factual triple, tagging "
+                       "each entity with its ontological type and each relationship "
+                       "with its type."}])
+        raw = resp.choices[0].message.content or ""
+        try:
+            parsed = _OpenTripleList.model_validate_json(raw)
+        except Exception:
+            continue
+        for t in parsed.triples:
+            if not (t.subject.strip() and t.predicate.strip() and t.object.strip()):
+                continue
+            triples.append({
+                "subject":        t.subject,
+                "subject_type":   t.subject_type,
+                "predicate":      t.predicate,
+                "predicate_type": t.predicate_type,
+                "object":         t.object,
+                "object_type":    t.object_type,
+                "confidence":     t.confidence,
+                "sentence":       prop,
+                "sentences":      [prop],     # proposition → edge provenance
+                "section":        "PROPOSITION",
+            })
+    return triples

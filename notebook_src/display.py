@@ -22,17 +22,45 @@ _LABEL_COLOURS = {
 
 def render_abstract(ex: dict, title: str, authors: str,
                     journal: str, year: str) -> str:
-    """Render a PubMedQA example as a styled paper card."""
-    pmid     = ex["pubid"]
-    question = ex["question"]
+    """Render a structured abstract as a styled paper card.
+
+    Designed for PubMedQA examples but source-agnostic: `pubid`, `final_decision`,
+    `question` and `long_answer` are optional (their badges/boxes are omitted when
+    absent), and `source` overrides the "PubMedQA" corpus badge. With a full
+    PubMedQA example every field is present, so the card is unchanged.
+    """
+    pmid     = ex.get("pubid", "")
+    question = ex.get("question", "")
     contexts = ex["context"]["contexts"]
     labels   = ex["context"]["labels"]
-    meshes   = ex["context"]["meshes"]
-    answer   = ex["long_answer"]
-    decision = ex["final_decision"].upper()
+    meshes   = ex["context"].get("meshes", [])
+    answer   = ex.get("long_answer", "")
+    decision = (ex.get("final_decision") or "").upper()
+    source   = ex.get("source", "PubMedQA")
 
     decision_col = {"YES": "#059669", "NO": "#dc2626",
                     "MAYBE": "#d97706"}.get(decision, "#6b7280")
+
+    pmid_badge = (
+        f'<span style="background:rgba(255,255,255,.2);color:#fff;font-size:10px;'
+        f'font-weight:700;padding:2px 8px;border-radius:4px;">PMID {pmid}</span>'
+        if pmid else "")
+    decision_badge = (
+        f'<span style="margin-left:auto;background:{decision_col};color:#fff;'
+        f'font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;">✓ {decision}</span>'
+        if decision else "")
+    question_block = (
+        f'<div style="padding:12px 16px;background:#fefce8;border-bottom:1px solid #fef08a;">'
+        f'<div style="font-size:10px;font-weight:700;color:#854d0e;letter-spacing:1px;margin-bottom:4px;">❓ RESEARCH QUESTION</div>'
+        f'<div style="font-size:13px;color:#1c1917;font-weight:500;font-style:italic;">{question}</div>'
+        f'</div>'
+        if question else "")
+    answer_block = (
+        f'<div style="padding:12px 16px;background:#f0fdf4;border-top:1px solid #bbf7d0;">'
+        f'<div style="font-size:10px;font-weight:700;color:#14532d;letter-spacing:1px;margin-bottom:4px;">💡 CONCLUSION / ANSWER</div>'
+        f'<div style="font-size:13px;color:#1c1917;line-height:1.7;">{answer}</div>'
+        f'</div>'
+        if answer else "")
 
     mesh_tags = "".join(
         f'<span style="display:inline-block;background:#f1f5f9;'
@@ -62,11 +90,8 @@ def render_abstract(ex: dict, title: str, authors: str,
         f'<div style="background:linear-gradient(135deg,#1e3a8a,#3b82f6);padding:16px 20px;">'
         f'<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px;">'
         f'<span style="background:rgba(255,255,255,.2);color:#fff;font-size:10px;'
-        f'font-weight:700;letter-spacing:1.5px;padding:2px 8px;border-radius:4px;">PubMedQA</span>'
-        f'<span style="background:rgba(255,255,255,.2);color:#fff;font-size:10px;'
-        f'font-weight:700;padding:2px 8px;border-radius:4px;">PMID {pmid}</span>'
-        f'<span style="margin-left:auto;background:{decision_col};color:#fff;'
-        f'font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;">✓ {decision}</span>'
+        f'font-weight:700;letter-spacing:1.5px;padding:2px 8px;border-radius:4px;">{source}</span>'
+        f'{pmid_badge}{decision_badge}'
         f'</div>'
         f'<div style="color:#fff;font-size:15px;font-weight:700;line-height:1.4;margin-bottom:6px;">{title}</div>'
         f'<div style="color:rgba(255,255,255,.8);font-size:12px;">{authors}</div>'
@@ -78,22 +103,16 @@ def render_abstract(ex: dict, title: str, authors: str,
         f'<span style="font-size:10px;font-weight:700;color:#94a3b8;letter-spacing:1px;margin-right:6px;">MeSH</span>'
         f'{mesh_tags}</div>'
 
-        # Research question
-        f'<div style="padding:12px 16px;background:#fefce8;border-bottom:1px solid #fef08a;">'
-        f'<div style="font-size:10px;font-weight:700;color:#854d0e;letter-spacing:1px;margin-bottom:4px;">❓ RESEARCH QUESTION</div>'
-        f'<div style="font-size:13px;color:#1c1917;font-weight:500;font-style:italic;">{question}</div>'
-        f'</div>'
+        # Research question (optional)
+        f'{question_block}'
 
         # Abstract
         f'<div style="padding:14px 16px;">'
         f'<div style="font-size:10px;font-weight:700;color:#94a3b8;letter-spacing:1px;margin-bottom:10px;">📄 ABSTRACT</div>'
         f'{abstract_html}</div>'
 
-        # Answer
-        f'<div style="padding:12px 16px;background:#f0fdf4;border-top:1px solid #bbf7d0;">'
-        f'<div style="font-size:10px;font-weight:700;color:#14532d;letter-spacing:1px;margin-bottom:4px;">💡 CONCLUSION / ANSWER</div>'
-        f'<div style="font-size:13px;color:#1c1917;line-height:1.7;">{answer}</div>'
-        f'</div>'
+        # Answer (optional)
+        f'{answer_block}'
 
         f'</div>'
     )
@@ -1088,7 +1107,6 @@ def render_takeaways() -> str:
         ("3", "Validate", "Back-translation + STS-B calibration measure how faithful the triples are."),
         ("4", "Disambiguate", "Merge duplicate surface forms into canonical nodes."),
         ("5", "Design & build", "Directed, typed, temporally-scoped edges with provenance metadata."),
-        ("6", "Query & export", "Traverse multi-hop relationships; persist as Neo4j Cypher."),
     ]
     rows = "".join(
         f'<div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:8px;">'
@@ -1394,6 +1412,7 @@ def render_mystery_roadmap() -> str:
         ("📊", "Evaluate coverage", "Score your graph against the reference facts — then iterate."),
         ("🤖", "Unleash the agent", "An LLM traverses the graph with tool calls to answer questions."),
         ("🔪", "Solve the murder", "Motive + means + no alibi — let the agent name the culprit."),
+        ("🎭", "Add misinformation", "Plant one false fact and watch it set the murderer free — why a graph is only as honest as its data."),
     ]
     rows = "".join(
         f'<div style="display:flex;gap:11px;align-items:flex-start;padding:7px 0;'
@@ -1415,7 +1434,132 @@ def render_mystery_roadmap() -> str:
         + rows
     )
     return _card("135deg,#7f1d1d,#b91c1c", "Hands-on B · Knowledge Base Utilisation",
-                 "The Ashworth Manor Murder", "Design → extract → evaluate → reason", body)
+                 "The Ashworth Manor Murder", "Design → extract → evaluate → reason → stress-test", body)
+
+
+def render_design_thinking() -> str:
+    """Part 2 framing card — design the schema backwards from the questions it must answer."""
+    return render_points_card("Design thinking", "Start from the questions, not the data",
+        "What must the graph be able to answer?", [
+        "<b>“Who had a motive?”</b> → needs a <code>Motive</code> entity and a <code>has_motive</code> relation.",
+        "<b>“Who could NOT have done it?”</b> → needs <code>has_alibi</code> — and a definition that "
+        "separates a <em>confirmed</em> alibi from a mere sighting.",
+        "<b>“Who had access to the weapon?”</b> → needs <code>Object</code> entities with "
+        "<code>owns</code> / <code>found_in</code> relations.",
+        "Each relation needs a <b>definition</b> — the extractor follows your words literally. "
+        "Vague definition in, confused graph out.",
+    ], grad="135deg,#5b21b6,#7c3aed")
+
+
+def render_triple_anatomy(example: dict | None = None) -> str:
+    """Explain the anatomy of an extracted triple: two typed entity NODES and a
+    directed relationship EDGE that carries the source sentence and confidence as
+    properties. Pass a real triple to fill in concrete values."""
+    e = example or {}
+    subj = _h.escape(e.get("subject", "Subject"))
+    obj  = _h.escape(e.get("object", "Object"))
+    pred = _h.escape(e.get("predicate", "predicate"))
+    st   = _h.escape(e.get("subject_type", "Type"))
+    ot   = _h.escape(e.get("object_type", "Type"))
+    sent = e.get("sentence", "") or "the sentence this fact was extracted from"
+    sent = _h.escape(sent if len(sent) <= 72 else sent[:72] + "…")
+    conf = e.get("confidence", None)
+    conf_str = f"{float(conf):.0%}" if isinstance(conf, (int, float)) else "e.g. 90%"
+
+    def node(name, typ):
+        return (
+            f'<div style="flex:1;min-width:0;text-align:center;background:#f8fafc;'
+            f'border:1px solid #e2e8f0;border-radius:10px;padding:10px 12px;">'
+            f'<div style="font-size:12.5px;font-weight:700;color:#0f172a;overflow-wrap:anywhere;">{name}</div>'
+            f'<div style="margin-top:4px;"><span style="font-size:10px;color:#1d4ed8;background:#eff6ff;'
+            f'border:1px solid #bfdbfe;border-radius:4px;padding:1px 6px;">type: {typ}</span></div></div>')
+
+    edge = (
+        f'<div style="flex:0 0 200px;text-align:center;">'
+        f'<div style="font-size:11px;font-weight:700;color:#0f172a;">{pred} ▶</div>'
+        f'<div style="height:2px;background:#94a3b8;margin:5px 0;"></div>'
+        f'<div style="font-size:9.5px;color:#334155;background:#f1f5f9;border:1px solid #e2e8f0;'
+        f'border-radius:6px;padding:6px 8px;line-height:1.5;text-align:left;">'
+        f'<b>edge properties</b><br>📄 source sentence: “{sent}”<br>📈 confidence: {conf_str}</div></div>')
+
+    body = (
+        '<div style="font-size:12.5px;color:#475569;line-height:1.7;margin-bottom:12px;">'
+        'Each extracted fact is a <b>triple</b> — (subject, predicate, object). In the graph the two '
+        'entities become <b>typed nodes</b> and the predicate becomes a <b>directed edge</b>. The edge '
+        'is not bare: it carries <b>properties</b> — the <b>source sentence</b> the fact came from '
+        '(provenance) and a <b>confidence</b> score both live on the relationship:</div>'
+        f'<div style="display:flex;align-items:center;gap:10px;">{node(subj, st)}{edge}{node(obj, ot)}</div>'
+        '<div style="margin-top:12px;padding:9px 12px;background:#faf5ff;border-radius:6px;'
+        'font-size:11.5px;color:#5b21b6;line-height:1.6;">That is the whole <b>ontology</b>: a fixed set '
+        'of entity <b>types</b> (the kinds of node) and relation <b>types</b> (the kinds of edge), each '
+        'with a definition. Extraction only emits triples that fit it.</div>'
+    )
+    return _card("135deg,#0f766e,#0d9488", "Anatomy of a Triple",
+                 "Typed nodes · a directed relationship · properties on the edge",
+                 "The source sentence and confidence live inside the relationship", body)
+
+
+def render_references(sections: list[dict], footer: str = "") -> str:
+    """Grouped reference list.
+    sections: [{"heading": str, "items": [{"cite": str, "url": str (optional)}, ...]}]"""
+    blocks = ""
+    for sec in sections:
+        lis = ""
+        for it in sec.get("items", []):
+            cite = _h.escape(it.get("cite", ""))
+            url  = it.get("url", "")
+            link = (f'<br><a href="{_h.escape(url)}" style="color:#2563eb;text-decoration:none;'
+                    f'font-size:11px;">{_h.escape(url)}</a>') if url else ""
+            lis += (f'<li style="font-size:12px;color:#334155;line-height:1.6;margin-bottom:6px;">'
+                    f'{cite}{link}</li>')
+        blocks += (
+            f'<div style="margin-bottom:12px;">'
+            f'<div style="font-size:11px;font-weight:800;color:#7c3aed;letter-spacing:1px;'
+            f'text-transform:uppercase;margin-bottom:5px;">{_h.escape(sec.get("heading", ""))}</div>'
+            f'<ul style="margin:0;padding-left:18px;">{lis}</ul></div>')
+    return _card("135deg,#334155,#475569", "References & Further Reading",
+                 "The methods, models and tools behind this notebook", "", blocks, footer=footer)
+
+
+def render_a2_roadmap() -> str:
+    """Opening card: the full A.2 pipeline, from a biomedical abstract to a graph."""
+    steps = [
+        ("📄", "Load the source text",
+         "A real biomedical abstract from PubMedQA — unstructured scientific prose."),
+        ("⚙️", "Extract triples, two ways",
+         "OBIE, constrained to a MeSH ontology, vs OpenIE — schema-free and high-recall."),
+        ("🏷️", "Type &amp; ground the ontology",
+         "Map every entity and relation to UMLS semantic types and MeSH concepts."),
+        ("✅", "Validate the extraction",
+         "Back-translate the triples to prose and score the fidelity — calibrated on STS-B."),
+        ("🔗", "Represent as a graph",
+         "Disambiguate duplicate entities, then design typed, directed, time-scoped edges."),
+        ("🕸️", "Consolidate the graph",
+         "Assemble the disambiguated, typed graph and inspect its shape and statistics."),
+    ]
+    rows = "".join(
+        f'<div style="display:flex;gap:11px;align-items:flex-start;padding:7px 0;'
+        f'border-bottom:1px solid #f1f5f9;">'
+        f'<span style="flex-shrink:0;width:24px;height:24px;border-radius:50%;'
+        f'background:#eef2ff;border:1.5px solid #c7d2fe;font-size:12px;'
+        f'display:flex;align-items:center;justify-content:center;">{i+1}</span>'
+        f'<div><span style="font-size:13px;">{ic}</span> '
+        f'<span style="font-size:13px;font-weight:700;color:#0f172a;">{t}</span>'
+        f'<div style="font-size:12px;color:#475569;line-height:1.55;margin-top:1px;">{d}</div></div>'
+        f'</div>'
+        for i, (ic, t, d) in enumerate(steps)
+    )
+    body = (
+        '<div style="font-size:12.5px;color:#475569;line-height:1.7;margin-bottom:8px;">'
+        'Here the ontology is <em>given</em> — a biomedical schema of MeSH concepts. '
+        'Your focus is the <b>pipeline itself</b>: how a page of unstructured text becomes '
+        'a typed, validated, queryable knowledge graph — and how you measure its quality '
+        'at every step.</div>'
+        + rows
+    )
+    return _card("135deg,#3730a3,#4f46e5", "Hands-on A.2 · Knowledge Base (Intermediate)",
+                 "From a biomedical abstract to a knowledge graph",
+                 "Extract → type → validate → represent → query", body)
 
 
 def render_coverage(cov: dict) -> str:
@@ -1794,6 +1938,305 @@ def render_segments(segments: list[dict]) -> str:
         f'<tbody>{rows}</tbody>'
         f'</table></div>'
     )
+
+
+# ══════════════════════════════════════════════════════════════════════ #
+#  Hands-on A.2 v4.1 — proposition pipeline (pancreatic cancer)            #
+# ══════════════════════════════════════════════════════════════════════ #
+
+def render_4_1_roadmap() -> str:
+    """Opening card: the proposition-based KG pipeline, end to end."""
+    steps = [
+        ("📄", "Read the abstracts",
+         "Five pancreatic-cancer abstracts — one becomes our working example."),
+        ("✂️", "Chunk the text",
+         "Two ways: atomic PROPOSITIONS, and TRIPLES (open-domain vs ontology-based)."),
+        ("🔁", "Back-translate &amp; calibrate",
+         "Reconstruct the abstract from each representation; read cosine on a 3-model STS-B scale."),
+        ("🔗", "Resolve coreference",
+         "Rewrite the propositions so every 'it' / 'they' names its entity."),
+        ("⚙️", "Triples from propositions",
+         "Extract triples straight from the clean, atomic propositions."),
+        ("🧬", "Map entities to concepts",
+         "Bridge surface forms — PDAC, adenocarcinoma, cancer of the pancreas — to one concept."),
+        ("🕸️", "Build the final graph",
+         "One KG: propositions live inside the edges, concepts live on the entities."),
+    ]
+    rows = "".join(
+        f'<div style="display:flex;gap:11px;align-items:flex-start;padding:7px 0;'
+        f'border-bottom:1px solid #f1f5f9;">'
+        f'<span style="flex-shrink:0;width:24px;height:24px;border-radius:50%;'
+        f'background:#f0fdfa;border:1.5px solid #99f6e4;font-size:12px;'
+        f'display:flex;align-items:center;justify-content:center;">{i+1}</span>'
+        f'<div><span style="font-size:13px;">{ic}</span> '
+        f'<span style="font-size:13px;font-weight:700;color:#0f172a;">{t}</span>'
+        f'<div style="font-size:12px;color:#475569;line-height:1.55;margin-top:1px;">{d}</div></div>'
+        f'</div>'
+        for i, (ic, t, d) in enumerate(steps)
+    )
+    body = (
+        '<div style="font-size:12.5px;color:#475569;line-height:1.7;margin-bottom:8px;">'
+        'This follows a research-style KG pipeline. Instead of extracting triples straight '
+        'from raw text, we first break each abstract into atomic <b>propositions</b>, clean '
+        'and validate them, and build the graph from those — so every <b>edge carries the '
+        'proposition it came from</b> and every <b>entity carries its concept</b>. It is the '
+        'same logic you will apply to the murder mystery in Hands-on B.</div>'
+        + rows
+    )
+    return _card("135deg,#0f766e,#14b8a6", "Hands-on A.2 · v4.1 — Proposition Pipeline",
+                 "From an abstract to a proposition-grounded knowledge graph",
+                 "Chunk → validate → resolve → extract → map → build", body)
+
+
+def _section_cards(abstract: dict) -> str:
+    out = ""
+    for s in abstract["sections"]:
+        col, bg = _LABEL_COLOURS.get(s["label"], ("#374151", "#f9fafb"))
+        out += (
+            f'<div style="margin-bottom:9px;">'
+            f'<span style="display:inline-block;background:{col};color:#fff;font-size:10px;'
+            f'font-weight:700;letter-spacing:1.5px;padding:2px 8px;border-radius:4px;'
+            f'margin-bottom:5px;">{_h.escape(s["label"])}</span>'
+            f'<div style="font-size:13px;color:#1e293b;line-height:1.7;background:{bg};'
+            f'border-radius:6px;padding:10px 14px;">{_h.escape(s["text"])}</div></div>'
+        )
+    return out
+
+
+def render_corpus(abstracts: list[dict], working: int = 0) -> str:
+    """List the 5-abstract corpus, badging the one used for the walk-through."""
+    rows = ""
+    for i, a in enumerate(abstracts):
+        snippet = _h.escape(a["sections"][0]["text"][:120]) + "…"
+        badge = ('<span style="background:#0d9488;color:#fff;font-size:9px;font-weight:700;'
+                 'letter-spacing:1px;padding:2px 7px;border-radius:10px;margin-left:6px;">'
+                 '★ WORKING</span>') if i == working else ""
+        rows += (
+            f'<div style="display:flex;gap:10px;align-items:flex-start;padding:8px 0;'
+            f'border-bottom:1px solid #f1f5f9;">'
+            f'<span style="flex-shrink:0;width:22px;height:22px;border-radius:6px;'
+            f'background:#f0fdfa;border:1px solid #99f6e4;font-size:11px;font-weight:700;'
+            f'display:flex;align-items:center;justify-content:center;color:#0f766e;">{i+1}</span>'
+            f'<div style="min-width:0;"><div style="font-size:12.5px;font-weight:700;'
+            f'color:#0f172a;">{_h.escape(a["title"])}{badge}</div>'
+            f'<div style="font-size:11.5px;color:#94a3b8;line-height:1.5;">{snippet}</div>'
+            f'</div></div>'
+        )
+    body = (
+        '<div style="font-size:12.5px;color:#475569;line-height:1.7;margin-bottom:6px;">'
+        'Five same-domain abstracts (hand-authored from textbook pancreatic-cancer facts). '
+        'They describe the disease with many different surface forms on purpose — that is '
+        'what the entity-mapping step later bridges.</div>' + rows
+    )
+    return _card("135deg,#0f766e,#14b8a6", "The Corpus",
+                 "5 pancreatic-cancer abstracts", "One is our working example", body)
+
+
+def render_abstract_card(abstract: dict) -> str:
+    """Render a single hand-authored abstract in a paper-style card."""
+    body = _section_cards(abstract)
+    return _card("135deg,#1e3a8a,#3b82f6", "Working Abstract",
+                 _h.escape(abstract["title"]),
+                 f'{_h.escape(abstract["journal"])} · {_h.escape(abstract["authors"])}', body)
+
+
+def render_propositions(props: list[str], title: str = "Propositions",
+                        subtitle: str = "Atomic, single-fact statements") -> str:
+    """Numbered list of propositions."""
+    rows = "".join(
+        f'<div style="display:flex;gap:9px;align-items:flex-start;padding:5px 0;'
+        f'border-bottom:1px solid #f8fafc;">'
+        f'<span style="flex-shrink:0;color:#0d9488;font-weight:700;font-size:11px;'
+        f'font-variant-numeric:tabular-nums;">{i+1:>2}</span>'
+        f'<span style="font-size:12.5px;color:#1e293b;line-height:1.55;">{_h.escape(p)}</span>'
+        f'</div>'
+        for i, p in enumerate(props)
+    )
+    body = (f'<div style="font-size:11.5px;color:#94a3b8;margin-bottom:6px;">'
+            f'{len(props)} propositions</div>' + rows)
+    return _card("135deg,#0f766e,#14b8a6", title, subtitle,
+                 "Each asserts exactly one fact", body)
+
+
+def render_coref(before: list[str], after: list[str]) -> str:
+    """Show coreference resolution: propositions before → after, changes highlighted."""
+    n = min(len(before), len(after))
+    rows = ""
+    changed = 0
+    for i in range(n):
+        b, a = before[i], after[i]
+        is_diff = b.strip() != a.strip()
+        changed += is_diff
+        acol = "#065f46" if is_diff else "#94a3b8"
+        abg  = "#f0fdf4" if is_diff else "#f8fafc"
+        mark = "🔗" if is_diff else "="
+        rows += (
+            f'<div style="padding:7px 0;border-bottom:1px solid #f1f5f9;">'
+            f'<div style="font-size:12px;color:#64748b;line-height:1.5;">'
+            f'<span style="color:#cbd5e1;">{mark}</span> {_h.escape(b)}</div>'
+            f'<div style="font-size:12.5px;color:{acol};line-height:1.5;background:{abg};'
+            f'border-radius:5px;padding:5px 9px;margin-top:3px;font-weight:{600 if is_diff else 400};">'
+            f'→ {_h.escape(a)}</div></div>'
+        )
+    body = (f'<div style="font-size:11.5px;color:#94a3b8;margin-bottom:6px;">'
+            f'{changed} of {n} propositions had a reference resolved</div>' + rows)
+    return _card("135deg,#0f766e,#14b8a6", "Coreference Resolution",
+                 "Every 'it' / 'they' now names its entity",
+                 "Self-contained propositions extract cleaner triples", body)
+
+
+def render_proposition_schema(example: dict | None = None) -> str:
+    """Anatomy of a proposition-grounded triple: the ontological TYPE (and grounded
+    CONCEPT) on each entity, with the source PROPOSITION embedded in the relationship.
+    Pass a real triple to fill in concrete values, else a generic template is shown."""
+    e = example or {}
+    subj = _h.escape(e.get("subject", "Subject entity"))
+    obj  = _h.escape(e.get("object", "Object entity"))
+    pred = _h.escape(e.get("predicate", "predicate"))
+    st   = _h.escape(e.get("subject_type", "Type"))
+    ot   = _h.escape(e.get("object_type", "Type"))
+    sc   = _h.escape(e.get("subject_mesh", ""))
+    oc   = _h.escape(e.get("object_mesh", ""))
+    prop = _h.escape((e.get("sentences") or [e.get("sentence", "")])[0]
+                     or "the source proposition this fact came from")
+
+    def node(name, typ, concept):
+        cchip = (f'<span style="background:#f0fdfa;border:1px solid #99f6e4;border-radius:4px;'
+                 f'padding:1px 5px;">concept: {concept}</span>' if concept else "")
+        return (
+            f'<div style="flex:1;min-width:0;background:#f8fafc;border:1px solid #e2e8f0;'
+            f'border-radius:10px;padding:10px 12px;text-align:center;">'
+            f'<div style="font-size:12.5px;font-weight:700;color:#0f172a;overflow-wrap:anywhere;">{name}</div>'
+            f'<div style="font-size:10px;color:#64748b;margin-top:4px;line-height:1.8;">'
+            f'<span style="background:#eef2ff;border:1px solid #c7d2fe;border-radius:4px;'
+            f'padding:1px 5px;">type: {typ}</span> {cchip}</div></div>')
+
+    edge = (
+        f'<div style="flex:0 0 160px;text-align:center;">'
+        f'<div style="font-size:11px;font-weight:700;color:#0d9488;">{pred} ▶</div>'
+        f'<div style="height:2px;background:#0d9488;margin:5px 0;"></div>'
+        f'<div style="font-size:9.5px;color:#5b21b6;background:#f5f3ff;border:1px solid #ddd6fe;'
+        f'border-radius:6px;padding:5px 7px;line-height:1.45;">📄 <b>proposition</b><br>“{prop}”</div>'
+        f'</div>')
+
+    body = (
+        '<div style="font-size:12.5px;color:#475569;line-height:1.7;margin-bottom:12px;">'
+        'Every extracted triple keeps the ontological <b>type</b> (and, once mapped, the grounded '
+        '<b>concept</b>) on each entity, and embeds the source <b>proposition</b> inside the '
+        'relationship — so the edge remembers exactly which statement it came from:</div>'
+        f'<div style="display:flex;align-items:center;gap:10px;">'
+        f'{node(subj, st, sc)}{edge}{node(obj, ot, oc)}</div>'
+    )
+    return _card("135deg,#0f766e,#14b8a6", "Proposition-Triple Schema",
+                 "Types (and concepts) on the entities · propositions inside the relationships",
+                 "The structure every triple in this graph follows", body)
+
+
+def render_obie_schema_source(ontology_types: list[dict]) -> str:
+    """Explain where the OBIE schema comes from: a fixed slice of MeSH + UMLS."""
+    rows = ""
+    for t in ontology_types:
+        concepts = "".join(
+            f'<span style="display:inline-block;background:#f1f5f9;border:1px solid #e2e8f0;'
+            f'border-radius:20px;padding:1px 9px;font-size:11px;color:#475569;margin:2px 3px 0 0;">'
+            f'{_h.escape(m)}</span>'
+            for m in t["mesh"])
+        rows += (
+            f'<div style="padding:8px 0;border-bottom:1px solid #f1f5f9;">'
+            f'<div style="font-size:12.5px;font-weight:700;color:#0f172a;">{_h.escape(t["type"])} '
+            f'<span style="font-size:10px;color:#94a3b8;font-weight:600;">UMLS {_h.escape(t["umls"])}</span></div>'
+            f'<div style="margin-top:3px;">{concepts}</div></div>')
+    body = (
+        '<div style="font-size:12.5px;color:#475569;line-height:1.7;margin-bottom:8px;">'
+        'OBIE cannot invent its categories — they must be fixed <b>before</b> extraction. Ours is a small '
+        'curated slice of two standard biomedical vocabularies from the U.S. National Library of Medicine:'
+        '<ul style="margin:6px 0 2px 0;padding-left:18px;">'
+        '<li><b>MeSH</b> (Medical Subject Headings) — the controlled vocabulary used to index PubMed; it '
+        'supplies the concrete concepts (chips below).</li>'
+        '<li><b>UMLS Semantic Types</b> — the broad category each concept belongs to (the type labels).</li>'
+        '</ul></div>'
+        + rows +
+        '<div style="margin-top:10px;padding:9px 12px;background:#eff6ff;border-radius:6px;'
+        'font-size:11.5px;color:#1e40af;line-height:1.6;">Because the vocabulary is standardised, every OBIE '
+        'graph speaks the same language and can be merged with others — but it is blind to anything outside '
+        'the schema. OpenIE, by contrast, guesses a type for whatever it sees.</div>'
+    )
+    return _card("135deg,#5b21b6,#7c3aed", "Where the OBIE Schema Comes From",
+                 "A fixed vocabulary, chosen before extraction",
+                 "MeSH concepts + UMLS semantic types, curated by the NLM", body)
+
+
+def render_ie_structure_compare(openie_ex: dict, obie_ex: dict) -> str:
+    """Contrast the STRUCTURE of an OpenIE triple (guessed entity type) with an
+    OBIE triple (entity anchored to a fixed MeSH concept)."""
+    def entity(name, tag_label, tag, accent, bg, dashed):
+        border = "1px dashed #94a3b8" if dashed else f"1px solid {accent}"
+        return (
+            f'<div style="flex:1;min-width:0;text-align:center;background:#fff;'
+            f'border:1px solid #e2e8f0;border-radius:8px;padding:8px;">'
+            f'<div style="font-size:12px;font-weight:700;color:#0f172a;overflow-wrap:anywhere;">'
+            f'{_h.escape(name)}</div>'
+            f'<div style="margin-top:4px;"><span style="font-size:9.5px;color:{accent};background:{bg};'
+            f'border:{border};border-radius:4px;padding:1px 6px;">{tag_label}: {_h.escape(tag) if tag else "—"}'
+            f'</span></div></div>')
+
+    def panel(kicker, accent, bg, ex, tag_key, tag_label, dashed, note):
+        s = entity(ex.get("subject", "—"), tag_label, ex.get("subject_" + tag_key, ""), accent, bg, dashed)
+        o = entity(ex.get("object", "—"),  tag_label, ex.get("object_" + tag_key, ""),  accent, bg, dashed)
+        pred = _h.escape(ex.get("predicate", "—"))
+        return (
+            f'<div style="background:{bg};border-radius:10px;padding:12px 14px;margin-bottom:10px;">'
+            f'<div style="font-size:11px;font-weight:800;color:{accent};letter-spacing:1px;margin-bottom:8px;">'
+            f'{kicker}</div>'
+            f'<div style="display:flex;align-items:center;gap:6px;">{s}'
+            f'<div style="flex:0 0 84px;text-align:center;font-size:10px;font-weight:700;color:{accent};">'
+            f'{pred} ▶</div>{o}</div>'
+            f'<div style="font-size:11px;color:#475569;line-height:1.6;margin-top:9px;">{note}</div></div>')
+
+    body = (
+        panel("OPENIE · OPEN-DOMAIN", "#0d9488", "#f0fdfa", openie_ex, "type", "guessed type", True,
+              "The LLM <b>guesses</b> each entity's type on the fly against a loose vocabulary — there is no "
+              "fixed schema, so the same phrase might be typed differently next run, and anything at all can "
+              "be extracted.")
+        + panel("OBIE · ONTOLOGY-BASED", "#7c3aed", "#f5f3ff", obie_ex, "mesh", "MeSH concept", False,
+                "Each entity is <b>anchored</b> to a concept from the fixed MeSH ontology chosen upfront — "
+                "the type is looked up, not guessed, and anything outside the ontology is dropped.")
+    )
+    return _card("135deg,#334155,#475569", "Two Triples, Two Schemas",
+                 "OpenIE guesses the type · OBIE anchors to a concept",
+                 "The same idea, extracted two ways", body)
+
+
+def render_representation_compare(rows: list[dict]) -> str:
+    """Bar chart comparing chunking representations by back-translation fidelity."""
+    ordered = sorted(rows, key=lambda r: -r["cosine"])
+    best = ordered[0]["name"] if ordered else None
+    bars = ""
+    for r in ordered:
+        cos = r["cosine"]
+        col = "#059669" if cos >= 0.7 else ("#d97706" if cos >= 0.5 else "#dc2626")
+        tag = ('<span style="background:#059669;color:#fff;font-size:9px;font-weight:700;'
+               'padding:1px 6px;border-radius:8px;margin-left:6px;">BEST</span>'
+               if r["name"] == best else "")
+        bars += (
+            f'<div style="margin-bottom:11px;">'
+            f'<div style="display:flex;justify-content:space-between;font-size:12px;'
+            f'margin-bottom:3px;"><span style="font-weight:700;color:#0f172a;">'
+            f'{_h.escape(r["name"])}{tag}</span>'
+            f'<span style="color:{col};font-weight:700;font-variant-numeric:tabular-nums;">'
+            f'{cos:.2f}</span></div>'
+            f'<div style="height:9px;background:#e2e8f0;border-radius:5px;overflow:hidden;">'
+            f'<div style="width:{max(0,min(100,int(cos*100)))}%;height:100%;background:{col};"></div></div>'
+            f'<div style="font-size:10.5px;color:#94a3b8;margin-top:2px;">{r["units"]} units · '
+            f'{_h.escape(r["kind"])}</div></div>'
+        )
+    body = (bars +
+            '<div style="margin-top:6px;padding:9px 12px;background:#f0fdfa;border-radius:6px;'
+            'font-size:11.5px;color:#0f766e;line-height:1.6;">Higher cosine = the representation '
+            'that best preserved the abstract\'s meaning when back-translated to prose.</div>')
+    return _card("135deg,#0f766e,#14b8a6", "Which Representation Preserved the Meaning?",
+                 "Back-translation fidelity per chunking representation",
+                 "Reconstruct the abstract from each, then compare to the original", body)
 
 
 

@@ -19,6 +19,21 @@ from __future__ import annotations
 VALIDATION_EMBED_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
 _MODELS: dict = {}
 
+# Three embedding models from three domains, for the calibration comparison:
+#   general  — trained on broad STS/NLI data (native to STS-B)
+#   biomedical — BioLORD, tuned on biomedical concept similarity (reused from grounding)
+#   legal    — Legal-BERT, a raw domain LM with NO sentence-transformers / STS head
+#              (SentenceTransformer wraps it with mean pooling). Its poor calibration
+#              is the point: an un-tuned domain model makes cosine hard to interpret.
+GENERAL_MODEL = VALIDATION_EMBED_MODEL
+BIOMED_MODEL  = "FremyCompany/BioLORD-2023-C"
+LEGAL_MODEL   = "nlpaueb/legal-bert-base-uncased"
+CALIBRATION_MODELS = {
+    "General · MiniLM":    GENERAL_MODEL,
+    "Biomedical · BioLORD": BIOMED_MODEL,
+    "Legal · Legal-BERT":  LEGAL_MODEL,
+}
+
 STS_LABELS = {
     0: "0 · unrelated",
     1: "1 · same topic",
@@ -185,3 +200,101 @@ def plot_calibration(cat_cos: dict, highlight: float | None = None,
     buf.seek(0)
     display(Image(data=buf.getvalue()))
     return result
+
+
+# ── comparing chunking REPRESENTATIONS (back-translation fidelity) ─────── #
+
+def back_translate_statements(statements: list[str], api_key: str,
+                              model: str = "gpt-4.1-nano") -> str:
+    """Reconstruct an abstract from a list of prose statements (e.g. propositions)."""
+    from openai import OpenAI
+    client = OpenAI(api_key=api_key)
+    body = "\n".join(f"- {s}" for s in statements)
+    system = (
+        "You reconstruct a scientific abstract from a list of factual statements. "
+        "Write ONE flowing abstract in scientific prose that expresses only the facts "
+        "in the statements — do NOT add new findings, numbers or entities. Be concise."
+    )
+    resp = client.chat.completions.create(
+        model=model,
+        messages=[{"role": "system", "content": system},
+                  {"role": "user", "content": f"Statements:\n{body}\n\nReconstructed abstract:"}])
+    return (resp.choices[0].message.content or "").strip()
+
+
+def representation_fidelity(original: str, reps: list[dict], api_key: str,
+                            model_name: str | None = None,
+                            model: str = "gpt-4.1-nano") -> list[dict]:
+    """
+    For each chunking representation, back-translate it to prose and measure how
+    faithfully it preserves the original abstract (cosine under `model_name`).
+
+    reps: list of {"name": str, "kind": "propositions"|"triples", "items": [...]}.
+    Returns rows {name, kind, units, cosine, reconstruction} — highest cosine = the
+    representation that best preserved the abstract's meaning.
+    """
+    model_name = model_name or BIOMED_MODEL
+    rows = []
+    for r in reps:
+        items = r["items"]
+        if r["kind"] == "triples":
+            recon = back_translate(items, api_key, model=model)
+        else:
+            recon = back_translate_statements(items, api_key, model=model)
+        rows.append({
+            "name":           r["name"],
+            "kind":           r["kind"],
+            "units":          len(items),
+            "cosine":         text_cosine(original, recon, model_name=model_name),
+            "reconstruction": recon,
+        })
+    return rows
+
+
+# ── comparing embedding MODELS (how each scales cosine with relatedness) ─ #
+
+def plot_model_comparison(cat_cos_by_model: dict, highlights: dict | None = None):
+    """
+    Overlay each model's median cosine per STS-B relatedness level on one axis, so
+    the differing cosine scales are directly comparable.
+
+    cat_cos_by_model: {model_label: cat_cos}  (each cat_cos from stsb_cosine_by_category)
+    highlights:       optional {model_label: cosine} — our abstracts' round-trip score
+                      under each model, drawn as a dashed line in the model's colour.
+    """
+    import io
+    import numpy as np
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    from IPython.display import Image, display
+
+    fig, ax = plt.subplots(figsize=(8, 4.6))
+    markers = ["o", "s", "^", "D"]
+    colours = {}
+    for i, (label, cat_cos) in enumerate(cat_cos_by_model.items()):
+        cats = sorted(cat_cos)
+        meds = [float(np.median(cat_cos[c])) for c in cats]
+        line, = ax.plot(cats, meds, marker=markers[i % len(markers)], lw=2, label=label)
+        colours[label] = line.get_color()
+
+    if highlights:
+        for label, val in highlights.items():
+            ax.axhline(val, ls="--", lw=1.4, color=colours.get(label, "#94a3b8"), alpha=0.8)
+
+    ax.set_xlabel("STS-B gold relatedness level (0 = unrelated … 5 = equivalent)")
+    ax.set_ylabel("median cosine similarity")
+    ax.set_title("Same relatedness, different cosine — why the model matters",
+                 fontsize=12, fontweight="bold", loc="left")
+    ax.set_xticks(range(6))
+    ax.set_ylim(-0.05, 1.02)
+    ax.legend(fontsize=9, frameon=False, loc="upper left")
+    ax.grid(axis="y", ls=":", alpha=0.4)
+    for s in ("top", "right"):
+        ax.spines[s].set_visible(False)
+
+    buf = io.BytesIO()
+    fig.savefig(buf, format="png", dpi=120, bbox_inches="tight")
+    plt.close(fig)
+    buf.seek(0)
+    display(Image(data=buf.getvalue()))
