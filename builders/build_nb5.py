@@ -500,9 +500,8 @@ cells.append(md("""## References
 - [sentence-transformers · all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2)
 - [NetworkX](https://networkx.org) · [pyvis / vis.js](https://pyvis.readthedocs.io) · [Pydantic](https://docs.pydantic.dev)
 
-**Case &amp; knowledge graph**
-- *The Ashworth Manor Murder* — a hand-authored murder-mystery **knowledge graph** for teaching KG-RAG (NdabaX 2026). Cite via the [IndabaX Misinformation Workshop repository](https://github.com/Tainejelliott/IndabaX_misinformation_workshop); the graph and its facts are defined in `notebook_src/mystery.py`.
-- Inspired by *Cluedo* / *Clue* — the murder-mystery deduction game (Anthony E. Pratt, 1949).
+**Case**
+- *Cluedo* — the classic murder-mystery deduction game. Pratt, A. E. (1949). *Cluedo* [Board game]. Waddingtons, Leeds, England. (North American edition: *Clue*, Parker Brothers.)
 """))
 
 # ─── write ─────────────────────────────────────────────────────────── #
