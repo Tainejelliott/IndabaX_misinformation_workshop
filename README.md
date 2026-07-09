@@ -101,6 +101,26 @@ Runtime → Run all.
 
 ---
 
+## Visual library website
+
+All sixteen interactive visuals in `notebook_src/html/` are also browsable as
+a standalone website — useful for skimming the whole workshop without
+opening any notebook, or for presenting a visual full-screen.
+
+```bash
+cd website
+pip install -r requirements.txt
+python app.py
+```
+
+Then open **http://127.0.0.1:5000/**. It's a small Flask app (`website/app.py`)
+with one route per visual (`/visual/<slug>`), grouped and linked from an index
+page; each route just reads the matching file straight out of
+`notebook_src/html/` and drops it into a shared header/sidebar layout, so the
+site always reflects whatever's currently in that folder.
+
+---
+
 ## Project layout
 
 ```
@@ -115,6 +135,10 @@ Runtime → Run all.
 │   ├── mystery.py                # Hands-on B murder-mystery case data
 │   ├── pancreatic.py             # Hands-on A.2 pancreatic-cancer teaching corpus + ontology
 │   └── html/                     # Static HTML assets for every interactive visual
+├── website/                      # Flask app that browses notebook_src/html/ as one site
+│   ├── app.py
+│   ├── templates/
+│   └── static/style.css
 ├── builders/                     # One-off scripts that edit .ipynb JSON programmatically
 ├── 1 - Introduction (Interactive).ipynb
 ├── 2 - Case Study: PubMed Q&A.ipynb

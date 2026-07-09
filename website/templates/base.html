@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}IndabaX 2026 — KG-RAG Visual Library{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header class="site-header">
+    <a class="site-title" href="{{ url_for('index') }}">IndabaX 2026 — KG-RAG Visual Library</a>
+    <span class="site-subtitle">Every interactive concept visual from the workshop, in one place</span>
+  </header>
+  <div class="layout">
+    <nav class="sidebar">
+      {% for section in sections %}
+      <div class="nav-section">
+        <div class="nav-section-title">{{ section.name }}</div>
+        <ul>
+          {% for v in section.visuals %}
+          <li>
+            <a href="{{ url_for('visual', slug=v.slug) }}"
+               class="{{ 'active' if current_slug == v.slug else '' }}">{{ v.title }}</a>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endfor %}
+    </nav>
+    <main class="content">
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+</body>
+</html>

@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="hero">
+  <h1>Knowledge Graph RAG — Visual Library</h1>
+  <p>
+    Sixteen interactive visuals from the IndabaX 2026 workshop, grouped the
+    way the concepts build on each other — foundations, extraction &amp;
+    validation, retrieval, then generation. Click any card to open it; every
+    tab, button, and toggle works exactly as it does inside the notebooks.
+  </p>
+</div>
+
+{% for section in sections %}
+<section class="section-block">
+  <h2>{{ section.name }}</h2>
+  <div class="card-grid">
+    {% for v in section.visuals %}
+    <a class="card" href="{{ url_for('visual', slug=v.slug) }}">
+      <div class="card-title">{{ v.title }}</div>
+      <div class="card-blurb">{{ v.blurb }}</div>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+{% endfor %}
+{% endblock %}

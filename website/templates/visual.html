@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}{{ visual.title }} — IndabaX 2026{% endblock %}
+{% block content %}
+<div class="breadcrumb">{{ section_name }}</div>
+<h1 class="visual-title">{{ visual.title }}</h1>
+<p class="visual-blurb">{{ visual.blurb }}</p>
+
+<div class="visual-embed">
+  {{ content|safe }}
+</div>
+
+<div class="visual-pager">
+  {% if prev_v %}
+    <a class="pager-link pager-prev" href="{{ url_for('visual', slug=prev_v.slug) }}">&larr; {{ prev_v.title }}</a>
+  {% else %}
+    <span></span>
+  {% endif %}
+  {% if next_v %}
+    <a class="pager-link pager-next" href="{{ url_for('visual', slug=next_v.slug) }}">{{ next_v.title }} &rarr;</a>
+  {% endif %}
+</div>
+{% endblock %}
