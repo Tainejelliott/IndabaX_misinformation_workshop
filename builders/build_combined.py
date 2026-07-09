@@ -7,7 +7,7 @@ Run:  .venv/bin/python builders/build_combined.py
 import json, uuid, pathlib
 
 ROOT = pathlib.Path(__file__).parent.parent
-OUT  = ROOT / "NdabaX 2026 KG-RAG Workshop.ipynb"
+OUT  = ROOT / "IndabaX 2026 KG-RAG Workshop.ipynb"
 
 
 def src(c):
@@ -55,7 +55,7 @@ cells = []
 # ── title + setup ─────────────────────────────────────────────────────── #
 cells.append(md(
 """# 🧠 Knowledge Graph RAG for Misinformation
-### NdabaX 2026 — Hands-on Workshop
+### IndabaX 2026 — Hands-on Workshop
 
 Welcome! Over the next hour you'll go from raw text to a **typed, queryable
 knowledge graph**, then use it to reason — finishing by cracking a murder mystery
